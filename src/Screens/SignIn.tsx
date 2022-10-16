@@ -18,7 +18,7 @@ const windowHeight = Dimensions.get('window').height;
 export default function SignIn() {
     return (
         <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined}
-                              style={{flex: 1}}>
+                              style={{flex: 1}} keyboardVerticalOffset={headerHeight + 50}>
             <Pressable style={styles.container} onPress={Keyboard.dismiss}>
                 <TextInput placeholder="username or phone" placeholderTextColor="#696969"
                            style={styles.textInput}/>
