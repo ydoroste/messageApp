@@ -1,10 +1,10 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
-import UnauthorizedRouter from "./src/Routes/UnauthorizedRouter";
+import UnauthorizedNavigation from "@followBack/Navigation/Unauthorized";
 import { NavigationContainer } from '@react-navigation/native';
 import * as React from "react";
 import useInitialLoading from "./src/Hooks/useInitialLoading";
-import { Provider as PaperProvider, MD3LightTheme  } from 'react-native-paper';
+import { Provider as PaperProvider } from 'react-native-paper';
 
 export default function App() {
         const [isAppLoaded] = useInitialLoading();
@@ -13,12 +13,12 @@ export default function App() {
         return null;
     }
     return (
-        <PaperProvider theme={}>
+        <PaperProvider>
 
         <View style={{flex: 1}}>
       <NavigationContainer>
           <StatusBar style="light" />
-          <UnauthorizedRouter />
+          <UnauthorizedNavigation />
       </NavigationContainer>
       </View>
         </PaperProvider>

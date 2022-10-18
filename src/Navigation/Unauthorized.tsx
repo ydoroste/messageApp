@@ -1,14 +1,14 @@
 import {SafeAreaView, Text, View} from "react-native";
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React from "react";
-import UnauthorizedHeader from "../Components/UnauthorizedHeader/UnauthorizedHeader";
-import SignIn from "../Screens/SignIn";
-import ForgetPassword from "../Screens/ForgetPassword";
-import SignUp from "../Screens/SignUp";
+import UnauthorizedHeader from "@followBack/Components/UnauthorizedHeader/UnauthorizedHeader";
+import SignIn from "@followBack/Screens/SignIn";
+import ForgetPassword from "@followBack/Screens/ForgetPassword";
+import SignUp from "@followBack/Screens/SignUp";
 
 const Stack = createNativeStackNavigator();
 
- const UnauthorizedRouter = () =>{
+ const Unauthorized = () =>{
     return (
         <View style={{flex: 1}}>
             <Stack.Navigator     screenOptions={{
@@ -29,4 +29,4 @@ const Stack = createNativeStackNavigator();
     );
 };
 
- export default UnauthorizedRouter;
+ export default Unauthorized;
