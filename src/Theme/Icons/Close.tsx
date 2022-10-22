@@ -1,13 +1,11 @@
 import * as React from "react";
-import {Pressable} from "react-native";
 import {IIconProps} from "./types/IconTypes";
 import Svg, { Path } from "react-native-svg"
 
-const Close: React.FC<IIconProps> = ({width, height, color, onPress}) => {
+const Close: React.FC<IIconProps> = ({width, height, color}) => {
     return (
-        <Pressable onPress={onPress}>
             <Svg
-                xmlns="http://www.w3.org/2000/svg"
+                //xmlns="http://www.w3.org/2000/svg"
                 width={width}
                 height={height}
                 viewBox="0 0 18 17"
@@ -19,7 +17,6 @@ const Close: React.FC<IIconProps> = ({width, height, color, onPress}) => {
                     strokeLinecap="round"
                 />
             </Svg>
-        </Pressable>
     );
 };
 

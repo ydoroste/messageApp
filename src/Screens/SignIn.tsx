@@ -1,5 +1,4 @@
 import {
-    Button,
     Text,
     TextInput,
     StyleSheet,
@@ -7,9 +6,13 @@ import {
     View,
     Dimensions,
     Pressable,
-    Platform, Keyboard
+    Platform, Keyboard, TouchableWithoutFeedback, TouchableNativeFeedback
 } from "react-native";
 import React from "react";
+import Button from "@followBack/GenericElements/Button";
+import {getTranslatedText} from "@followBack/Localization";
+import InputField from "@followBack/GenericElements/InputField";
+import PasswordInput from "@followBack/GenericElements/PasswordInput";
 
 
 const windowHeight = Dimensions.get('window').height;
@@ -20,18 +23,24 @@ export default function SignIn() {
         <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined}
                               style={{flex: 1}} keyboardVerticalOffset={150}>
             <Pressable style={styles.container} onPress={Keyboard.dismiss}>
-                <TextInput placeholder="username or phone" placeholderTextColor="#696969"
-                           style={styles.textInput}/>
-
-                <TextInput secureTextEntry placeholder="password" placeholderTextColor="#696969"
-                           style={styles.textInput}/>
-                <Text style={styles.forgetPasswordLink}>forget password?</Text>
-                <Pressable style={styles.button}>
-                    <Text style={styles.buttonText}>
-                        sign in
-                    </Text>
-                </Pressable>
-                <Text style={styles.createAccountLink}>create account</Text>
+                <View style={styles.textInput}>
+                    <InputField placeholder={getTranslatedText("userNameOrPassword")}/>
+                </View>
+                <View style={styles.textInput}>
+                    <PasswordInput placeholder={getTranslatedText("password")}/>
+                </View>
+                <View style={styles.forgetPasswordLink}>
+                    <Button type="ternary"
+                            onPress={() => console.log('Pressed')}>{getTranslatedText("forgetPasswordLink")}</Button>
+                </View>
+                <View style={styles.button}>
+                    <Button type="primary" disabled={false}
+                            onPress={() => console.log('Pressed')}>{getTranslatedText("signIn")}</Button>
+                </View>
+                <View style={styles.createAccountLink}>
+                    <Button type="secondary" onPress={() => console.log('Pressed')}>
+                        {getTranslatedText("createAccountLink")}</Button>
+                </View>
             </Pressable>
         </KeyboardAvoidingView>
     );
@@ -45,43 +54,18 @@ const styles = StyleSheet.create({
         paddingTop: windowHeight * 0.15
     },
     textInput: {
-        borderBottomWidth: 1,
-        color: "#FFF",
         width: "100%",
-        borderBottomColor: "#696969",
-        marginTop: 40,
-        fontFamily : "OpenSans_400Regular",
-        fontSize: 15,
-        lineHeight: 20
+        marginTop: 30,
     },
     forgetPasswordLink: {
         alignSelf: "flex-end",
-        color: "#696969",
-        fontFamily : "OpenSans_400Regular",
         marginTop: 10,
-        fontSize: 12,
     },
     createAccountLink: {
-        color: "#696969",
         marginTop: 20,
-        textDecorationLine: "underline",
-        fontFamily : "OpenSans_400Regular",
-        fontSize: 15,
-        lineHeight: 20
     },
     button: {
         marginTop: 100,
-        color: "#696969",
-        width: "100%",
-        backgroundColor: "#242424",
-        height:40,
-        borderRadius: 31,
-        justifyContent: "center",
-        alignItems: "center"
-    },
-    buttonText: {
-        color: "#E2E2E2",
-        fontFamily : "OpenSans_400Regular",
-        lineHeight: 20
+        width: "100%"
     }
 });
