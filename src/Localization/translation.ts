@@ -4,6 +4,7 @@ export default {
         createAccountLink: "create account",
         forgetPasswordLink: "forget password?",
         userNameOrPassword: "user name or password",
-        password: "password"
+        password: "password",
+        lastSignInAttempt: "one last attempt before we lock you down!"
     }
 }

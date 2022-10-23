@@ -1,7 +1,7 @@
 import * as React from "react";
 import InputField from "@followBack/GenericElements/InputField";
 import {IPasswordInputProps} from "@followBack/GenericElements/PasswordInput/types";
-import Index from "@followBack/GenericElements/IconButton";
+import IconButton from "@followBack/GenericElements/IconButton";
 import {TextInput} from "react-native-paper";
 import {StyleSheet} from "react-native";
 import useTheme from "@followBack/Hooks/useTheme";
@@ -16,7 +16,7 @@ const PasswordInput: React.FC<IPasswordInputProps> = (props) => {
     return <InputField {...props}
                        secureTextEntry={!showPassword}
                        right={<TextInput.Icon style={styles.iconStyle}
-                                              name={() => <Index name={showPassword ? "shown" : "hidden"} width={18}
+                                              name={() => <IconButton name={showPassword ? "shown" : "hidden"} width={18}
                                                                  height={16} onPress={iconPress}
                                                                  color={colors.grey01}/>}/>}
 

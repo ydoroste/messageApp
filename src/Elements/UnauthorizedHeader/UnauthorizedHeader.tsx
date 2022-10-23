@@ -29,11 +29,11 @@ const UnauthorizedHeader: React.FC<NativeStackHeaderProps> = ({ navigation, rout
 
 const useStyles = useStylesWithTheme((theme)=> ({
     headerStyle: {
-        height: 150,
+        height: 100,
         flexDirection: "row",
         backgroundColor: theme.colors.black,
         justifyContent: "space-between",
-        alignItems: "center",
+        alignItems: "flex-end",
         paddingTop: 0,
         paddingHorizontal: 50
 

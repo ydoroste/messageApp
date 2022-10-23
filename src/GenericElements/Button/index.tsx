@@ -5,19 +5,18 @@ import {IButtonProps} from "@followBack/GenericElements/Button/types";
 import Typography from "@followBack/GenericElements/Typography";
 import {typesToButtons} from "@followBack/GenericElements/Button/utils";
 import {memo} from "react";
+import useTheme from "@followBack/Hooks/useTheme";
 
 const Button: React.FC<IButtonProps> = ({onPress, disabled, children, type, ...props})=>{
     const {styles} = useStyles();
-    const {showLabelStyle, textType, textDecoration, textColorType} = typesToButtons[type];
+    const {colors} = useTheme();
+    const {showLabelStyle, textType, textDecoration, textColorType, mode} = typesToButtons[type];
     return <CustomButton uppercase={false}
                          {...props}
                          style={styles[type]}
-                         mode={"contained"}
-                         onPress={onPress}
-                         color="#000"
-                         labelStyle={showLabelStyle && styles.textStyle}
-                         disabled={disabled}
-    >
+                         mode={mode}
+                         color={colors.black}
+                         labelStyle={showLabelStyle && styles.textStyle}>
         <Typography type={textType}
                     color={disabled ? "disabled" : textColorType}
                     textDecoration={textDecoration}>{children}</Typography>
@@ -30,8 +29,12 @@ const useStyles = useStylesWithTheme(theme => ({
         borderRadius: 31,
         height: 40,
     },
-    secondary: {},
-    ternary: {},
+    secondary: {
+        backgroundColor: "transparent"
+    },
+    ternary: {
+        backgroundColor: "transparent"
+    },
     textStyle: {
         marginHorizontal: 0,
         marginVertical: 0
