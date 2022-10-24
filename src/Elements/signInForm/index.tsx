@@ -7,11 +7,11 @@ import PasswordInput from "@followBack/GenericElements/PasswordInput";
 import Button from "@followBack/GenericElements/Button";
 import {getTranslatedText} from "@followBack/Localization";
 import Typography from "@followBack/GenericElements/Typography";
-
-const windowHeight = Dimensions.get('window').height;
+import { useNavigation } from '@react-navigation/native';
 
 const SignInForm = ()=>{
-    const { control, handleSubmit, formState: { errors, submitCount, isValid, isSubmitting }, setError } = useForm<ISignInFormValues>({
+    const nav = useNavigation();
+    const { control, handleSubmit, formState: { errors, submitCount, isValid, isSubmitting }, reset, setError, getValues } = useForm<ISignInFormValues>({
         defaultValues: {
             userNameOrPhone: undefined,
             password: undefined
@@ -21,16 +21,19 @@ const SignInForm = ()=>{
     const rules = {
         required: true
     };
-const onSubmit = async (data: ISignInFormValues) => {
+    console.log("data", getValues());
+
+    const onSubmit = async (data: ISignInFormValues) => {
     console.log("submit", submitCount);
     return new Promise((resolve) => {
         setTimeout(() => {
-            resolve("resolved");
+            reset();
+            nav.navigate("lockedAccount");
             setError("userNameOrPhone", {
-                message: submitCount < 2 ?
-                    "incorrect username or password" :
-                    getTranslatedText("lastSignInAttempt")
+                message: "incorrect username or password"
             })
+            resolve("resolved");
+
         }, 3000);
     });
 };
@@ -107,10 +110,10 @@ const styles = StyleSheet.create({
         marginTop: 20,
     },
     button: {
-        marginTop: 50,
+        marginTop: 45,
         width: "90%"
     },
     errorStyle: {
-        marginTop: 50
+        marginTop: 45
     }
 });

@@ -18,10 +18,12 @@ const UnauthorizedHeader: React.FC<NativeStackHeaderProps> = ({ navigation, rout
     };
     const {colors} = useTheme();
     const {styles} = useStyles();
+    const title = route.name;
+    console.log("title", title);
     return(
         <View style={styles.headerStyle}>
-            <Typography type="mediumRegularTitle" color="secondary">{getTranslatedText("signIn")}</Typography>
-            <IconButton name="close" width={18} height={17} color={colors.grey02} onPress={onBackButtonPress} />
+            <Typography type="mediumRegularTitle" color="secondary">{options.title}</Typography>
+            <IconButton name="close" width={18} height={17} color={colors.grey02} disabled={!canGoBack} onPress={onBackButtonPress} />
 
         </View>
     )

@@ -7,12 +7,13 @@ import {typesToButtons} from "@followBack/GenericElements/Button/utils";
 import {memo} from "react";
 import useTheme from "@followBack/Hooks/useTheme";
 
-const Button: React.FC<IButtonProps> = ({onPress, disabled, children, type, ...props})=>{
+const Button: React.FC<IButtonProps> = ({disabled, children, type, ...props})=>{
     const {styles} = useStyles();
     const {colors} = useTheme();
     const {showLabelStyle, textType, textDecoration, textColorType, mode} = typesToButtons[type];
     return <CustomButton uppercase={false}
                          {...props}
+                         disabled={disabled}
                          style={styles[type]}
                          mode={mode}
                          color={colors.black}

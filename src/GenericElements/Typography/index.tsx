@@ -6,13 +6,12 @@ import useTheme from "@followBack/Hooks/useTheme";
 import {colorsToTheme} from "@followBack/GenericElements/Typography/utils";
 import {memo} from "react";
 
-const Typography: React.FC<ITypographyProps> = ({type, textDecoration, color, children, ...props})=>{
+const Typography: React.FC<ITypographyProps> = ({type, textDecoration, color, children, textAlign, ...props})=>{
     const {styles} = useStyles();
     const {colors} = useTheme();
     const textColor = colorsToTheme[color];
-
-    return <Text style={[styles[type], textDecoration && styles.textDecoration,
-        {color: colors[textColor]}]} {...props}>
+    return <Text  style={[styles[type], textDecoration && styles.textDecoration,
+        {color: colors[textColor], textAlign}]} {...props}>
         {children}
     </Text>
 };

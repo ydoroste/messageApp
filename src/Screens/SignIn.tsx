@@ -34,9 +34,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         justifyContent: "center",
-        paddingHorizontal: 50,
         alignItems: "center",
-        width: "100%",
-        //paddingTop: windowHeight * 0.35
+        width: "100%"
     }
 });

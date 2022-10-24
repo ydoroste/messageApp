@@ -8,7 +8,6 @@ import {memo} from "react";
 const InputField: React.FC<IInputFieldProps> = ({error, ...props})=>{
     const {styles} = useStyles();
     const {colors, fontFamilies} = useTheme();
-
     return (
         <TextInput
             {...props}
