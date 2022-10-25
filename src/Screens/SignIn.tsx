@@ -15,10 +15,6 @@ import InputField from "@followBack/GenericElements/InputField";
 import PasswordInput from "@followBack/GenericElements/PasswordInput";
 import SignInForm from "@followBack/Elements/signInForm";
 
-
-const windowHeight = Dimensions.get('window').height;
-
-
 export default function SignIn() {
     return (
         <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined}  keyboardVerticalOffset={100}
@@ -35,6 +31,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: "center",
         alignItems: "center",
-        width: "100%"
+        width: "100%",
+        paddingHorizontal: 50
     }
 });

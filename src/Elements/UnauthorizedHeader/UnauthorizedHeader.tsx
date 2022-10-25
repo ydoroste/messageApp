@@ -1,9 +1,7 @@
-import {StyleSheet, Text, View} from "react-native";
+import {View} from "react-native";
 import * as React from "react";
-import Close from "../../Theme/Icons/Close";
 import {NativeStackHeaderProps} from "@react-navigation/native-stack/lib/typescript/src/types";
 import Typography from "@followBack/GenericElements/Typography";
-import {getTranslatedText} from "@followBack/Localization";
 import useStylesWithTheme from "@followBack/Hooks/useStylesWithTheme";
 import useTheme from "@followBack/Hooks/useTheme";
 import IconButton from "@followBack/GenericElements/IconButton";
@@ -12,14 +10,11 @@ const UnauthorizedHeader: React.FC<NativeStackHeaderProps> = ({ navigation, rout
 
     const canGoBack = navigation.canGoBack();
     const onBackButtonPress = ()=>{
-        console.log("pressed");
-
         canGoBack && navigation.goBack();
     };
     const {colors} = useTheme();
     const {styles} = useStyles();
     const title = route.name;
-    console.log("title", title);
     return(
         <View style={styles.headerStyle}>
             <Typography type="mediumRegularTitle" color="secondary">{options.title}</Typography>

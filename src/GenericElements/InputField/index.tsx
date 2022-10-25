@@ -5,12 +5,13 @@ import useStylesWithTheme from "@followBack/Hooks/useStylesWithTheme";
 import useTheme from "@followBack/Hooks/useTheme";
 import {memo} from "react";
 
-const InputField: React.FC<IInputFieldProps> = ({error, ...props})=>{
+const InputField: React.FC<IInputFieldProps> = ({error, value, ...props})=>{
     const {styles} = useStyles();
     const {colors, fontFamilies} = useTheme();
     return (
         <TextInput
             {...props}
+            value={value}
             underlineColor={error ? colors.red : colors.grey02}
             activeUnderlineColor={error ? colors.red : colors.grey02}
             style={styles.inputField}
