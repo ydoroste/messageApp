@@ -1,8 +1,11 @@
 export enum UnauthorizedScreensEnum {
     signIn = 'signIn',
-    forgetPassword = 'forgetPassword',
+    resetPassword = 'resetPassword',
     signUp = 'signUp',
-    lockedAccount = 'lockedAccount'
+    lockedAccount = 'lockedAccount',
+    chooseAccount = 'chooseAccount',
+    codeVerification = 'codeVerification',
+    resetSuccessfully = 'resetSuccessfully',
 }
 
 
@@ -11,9 +14,9 @@ export const UnauthorizedScreens: Record<UnauthorizedScreensEnum, IScreensDetail
         title: "sign in",
         name: "signIn"
     },
-    [UnauthorizedScreensEnum.forgetPassword]: {
-        title: "forget password",
-        name: "forgetPassword"
+    [UnauthorizedScreensEnum.resetPassword]: {
+        title: "reset password",
+        name: "resetPassword"
     },
     [UnauthorizedScreensEnum.signUp]: {
         title: "sign up",
@@ -22,6 +25,18 @@ export const UnauthorizedScreens: Record<UnauthorizedScreensEnum, IScreensDetail
     [UnauthorizedScreensEnum.lockedAccount]: {
         title: "",
         name: "lockedAccount"
+    },
+    [UnauthorizedScreensEnum.chooseAccount]: {
+        title: "reset password",
+        name: "chooseAccount"
+    },
+    [UnauthorizedScreensEnum.codeVerification]: {
+        title: "reset password",
+        name: "codeVerification"
+    },
+    [UnauthorizedScreensEnum.resetSuccessfully]: {
+        title: "",
+        name: "resetSuccessfully"
     }
 };
 

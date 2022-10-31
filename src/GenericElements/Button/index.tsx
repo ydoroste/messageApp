@@ -16,7 +16,7 @@ const Button: React.FC<IButtonProps> = ({disabled, children, type, ...props})=>{
                          disabled={disabled}
                          style={styles[type]}
                          mode={mode}
-                         color={colors.black}
+                         color={colors.grey03}
                          labelStyle={showLabelStyle && styles.textStyle}>
         <Typography type={textType}
                     color={disabled ? "disabled" : textColorType}
@@ -26,19 +26,29 @@ const Button: React.FC<IButtonProps> = ({disabled, children, type, ...props})=>{
 
 const useStyles = useStylesWithTheme(theme => ({
     primary: {
+        fontFamily: theme.fontFamilies.OpenSans_400Regular,
         backgroundColor: theme.colors.dark02,
         borderRadius: 31,
         height: 40,
     },
     secondary: {
-        backgroundColor: "transparent"
+        backgroundColor: "transparent",
+        minWidth: 10,
+        borderRadius: 0
     },
     ternary: {
-        backgroundColor: "transparent"
+        backgroundColor: "transparent",
+        minWidth: 10,
+        borderRadius: 0
     },
     textStyle: {
         marginHorizontal: 0,
-        marginVertical: 0
+        marginVertical: 0,
+        fontFamily: theme.fontFamilies.OpenSans_400Regular,
+        fontWeight: "400",
+        fontSize: 15,
+        letterSpacing: 0
+
     }
 
 }));

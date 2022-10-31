@@ -5,20 +5,27 @@ import IconButton from "@followBack/GenericElements/IconButton";
 import {TextInput} from "react-native-paper";
 import {StyleSheet} from "react-native";
 import useTheme from "@followBack/Hooks/useTheme";
-import {memo, useState} from "react";
+import {memo, useEffect, useState} from "react";
 
-const PasswordInput: React.FC<IPasswordInputProps> = (props) => {
+const PasswordInput: React.FC<IPasswordInputProps> = ({showPassword = false, setShowPassword = ()=>{}, ...props}) => {
     const {colors} = useTheme();
-    const [showPassword, setShowPassword] = useState<boolean>();
+    const [showPasswordValue, setPasswordValue] = useState<boolean>(showPassword);
     const iconPress = () => {
-        setShowPassword(prevState => !prevState);
+        setShowPassword(!showPasswordValue);
+        setPasswordValue(prevState => !prevState);
     };
+    useEffect(()=>{
+        if(showPassword !== showPasswordValue){
+            setPasswordValue(prevState => !prevState);
+        }
+    }, [showPassword]);
     return <InputField {...props}
-                       secureTextEntry={!showPassword}
+                       secureTextEntry={!showPasswordValue}
                        right={<TextInput.Icon style={styles.iconStyle}
-                                              name={() => <IconButton name={showPassword ? "shown" : "hidden"} width={18}
-                                                                 height={16} onPress={iconPress}
-                                                                 color={colors.grey01}/>}/>}
+                                  name={() => <IconButton
+                                      name={showPasswordValue ? "shown" : "hidden"} width={18}
+                                      height={16} onPress={iconPress}
+                                      color={colors.grey01}/>}/>}
 
     />
 };

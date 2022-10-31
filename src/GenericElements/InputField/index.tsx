@@ -11,6 +11,7 @@ const InputField: React.FC<IInputFieldProps> = ({error, value, ...props})=>{
     return (
         <TextInput
             {...props}
+            keyboardAppearance="dark"
             value={value}
             underlineColor={error ? colors.red : colors.grey02}
             activeUnderlineColor={error ? colors.red : colors.grey02}
@@ -32,9 +33,9 @@ const useStyles = useStylesWithTheme(theme => ({
         height: 40,
         backgroundColor: "transparent",
         borderBottom: theme.colors.grey02,
-        fontSize: theme.fontSizes.meduim,
+        fontSize: theme.fontSizes.medium,
         lineHeight: theme.lineHeights.medium,
-        fontFamily: theme.fontFamilies.OpenSans_700Bold,
+        fontFamily: theme.fontFamilies.OpenSans_400Regular,
         color: theme.colors.white,
         paddingHorizontal: -10
     }

@@ -20,17 +20,17 @@ const useStyles = useStyleWithTheme((theme )=> ({
     smallRegularTitle: {
         fontFamily: theme.fontFamilies.OpenSans_400Regular,
         fontSize: theme.fontSizes.large,
-        lineHeight: theme.lineHeights.large
+        lineHeight: theme.lineHeights.large,
     },
     mediumRegularTitle: {
         fontFamily: theme.fontFamilies.OpenSans_400Regular,
         fontSize: theme.fontSizes.xLarge,
-        lineHeight: theme.lineHeights.xLarge
+        lineHeight: theme.lineHeights.xLarge,
     },
     largeRegularTitle: {
         fontFamily: theme.fontFamilies.OpenSans_400Regular,
         fontSize: theme.fontSizes.xxLarge,
-        lineHeight: theme.lineHeights.xxLarge
+        lineHeight: theme.lineHeights.xxLarge,
     },
     mediumBoldTitle: {
         fontFamily: theme.fontFamilies.OpenSans_700Bold,
@@ -45,22 +45,23 @@ const useStyles = useStyleWithTheme((theme )=> ({
     smallRegularBody: {
         fontFamily: theme.fontFamilies.OpenSans_400Regular,
         fontSize: theme.fontSizes.xSmall,
-        lineHeight: theme.lineHeights.xSmall
+        lineHeight: theme.lineHeights.xSmall,
     },
     mediumRegularBody: {
         fontFamily: theme.fontFamilies.OpenSans_400Regular,
         fontSize: theme.fontSizes.small,
-        lineHeight: theme.lineHeights.small
+        lineHeight: theme.lineHeights.small,
     },
     largeRegularBody:{
         fontFamily: theme.fontFamilies.OpenSans_400Regular,
         fontSize: theme.fontSizes.medium,
-        lineHeight: theme.lineHeights.medium
+        lineHeight: theme.lineHeights.medium,
     },
     smallBoldBody: {
         fontFamily: theme.fontFamilies.OpenSans_700Bold,
         fontSize: theme.fontSizes.xSmall,
-        lineHeight: theme.lineHeights.xSmall
+        lineHeight: theme.lineHeights.xSmall,
+
     },
     mediumBoldBody: {
         fontFamily: theme.fontFamilies.OpenSans_700Bold,
