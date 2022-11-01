@@ -9,25 +9,25 @@ import Button from "@followBack/GenericElements/Button";
 import {getTranslatedText} from "@followBack/Localization";
 import {UnauthorizedScreensEnum} from "@followBack/Navigation/constants";
 
-const ResetSuccessfully: React.FC = () => {
+const NoSecondaryEmail: React.FC = () => {
     const nav = useNavigation<UnauthorizedStackNavigationProps['navigation']>();
 
-    const onSignInPress = () => {
-        nav.navigate(UnauthorizedScreensEnum.signIn);
+    const onResetPress = () => {
+        nav.goBack();
     };
     return (
         <View style={styles.container}>
-            <Typography type="mediumRegularBody"
+            <Typography type="mediumRegularTitle" textAlign="center"
                         color="primary">
-                {getTranslatedText("resetSuccessfully")}</Typography>
+                {getTranslatedText("noSecondaryEmail")}</Typography>
             <View style={styles.signIn}>
-                <Button onPress={onSignInPress}
-                        type="primary">{getTranslatedText("signIn")}</Button>
+                <Button onPress={onResetPress}
+                        type="primary">{getTranslatedText("resetUsingPhone")}</Button>
             </View>
         </View>
     )
 };
-export default ResetSuccessfully;
+export default NoSecondaryEmail;
 
 const styles = StyleSheet.create({
     container: {

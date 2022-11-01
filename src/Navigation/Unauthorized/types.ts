@@ -7,9 +7,15 @@ export type UnauthorizedParams = {
     [UnauthorizedScreensEnum.signUp]: undefined;
     [UnauthorizedScreensEnum.lockedAccount]: undefined;
     [UnauthorizedScreensEnum.chooseAccount]: undefined;
-    [UnauthorizedScreensEnum.codeVerification]: undefined;
+    [UnauthorizedScreensEnum.codeVerification]: ICodeVerificationState;
     [UnauthorizedScreensEnum.resetSuccessfully]: undefined;
+    [UnauthorizedScreensEnum.noSecondaryEmail]: undefined;
 };
 
+export interface  ICodeVerificationState {
+    phoneNumber: string,
+    secondaryEmail?: string,
+    verifyUsingPhone: boolean
+}
 
 export type UnauthorizedStackNavigationProps = NativeStackScreenProps<UnauthorizedParams>;

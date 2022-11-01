@@ -15,6 +15,7 @@ export default {
         passwordNotMatch: "password doesn't match",
         confirmPassword: "confirm new password",
         resend: "resend",
-        resetSuccessfully: "your password has been successfully reset!"
+        resetSuccessfully: "your password has been successfully reset!",
+        noSecondaryEmail: "no secondary email registered for this account",
     }
 }

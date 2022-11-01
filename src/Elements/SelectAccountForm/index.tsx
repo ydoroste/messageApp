@@ -23,7 +23,8 @@ const SelectAccountForm = () => {
     const onSubmit = async (data: ISelectAccountFormValue) => {
         return new Promise((resolve) => {
             setTimeout(() => {
-                nav.navigate(UnauthorizedScreensEnum.codeVerification);
+                nav.navigate(UnauthorizedScreensEnum.codeVerification,
+                    {phoneNumber: "0592329905", verifyUsingPhone: true});
 
                 resolve("resolved");
 

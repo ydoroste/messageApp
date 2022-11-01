@@ -24,7 +24,7 @@ const Timer: React.FC<ITimerProps> = ({duration, onFinish = ()=>{}}) => {
 
     },[timer]);
 
-    return <Typography type="smallRegularBody" color="primary">{timer}</Typography>
+    return <Typography type="smallRegularBody" color="secondary">{timer}</Typography>
 };
 
 export default React.memo(Timer);

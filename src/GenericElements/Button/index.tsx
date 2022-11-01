@@ -17,7 +17,7 @@ const Button: React.FC<IButtonProps> = ({disabled, children, type, ...props})=>{
                          style={styles[type]}
                          mode={mode}
                          color={colors.grey03}
-                         labelStyle={showLabelStyle && styles.textStyle}>
+                         labelStyle={styles.textStyle}>
         <Typography type={textType}
                     color={disabled ? "disabled" : textColorType}
                     textDecoration={textDecoration}>{children}</Typography>
@@ -30,6 +30,9 @@ const useStyles = useStylesWithTheme(theme => ({
         backgroundColor: theme.colors.dark02,
         borderRadius: 31,
         height: 40,
+        justifyContent: "center",
+        alignItems: "center"
+
     },
     secondary: {
         backgroundColor: "transparent",
