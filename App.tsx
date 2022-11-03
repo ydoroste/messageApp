@@ -1,23 +1,29 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
-import UnauthorizedRouter from "./src/Routes/UnauthorizedRouter";
+import UnauthorizedNavigation from "@followBack/Navigation/Unauthorized";
 import { NavigationContainer } from '@react-navigation/native';
+import * as React from "react";
+import { Provider as PaperProvider } from 'react-native-paper';
+import useInitialLoading from "@followBack/Hooks/useInitialLoading";
+import {ThemeProvider} from "@followBack/Contexts/ThemeContext";
+
 
 export default function App() {
-  return (
-      <NavigationContainer>
-      <UnauthorizedRouter />
-      <StatusBar style="auto" />
-          <Text>hello</Text>
+        const [isAppLoaded] = useInitialLoading();
 
-      </NavigationContainer>
+    if (!isAppLoaded) {
+        return null;
+    }
+    return (
+        <ThemeProvider>
+            <PaperProvider>
+                <View style={{flex: 1}}>
+                    <NavigationContainer>
+                        <StatusBar style="light"/>
+                        <UnauthorizedNavigation/>
+                    </NavigationContainer>
+                </View>
+            </PaperProvider>
+        </ ThemeProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});

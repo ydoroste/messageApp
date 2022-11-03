@@ -1,11 +1,11 @@
 import {Text, View} from "react-native";
 import {StatusBar} from "expo-status-bar";
-import React from "react";
+import * as React from "react";
 
-export default function SignIn() {
+export default function SignUp() {
     return (
         <View>
-            <Text>Sign in</Text>
+            <Text>Sign up</Text>
         </View>
     );
 }
