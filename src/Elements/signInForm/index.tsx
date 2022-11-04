@@ -10,6 +10,7 @@ import Typography from "@followBack/GenericElements/Typography";
 import { useNavigation } from '@react-navigation/native';
 import {UnauthorizedStackNavigationProps} from "@followBack/Navigation/Unauthorized/types";
 import {UnauthorizedScreensEnum} from "@followBack/Navigation/constants";
+import {useEffect} from "react";
 
 const SignInForm = () => {
     const nav = useNavigation<UnauthorizedStackNavigationProps['navigation']>();
@@ -24,6 +25,7 @@ const SignInForm = () => {
         required: true
     };
     const onForgetPasswordPress = () =>{
+        reset();
         nav.navigate(UnauthorizedScreensEnum.chooseAccount);
     };
     const onSubmit = async (data: ISignInFormValues) => {
@@ -31,7 +33,8 @@ const SignInForm = () => {
       //  console.log("submit", submitCount);
         return new Promise((resolve) => {
             setTimeout(() => {
-                nav.navigate(UnauthorizedScreensEnum.lockedAccount);
+                //reset();
+             //   nav.navigate(UnauthorizedScreensEnum.lockedAccount);
 /*
                 setError("userNameOrPhone", {
                     message: "incorrect username or password"

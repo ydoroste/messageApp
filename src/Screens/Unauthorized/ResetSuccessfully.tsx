@@ -17,7 +17,7 @@ const ResetSuccessfully: React.FC = () => {
     };
     return (
         <View style={styles.container}>
-            <Typography type="mediumRegularTitle"
+            <Typography type="mediumRegularTitle" textAlign="center"
                         color="primary">
                 {getTranslatedText("resetSuccessfully")}</Typography>
             <View style={styles.signIn}>
