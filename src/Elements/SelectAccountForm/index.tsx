@@ -24,7 +24,7 @@ const SelectAccountForm = () => {
         return new Promise((resolve) => {
             setTimeout(() => {
                 nav.navigate(UnauthorizedScreensEnum.codeVerification,
-                    {phoneNumber: "0592329905", verifyUsingPhone: true});
+                    {phoneNumber: "0592329905", secondaryEmail: "abdulazizmassoud@gmail.com", verifyUsingPhone: true});
 
                 resolve("resolved");
 

@@ -10,14 +10,16 @@ import useTheme from "@followBack/Hooks/useTheme";
 const Button: React.FC<IButtonProps> = ({disabled, children, type, ...props})=>{
     const {styles} = useStyles();
     const {colors} = useTheme();
-    const {showLabelStyle, textType, textDecoration, textColorType, mode} = typesToButtons[type];
+    const {textType, textDecoration, textColorType, mode} = typesToButtons[type];
     return <CustomButton uppercase={false}
                          {...props}
                          disabled={disabled}
                          style={styles[type]}
                          mode={mode}
                          color={colors.grey03}
-                         labelStyle={styles.textStyle}>
+                         contentStyle={type === "primary" && styles.primaryContentStyle}
+                         labelStyle={type === "primary" ? styles.primaryTextStyle : styles.textStyle}
+    >
         <Typography type={textType}
                     color={disabled ? "disabled" : textColorType}
                     textDecoration={textDecoration}>{children}</Typography>
@@ -30,8 +32,6 @@ const useStyles = useStylesWithTheme(theme => ({
         backgroundColor: theme.colors.dark02,
         borderRadius: 31,
         height: 40,
-        justifyContent: "center",
-        alignItems: "center"
 
     },
     secondary: {
@@ -50,8 +50,16 @@ const useStyles = useStylesWithTheme(theme => ({
         fontFamily: theme.fontFamilies.OpenSans_400Regular,
         fontWeight: "400",
         fontSize: 15,
-        letterSpacing: 0
-
+        letterSpacing: 0,
+    },
+    primaryTextStyle: {
+        fontFamily: theme.fontFamilies.OpenSans_400Regular,
+        fontWeight: "400",
+        fontSize: 15,
+        letterSpacing: 0,
+    },
+    primaryContentStyle: {
+        height: 40
     }
 
 }));

@@ -33,6 +33,7 @@ const ResetPasswordForm = () => {
             setError("confirmPassword", {
                 message: getTranslatedText("passwordNotMatch")
             });
+            return;
         }
         return new Promise((resolve) => {
             setTimeout(() => {

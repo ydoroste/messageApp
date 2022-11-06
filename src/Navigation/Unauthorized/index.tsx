@@ -21,6 +21,7 @@ const Stack = createNativeStackNavigator<UnauthorizedParams>();
     return (
         <View style={{flex: 1}}>
             <Stack.Navigator screenOptions={{
+             //   unmountOnBlur: true,
                 header: (props) => <UnauthorizedHeader {...props}/>,
                 contentStyle: {
                     backgroundColor: colors.black

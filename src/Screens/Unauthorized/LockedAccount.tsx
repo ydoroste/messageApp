@@ -29,6 +29,7 @@ const styles = StyleSheet.create({
         //justifyContent: "",
         alignItems: "center",
         width: "100%",
+        paddingHorizontal: 50,
         marginTop: screenHeight * 0.2
     }
 });
