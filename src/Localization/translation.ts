@@ -2,8 +2,8 @@ export default {
     en: {
         signIn: "sign in",
         createAccountLink: "create account",
-        forgetPasswordLink: "forget password?",
-        userNameOrPhone: "user name or phone",
+        forgetPasswordLink: "forgot password?",
+        userNameOrPhone: "username or phone number",
         password: "password",
         generateCode: "generate code",
         verify: "verify",
