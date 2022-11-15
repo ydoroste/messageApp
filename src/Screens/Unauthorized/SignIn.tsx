@@ -9,10 +9,7 @@ import {
     Platform, Keyboard, TouchableWithoutFeedback, TouchableNativeFeedback
 } from "react-native";
 import React from "react";
-import Button from "@followBack/GenericElements/Button";
-import {getTranslatedText} from "@followBack/Localization";
-import InputField from "@followBack/GenericElements/InputField";
-import PasswordInput from "@followBack/GenericElements/PasswordInput";
+
 import SignInForm from "@followBack/Elements/signInForm";
 
 export default function SignIn() {

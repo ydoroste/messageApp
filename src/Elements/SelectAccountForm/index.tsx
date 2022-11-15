@@ -8,10 +8,11 @@ import { useNavigation } from '@react-navigation/native';
 import {UnauthorizedStackNavigationProps} from "@followBack/Navigation/Unauthorized/types";
 import {ISelectAccountFormValue} from "@followBack/Elements/SelectAccountForm/types";
 import {UnauthorizedScreensEnum} from "@followBack/Navigation/constants";
+import {useEffect} from "react";
 
 const SelectAccountForm = () => {
     const nav = useNavigation<UnauthorizedStackNavigationProps['navigation']>();
-    const {control, handleSubmit, formState: {isValid, isSubmitting}} = useForm<ISelectAccountFormValue>({
+    const {control, handleSubmit, formState: {isValid, isSubmitting}, setFocus} = useForm<ISelectAccountFormValue>({
         defaultValues: {
             userNameOrPhone: ""
         },
@@ -20,6 +21,10 @@ const SelectAccountForm = () => {
     const rules = {
         required: true
     };
+    useEffect(()=>{
+        setFocus("userNameOrPhone")
+    },[setFocus]);
+
     const onSubmit = async (data: ISelectAccountFormValue) => {
         return new Promise((resolve) => {
             setTimeout(() => {
@@ -37,9 +42,10 @@ const SelectAccountForm = () => {
                 control={control}
                 name="userNameOrPhone"
                 rules={rules}
-                render={({field: {onChange, value}}) => (
+                render={({field: {onChange, value, ref}}) => (
                     <View style={styles.textInput}>
                         <InputField
+                            ref={ref}
                             placeholder={getTranslatedText("userNameOrPhone")}
                             onChangeText={onChange}
                             value={value}

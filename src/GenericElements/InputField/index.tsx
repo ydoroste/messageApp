@@ -3,14 +3,17 @@ import * as React from "react";
 import {IInputFieldProps} from "@followBack/GenericElements/InputField/types";
 import useStylesWithTheme from "@followBack/Hooks/useStylesWithTheme";
 import useTheme from "@followBack/Hooks/useTheme";
-import {memo} from "react";
+import {ForwardedRef, forwardRef, memo} from "react";
+import {TextInput as RNTextInput} from "react-native-paper"
 
-const InputField: React.FC<IInputFieldProps> = ({error, value, ...props})=>{
+const InputField: React.FC<IInputFieldProps> = forwardRef(({error, value, ...props}, ref: ForwardedRef<typeof RNTextInput>)=>{
     const {styles} = useStyles();
     const {colors, fontFamilies} = useTheme();
     return (
         <TextInput
             {...props}
+            // @ts-ignore
+            ref={ref}
             keyboardAppearance="dark"
             value={value}
             underlineColor={error ? colors.red : colors.grey02}
@@ -26,7 +29,7 @@ const InputField: React.FC<IInputFieldProps> = ({error, value, ...props})=>{
             }}
         />
     );
-};
+});
 
 const useStyles = useStylesWithTheme(theme => ({
     inputField: {

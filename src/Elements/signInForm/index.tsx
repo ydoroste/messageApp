@@ -1,20 +1,21 @@
 import { useForm, Controller } from "react-hook-form";
 import {ISignInFormValues} from "@followBack/Elements/signInForm/types";
-import {View, StyleSheet} from "react-native";
+import {View, StyleSheet, TextInput} from "react-native";
 import InputField from "@followBack/GenericElements/InputField";
 import * as React from "react";
 import PasswordInput from "@followBack/GenericElements/PasswordInput";
 import Button from "@followBack/GenericElements/Button";
 import {getTranslatedText} from "@followBack/Localization";
 import Typography from "@followBack/GenericElements/Typography";
-import { useNavigation } from '@react-navigation/native';
+import {useFocusEffect, useNavigation } from '@react-navigation/native';
 import {UnauthorizedStackNavigationProps} from "@followBack/Navigation/Unauthorized/types";
 import {UnauthorizedScreensEnum} from "@followBack/Navigation/constants";
-import {useEffect} from "react";
+import {useCallback, useEffect} from "react";
 
 const SignInForm = () => {
     const nav = useNavigation<UnauthorizedStackNavigationProps['navigation']>();
-    const {control, handleSubmit, formState: {errors, submitCount, isValid, isSubmitting}, reset, setError, getValues} = useForm<ISignInFormValues>({
+
+    const {control, handleSubmit, formState: {errors, submitCount, isValid, isSubmitting}, reset, setFocus, setError, getValues} = useForm<ISignInFormValues>({
         defaultValues: {
             userNameOrPhone: "",
             password: ""
@@ -25,41 +26,42 @@ const SignInForm = () => {
         required: true
     };
     const onForgetPasswordPress = () =>{
-        reset();
         nav.navigate(UnauthorizedScreensEnum.chooseAccount);
     };
+
+    useFocusEffect(
+        useCallback(() => {
+            setFocus("userNameOrPhone");
+            return () => {
+                reset();
+            };
+        }, []));
+
     const onSubmit = async (data: ISignInFormValues) => {
-      //  console.log("submit", submitCount);
-      //  console.log("submit", submitCount);
         return new Promise((resolve) => {
             setTimeout(() => {
-                //reset();
-             //   nav.navigate(UnauthorizedScreensEnum.lockedAccount);
-/*
-                setError("userNameOrPhone", {
-                    message: "incorrect username or password"
-                });
-*/
                 resolve("resolved");
 
             }, 3000);
         });
     };
+
     return (
         <>
             <Controller
                 control={control}
                 name="userNameOrPhone"
                 rules={rules}
-                render={({field: {onChange, value}}) => (
+                render={({field: {onChange, value, ref}}) => (
                     <View style={styles.textInput}>
-                        <InputField
-                            placeholder={getTranslatedText("userNameOrPhone")}
-                            onChangeText={onChange}
-                            value={value}
-                        />
-                    </View>
-                )}
+                    <InputField
+                        // @ts-ignore
+                        ref={ref}
+                        placeholder={getTranslatedText("userNameOrPhone")}
+                        onChangeText={onChange}
+                        value={value}
+                    />
+                </View>)}
             />
             <Controller
                 control={control}
