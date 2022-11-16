@@ -11,11 +11,13 @@ import {useFocusEffect, useNavigation } from '@react-navigation/native';
 import {UnauthorizedStackNavigationProps} from "@followBack/Navigation/Unauthorized/types";
 import {UnauthorizedScreensEnum} from "@followBack/Navigation/constants";
 import {useCallback, useEffect} from "react";
+import {useLogin} from "@followBack/Hooks/Apis/Login";
+import {ILoginApiRequest} from "@followBack/Apis/Login/types";
 
-const SignInForm = () => {
+const SignInForm: React.FC = () => {
     const nav = useNavigation<UnauthorizedStackNavigationProps['navigation']>();
 
-    const {control, handleSubmit, formState: {errors, submitCount, isValid, isSubmitting}, reset, setFocus, setError, getValues} = useForm<ISignInFormValues>({
+    const {control, handleSubmit, formState: {errors, isValid, isSubmitting}, reset, setFocus, watch, setError} = useForm<ISignInFormValues>({
         defaultValues: {
             userNameOrPhone: "",
             password: ""
@@ -25,6 +27,13 @@ const SignInForm = () => {
     const rules = {
         required: true
     };
+    const values = watch();
+    const request: ILoginApiRequest ={
+        user_name: values.userNameOrPhone,
+        password: values.password
+    };
+    const { refetch } = useLogin(request);
+
     const onForgetPasswordPress = () =>{
         nav.navigate(UnauthorizedScreensEnum.chooseAccount);
     };
@@ -37,13 +46,16 @@ const SignInForm = () => {
             };
         }, []));
 
-    const onSubmit = async (data: ISignInFormValues) => {
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                resolve("resolved");
-
-            }, 3000);
-        });
+    const onSubmit = async () => {
+        console.log("call api");
+       const {data, error, isError} =  await refetch();
+       if(isError){
+           setError("userNameOrPhone", {
+               message: error?.response?.data?.message
+           })
+           return;
+       }
+       console.log("d", error?.response?.data?.message);
     };
 
     return (

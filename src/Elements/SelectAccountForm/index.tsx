@@ -1,40 +1,56 @@
-import { useForm, Controller } from "react-hook-form";
-import {View, StyleSheet} from "react-native";
+import {Controller, useForm} from "react-hook-form";
+import {StyleSheet, View} from "react-native";
 import InputField from "@followBack/GenericElements/InputField";
 import * as React from "react";
+import {useEffect} from "react";
 import Button from "@followBack/GenericElements/Button";
 import {getTranslatedText} from "@followBack/Localization";
-import { useNavigation } from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import {UnauthorizedStackNavigationProps} from "@followBack/Navigation/Unauthorized/types";
 import {ISelectAccountFormValue} from "@followBack/Elements/SelectAccountForm/types";
 import {UnauthorizedScreensEnum} from "@followBack/Navigation/constants";
-import {useEffect} from "react";
+import {useForgetPassword} from "@followBack/Hooks/Apis/ForgetPassword";
+import {IForgetPasswordApiRequest, ResetMethod} from "@followBack/Apis/ForgetPassword/types";
+import Typography from "@followBack/GenericElements/Typography";
 
 const SelectAccountForm = () => {
     const nav = useNavigation<UnauthorizedStackNavigationProps['navigation']>();
-    const {control, handleSubmit, formState: {isValid, isSubmitting}, setFocus} = useForm<ISelectAccountFormValue>({
+    const {control, handleSubmit, formState: {isValid, isSubmitting, errors}, setFocus, setError, watch, } = useForm<ISelectAccountFormValue>({
         defaultValues: {
             userNameOrPhone: ""
         },
         mode: 'onChange'
     });
+    const formValues = watch();
+    const request: IForgetPasswordApiRequest = {
+        user_name: formValues.userNameOrPhone,
+        is_email: ResetMethod.Phone
+    };
+    const {refetch} = useForgetPassword(request);
+
     const rules = {
         required: true
     };
-    useEffect(()=>{
+    useEffect(() => {
         setFocus("userNameOrPhone")
-    },[setFocus]);
+    }, [setFocus]);
 
-    const onSubmit = async (data: ISelectAccountFormValue) => {
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                nav.navigate(UnauthorizedScreensEnum.codeVerification,
-                    {phoneNumber: "0592329905", secondaryEmail: "abdulazizmassoud@gmail.com", verifyUsingPhone: true});
+    const onSubmit = async () => {
+        const {data, isError, error} = await refetch();
+        if (isError) {
+            setError("userNameOrPhone", {
+                message: error?.response?.data?.message
+            })
+        }
 
-                resolve("resolved");
 
-            }, 3000);
-        });
+        nav.navigate(UnauthorizedScreensEnum.codeVerification,
+            {
+                phoneNumber: data?.data.phone_number as string,
+                secondaryEmail: data?.data.phone_number as string,
+                verifyUsingPhone: true,
+                userName: formValues.userNameOrPhone
+            });
     };
     return (
         <>
@@ -53,6 +69,9 @@ const SelectAccountForm = () => {
                     </View>
                 )}
             />
+            <View style={styles.errorStyle}>
+                <Typography color="error" type="smallRegularBody">{errors?.userNameOrPhone?.message}</Typography>
+            </View>
 
             <View style={styles.button}>
                 <Button type="primary" disabled={!isValid || isSubmitting} loading={isSubmitting}
@@ -70,7 +89,11 @@ const styles = StyleSheet.create({
         marginTop: 0,
     },
     button: {
-        marginTop: 150,
+        marginTop: 75,
         width: "90%"
+    },
+    errorStyle: {
+        marginTop: 75
     }
+
 });

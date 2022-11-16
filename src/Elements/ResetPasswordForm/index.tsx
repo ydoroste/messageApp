@@ -1,20 +1,25 @@
-import { useForm, Controller } from "react-hook-form";
+import {useForm, Controller} from "react-hook-form";
 import {View, StyleSheet} from "react-native";
 import * as React from "react";
 import Button from "@followBack/GenericElements/Button";
 import {getTranslatedText} from "@followBack/Localization";
-import { useNavigation } from '@react-navigation/native';
-import {UnauthorizedStackNavigationProps} from "@followBack/Navigation/Unauthorized/types";
+import {useNavigation, useRoute} from '@react-navigation/native';
+import {ICodeVerificationState, UnauthorizedStackNavigationProps} from "@followBack/Navigation/Unauthorized/types";
 import {UnauthorizedScreensEnum} from "@followBack/Navigation/constants";
 import PasswordInput from "@followBack/GenericElements/PasswordInput";
 import {IResetPasswordForm} from "@followBack/Elements/ResetPasswordForm/types";
 import {useState} from "react";
 import Typography from "@followBack/GenericElements/Typography";
+import {IVerifyResetPasswordCodeData} from "@followBack/Apis/VerifyResetPasswordCode/types";
+import {IResetPasswordApiRequest} from "@followBack/Apis/ResetPassword/types";
+import {useResetPassword} from "@followBack/Hooks/Apis/ResetPassword";
 
 const ResetPasswordForm = () => {
     const nav = useNavigation<UnauthorizedStackNavigationProps['navigation']>();
+    const route = useRoute<UnauthorizedStackNavigationProps['route']>();
+    const {resetToken} = route.params as IVerifyResetPasswordCodeData;
     const [showPassword, setShowPassword] = useState(false);
-    const {control, handleSubmit, formState: {isValid, isSubmitting, errors}, getValues, setError}
+    const {control, handleSubmit, formState: {isValid, isSubmitting, errors}, watch, setError}
         = useForm<IResetPasswordForm>({
         defaultValues: {
             password: "",
@@ -22,18 +27,31 @@ const ResetPasswordForm = () => {
         },
         mode: 'onChange'
     });
+    const formData = watch();
+
+    const request: IResetPasswordApiRequest = {
+        resetToken,
+        new_password: formData.password
+    };
+    const { refetch } = useResetPassword(request);
     const rules = {
         required: true
     };
     const onSetShowPassword = (value: boolean) => {
         setShowPassword(value)
     };
-    const onSubmit = async (data: IResetPasswordForm) => {
-        if(data.password !== data.confirmPassword){
+    const onSubmit = async (formData: IResetPasswordForm) => {
+        if (formData.password !== formData.confirmPassword) {
             setError("confirmPassword", {
                 message: getTranslatedText("passwordNotMatch")
             });
             return;
+        }
+        const {data, error, isError} = await refetch();
+        if(isError){
+            setError("confirmPassword",{
+                message: error?.response?.data?.message
+            })
         }
         return new Promise((resolve) => {
             setTimeout(() => {
@@ -81,7 +99,7 @@ const ResetPasswordForm = () => {
                 )}
             />
             <View style={style.errorMessage}>
-                { errors.confirmPassword?.message &&
+                {errors.confirmPassword?.message &&
                 <Typography type="smallRegularBody" color="error">
                     {errors.confirmPassword.message}</Typography>}
             </View>
@@ -102,7 +120,7 @@ const style = StyleSheet.create({
         marginTop: 0,
     },
     confirmPassword: {
-      marginTop: 30
+        marginTop: 30
     },
     button: {
         marginTop: 60,

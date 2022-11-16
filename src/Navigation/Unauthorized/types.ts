@@ -3,7 +3,7 @@ import {UnauthorizedScreensEnum} from "@followBack/Navigation/constants";
 
 export type UnauthorizedParams = {
     [UnauthorizedScreensEnum.signIn]: undefined;
-    [UnauthorizedScreensEnum.resetPassword]: undefined;
+    [UnauthorizedScreensEnum.resetPassword]: IResetPasswordState;
     [UnauthorizedScreensEnum.signUp]: undefined;
     [UnauthorizedScreensEnum.lockedAccount]: undefined;
     [UnauthorizedScreensEnum.chooseAccount]: undefined;
@@ -15,7 +15,10 @@ export type UnauthorizedParams = {
 export interface  ICodeVerificationState {
     phoneNumber: string,
     secondaryEmail?: string,
-    verifyUsingPhone: boolean
+    verifyUsingPhone: boolean,
+    userName: string
 }
-
+export interface IResetPasswordState {
+    resetToken: string
+}
 export type UnauthorizedStackNavigationProps = NativeStackScreenProps<UnauthorizedParams>;
