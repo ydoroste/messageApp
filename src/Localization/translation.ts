@@ -17,5 +17,9 @@ export default {
         resend: "resend",
         resetSuccessfully: "your password has been successfully reset!",
         noSecondaryEmail: "no secondary email registered for this account",
+        firstName: "first name",
+        lastName: "last name",
+        gender: "gender",
+        birthDate: "date of birth"
     }
 }
