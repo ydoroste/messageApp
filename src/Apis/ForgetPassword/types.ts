@@ -1,3 +1,5 @@
+import {IApiError} from "@followBack/Apis/types";
+
 export interface IForgetPasswordApiRequest {
     user_name: string,
     is_email: ResetMethod
@@ -5,7 +7,7 @@ export interface IForgetPasswordApiRequest {
 export interface IForgetPasswordApiResponse {
     success?: boolean,
     message?: string,
-    data: IForgetPasswordData
+    data: IForgetPasswordData | IApiError
 }
 export enum ResetMethod {
     Phone,

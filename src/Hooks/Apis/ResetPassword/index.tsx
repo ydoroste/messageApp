@@ -7,7 +7,7 @@ export const useResetPassword = (request: IResetPasswordApiRequest) => {
     return useQuery<IResetPasswordApiResponse, AxiosError<any>>("resetPassword",
         () => resetPasswordApi(request), {
             enabled: false,
-            retry: 1
+            retry: 0
         })
 };
 

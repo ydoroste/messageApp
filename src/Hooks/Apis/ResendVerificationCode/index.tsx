@@ -10,7 +10,7 @@ export const useResendVerificationCode = (request: IResendVerificationCodeReques
     return useQuery<IResendVerificationCodeResponse, AxiosError<any>>("resendVerificationCode",
         () => resendVerificationCodeApi(request), {
             enabled: false,
-            retry: 1
+            retry: 0
         })
 };
 

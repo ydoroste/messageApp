@@ -1,3 +1,5 @@
+import {IApiError} from "@followBack/Apis/types";
+
 export interface ILoginApiRequest {
     user_name: string,
     password: string
@@ -5,7 +7,7 @@ export interface ILoginApiRequest {
 
 export interface ILoginApiResponse {
     success: boolean,
-    data?: ILoginApiResponseData
+    data: ILoginApiResponseData | IApiError
     message?: string
 }
 

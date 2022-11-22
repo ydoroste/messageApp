@@ -1,9 +1,4 @@
-import {
-    StyleSheet,
-    KeyboardAvoidingView,
-    Platform,
-    Pressable, Keyboard, View
-} from "react-native";
+import {Keyboard, KeyboardAvoidingView, Platform, Pressable, StyleSheet, View} from "react-native";
 import React, {useMemo, useState} from "react";
 import Button from "@followBack/GenericElements/Button";
 import {useNavigation} from "@react-navigation/core";
@@ -15,30 +10,44 @@ import CodeVerificationLayout from "@followBack/Elements/CodeVerificationLayout"
 import {encryptCodeVerificationValue} from "@followBack/Elements/CodeVerificationLayout/utils";
 import {IResendVerificationCodeRequest} from "@followBack/Apis/ResendVerificationCode/types";
 import {useResendVerificationCode} from "@followBack/Hooks/Apis/ResendVerificationCode";
+import {IForgetPasswordApiRequest, ResetMethod} from "@followBack/Apis/ForgetPassword/types";
+import {useForgetPassword} from "@followBack/Hooks/Apis/ForgetPassword";
 
 const CodeVerification: React.FC = () => {
     const nav = useNavigation<UnauthorizedStackNavigationProps['navigation']>();
     const route = useRoute<UnauthorizedStackNavigationProps['route']>();
-    const {phoneNumber, secondaryEmail, verifyUsingPhone, userName} = route.params as ICodeVerificationState;
-    const [isVerifyUsingPhone, setIsVerifyUsingPhone] = useState<boolean>(verifyUsingPhone);
+    const {phoneNumber, secondaryEmail, resetMethod, userName} = route.params as ICodeVerificationState;
+    const [verificationMethod, setVerificationMethod] = useState<ResetMethod>(resetMethod);
     const [codeVerificationValue, setCodeVerificationValue] = useState<string>(phoneNumber);
-    const resendVerificationCodeRequest: IResendVerificationCodeRequest = {
-        user_name: userName
-    }
-     const {refetch} = useResendVerificationCode(resendVerificationCodeRequest);
+
+    const request: IForgetPasswordApiRequest = {
+        user_name: userName,
+        is_email: verificationMethod
+    };
+    const {refetch} = useForgetPassword(request);
+
+  //  console.log("error", error);
 
     const hashedCodeVerificationValue = useMemo<string>(()=>
-        encryptCodeVerificationValue(codeVerificationValue, isVerifyUsingPhone),
-        [codeVerificationValue, isVerifyUsingPhone]);
+        encryptCodeVerificationValue(codeVerificationValue, verificationMethod),
+        [codeVerificationValue, verificationMethod]);
 
-    const onResetPress = async () => {
+    const onResetUsingEmailPress = async () => {
         //reset api call
-        if (isVerifyUsingPhone && !secondaryEmail) {
+        if (!secondaryEmail) {
             nav.navigate(UnauthorizedScreensEnum.noSecondaryEmail);
             return;
         }
-        setIsVerifyUsingPhone(!isVerifyUsingPhone);
-        setCodeVerificationValue(!isVerifyUsingPhone ? phoneNumber : secondaryEmail as string);
+        setVerificationMethod(ResetMethod.Email);
+        setCodeVerificationValue(secondaryEmail);
+
+        const {data, error, isError} = await refetch();
+    };
+    const onResetUsingPhonePress = async () => {
+        //reset api call
+
+        setVerificationMethod(ResetMethod.Phone);
+        setCodeVerificationValue(phoneNumber);
 
         const {data, error, isError} = await refetch();
     };
@@ -51,12 +60,15 @@ const CodeVerification: React.FC = () => {
             <Pressable style={styles.container} onPress={Keyboard.dismiss}>
                 <CodeVerificationLayout key={codeVerificationValue}
                                         hashedCodeVerificationValue={hashedCodeVerificationValue}
+                                        verificationMethod={verificationMethod}
                                         VerificationValue={codeVerificationValue}/>
                 <View style={styles.resetLink}>
-                    <Button onPress={onResetPress}
-                            type="secondary">{isVerifyUsingPhone
-                        ? getTranslatedText("resetUsingEmail")
-                        : getTranslatedText("resetUsingPhone")}</Button>
+                    { resetMethod === ResetMethod.Phone ? <Button onPress={onResetUsingEmailPress}
+                            type="secondary">{getTranslatedText("resetUsingEmail")}</Button>
+                        :
+                    <Button onPress={onResetUsingPhonePress}
+                            type="secondary">{getTranslatedText("resetUsingPhone")}</Button>
+                        }
                 </View>
             </Pressable>
         </KeyboardAvoidingView>)

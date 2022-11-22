@@ -1,3 +1,6 @@
+import Button from "@followBack/GenericElements/Button";
+import * as React from "react";
+
 export default {
     en: {
         signIn: "sign in",
@@ -17,5 +20,8 @@ export default {
         resend: "resend",
         resetSuccessfully: "your password has been successfully reset!",
         noSecondaryEmail: "no secondary email registered for this account",
+        lockedAccountLink: "a password reset link has been sent to the registered phone number, please press here to reset your password.",
+        yourAccountHasBeenLocked: "your account has been locked.",
+
     }
 }

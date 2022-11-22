@@ -10,12 +10,13 @@ import {UnauthorizedStackNavigationProps} from "@followBack/Navigation/Unauthori
 import {ISelectAccountFormValue} from "@followBack/Elements/SelectAccountForm/types";
 import {UnauthorizedScreensEnum} from "@followBack/Navigation/constants";
 import {useForgetPassword} from "@followBack/Hooks/Apis/ForgetPassword";
-import {IForgetPasswordApiRequest, ResetMethod} from "@followBack/Apis/ForgetPassword/types";
+import {IForgetPasswordApiRequest, IForgetPasswordData, ResetMethod} from "@followBack/Apis/ForgetPassword/types";
 import Typography from "@followBack/GenericElements/Typography";
 
 const SelectAccountForm = () => {
     const nav = useNavigation<UnauthorizedStackNavigationProps['navigation']>();
-    const {control, handleSubmit, formState: {isValid, isSubmitting, errors}, setFocus, setError, watch, } = useForm<ISelectAccountFormValue>({
+    const {control, handleSubmit, formState: {isValid, isSubmitting, errors}, setFocus, setError, watch,}
+        = useForm<ISelectAccountFormValue>({
         defaultValues: {
             userNameOrPhone: ""
         },
@@ -40,15 +41,15 @@ const SelectAccountForm = () => {
         if (isError) {
             setError("userNameOrPhone", {
                 message: error?.response?.data?.message
-            })
+            });
+            return;
         }
-
-
+        const resData = data?.data as IForgetPasswordData;
         nav.navigate(UnauthorizedScreensEnum.codeVerification,
             {
-                phoneNumber: data?.data.phone_number as string,
-                secondaryEmail: data?.data.phone_number as string,
-                verifyUsingPhone: true,
+                phoneNumber: resData?.phone_number as string,
+                secondaryEmail: resData?.phone_number as string,
+                resetMethod: ResetMethod.Phone,
                 userName: formValues.userNameOrPhone
             });
     };
@@ -61,6 +62,7 @@ const SelectAccountForm = () => {
                 render={({field: {onChange, value, ref}}) => (
                     <View style={styles.textInput}>
                         <InputField
+                            // @ts-ignore
                             ref={ref}
                             placeholder={getTranslatedText("userNameOrPhone")}
                             onChangeText={onChange}

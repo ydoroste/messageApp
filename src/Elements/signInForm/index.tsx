@@ -50,12 +50,15 @@ const SignInForm: React.FC = () => {
         console.log("call api");
        const {data, error, isError} =  await refetch();
        if(isError){
+           if(error?.response?.data?.message === "your account has been locked"){
+               nav.navigate(UnauthorizedScreensEnum.lockedAccount, {userName: values.userNameOrPhone})
+           }
            setError("userNameOrPhone", {
                message: error?.response?.data?.message
-           })
+           });
            return;
        }
-       console.log("d", error?.response?.data?.message);
+       console.log("Data", data);
     };
 
     return (

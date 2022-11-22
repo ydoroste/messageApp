@@ -6,7 +6,7 @@ import {AxiosError} from "axios";
 export const useVerifyResetPasswordCode = (request: IVerifyResetPasswordCodeApiRequest)=>{
 return useQuery<IVerifyResetPasswordCodeApiResponse, AxiosError<any>>("verifyResetPasswordCode",
     ()=> verifyResetPasswordCodeApi(request), {enabled: false,
-    retry: 1
+    retry: 0
 })
 };
 

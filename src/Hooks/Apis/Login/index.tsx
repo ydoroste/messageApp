@@ -4,10 +4,10 @@ import {ILoginApiRequest, ILoginApiResponse} from "@followBack/Apis/Login/types"
 import {AxiosError} from "axios";
 
 export const useLogin = (request: ILoginApiRequest) => {
-    return useQuery<ILoginApiResponse, AxiosError<any>>("login", () => loginApi(request),
+    return useQuery<ILoginApiResponse, AxiosError<ILoginApiResponse>>("login", () => loginApi(request),
         {
             enabled: false,
-            retry: 1,
+            retry: 0
         })
 };
 
