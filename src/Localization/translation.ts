@@ -1,6 +1,8 @@
 export default {
     en: {
         signIn: "sign in",
+        signUp: "sign up",
+        next: "next",
         createAccountLink: "create account",
         forgetPasswordLink: "forgot password?",
         userNameOrPhone: "username or phone number",
@@ -14,12 +16,15 @@ export default {
         newPassword: "new password",
         passwordNotMatch: "password doesn't match",
         confirmPassword: "confirm new password",
+        passwordConfirmation: "confirm password",
+        username: "username",
         resend: "resend",
         resetSuccessfully: "your password has been successfully reset!",
         noSecondaryEmail: "no secondary email registered for this account",
         firstName: "first name",
         lastName: "last name",
         gender: "gender",
-        birthDate: "date of birth"
+        birthDate: "date of birth",
+        phoneNumber: "phone number"
     }
 }

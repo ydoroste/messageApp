@@ -9,7 +9,7 @@ const StepIndicator: React.FC<IStepIndicatorProps> = ({disabled, isLastIndicator
     return <View
     style={{
       ...styles.container,
-      backgroundColor: disabled ? "#696969" : "#303030",
+      backgroundColor: disabled ? "#303030": "#696969",
       marginRight: isLastIndicator ? 0 : 36
     }}
   />

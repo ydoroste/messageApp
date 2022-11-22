@@ -53,6 +53,7 @@ const useStyles = useStylesWithTheme((theme) => ({
   dropdownRowText: {
     color: theme.colors.grey02,
     paddingVertical: 3,
+    letterSpacing: 0
 
   },
   dropdownButton: {
@@ -66,6 +67,7 @@ const useStyles = useStylesWithTheme((theme) => ({
   dropdownButtonText: {
     justifyContent: "flex-start",
     marginLeft: 4,
+    letterSpacing: 0
   },
 
   textStyle: {

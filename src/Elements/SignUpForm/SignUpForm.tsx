@@ -15,7 +15,9 @@ import {
 } from "react-native";
 import React, { useState, useRef } from "react";
 import useStylesWithTheme from "@followBack/Hooks/useStylesWithTheme";
-import StepOne from "@followBack/Elements/SignUpForm/Steps/StepOne/StepOne";
+import StepOne from "@followBack/Elements/SignUpForm/Steps/StepOne";
+import StepTwo from "@followBack/Elements/SignUpForm/Steps/StepTwo";
+
 import Wizard from "react-native-wizard";
 import StepIndicator from "@followBack/GenericElements/StepIndicator";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
@@ -23,7 +25,7 @@ import { UnauthorizedStackNavigationProps } from "@followBack/Navigation/Unautho
 import { ISignUpFormValues } from "@followBack/Elements/signUpForm/types";
 import { useForm, UseFormReturn } from "react-hook-form";
 
-export default function SignIn() {
+export default function SignUp() {
   const wizard = useRef();
   const { styles } = useStyles();
   const nav = useNavigation<UnauthorizedStackNavigationProps["navigation"]>();
@@ -34,10 +36,14 @@ export default function SignIn() {
         firstName: "",
         lastName: "",
         gender: "",
+        birthDate: "",
+        username: "",
+        password: "",
+        passwordConfirmation: "",
+        phoneNumber: "",
       },
       mode: "onChange",
     });
-
 
   const onSubmit = async (data: ISignUpFormValues) => {
     return new Promise((resolve) => {
@@ -50,14 +56,13 @@ export default function SignIn() {
   const [isFirstStep, setIsFirstStep] = useState(true);
   const [isLastStep, setIsLastStep] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
+  console.log("currentStep", currentStep);
   const stepList = [
     {
-      content: <StepOne form={form} />,
+      content: <StepOne form={form} wizard={wizard} />,
     },
     {
-      content: (
-        <View style={{ width: 100, height: 100, backgroundColor: "#e04851" }} />
-      ),
+      content: <StepTwo form={form} wizard={wizard} />,
     },
     {
       content: (
@@ -67,30 +72,27 @@ export default function SignIn() {
   ];
   return (
     <>
-    <View style={{
-        width: "100%"        
-    }}>
-      <Wizard
-        ref={wizard}
-        steps={stepList}
-        isFirstStep={(val) => setIsFirstStep(val)}
-        isLastStep={(val) => setIsLastStep(val)}
-        onNext={() => {
-          console.log("Next Step Called");
+      <View
+        style={{
+          width: "100%",
         }}
-        onPrev={() => {
-          console.log("Previous Step Called");
-        }}
-        currentStep={({ currentStep, isLastStep, isFirstStep }) => {
-          setCurrentStep(currentStep);
-        }}
-      />
-</View>
+      >
+        <Wizard
+          ref={wizard}
+          steps={stepList}
+          isFirstStep={(val) => setIsFirstStep(val)}
+          isLastStep={(val) => setIsLastStep(val)}
+          // nextStepAnimation={"slideRight"}
+          currentStep={({ currentStep, isLastStep, isFirstStep }) => {
+            setCurrentStep(currentStep);
+          }}
+        />
+      </View>
       <View style={styles.indicatorsWrapper}>
         {stepList.map((val, index) => (
           <StepIndicator
             key={index}
-            disabled={index === currentStep}
+            disabled={index !== currentStep}
             isLastIndicator={index + 1 === stepList.length}
           />
         ))}

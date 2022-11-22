@@ -40,7 +40,8 @@ const useStyles = useStylesWithTheme(theme => ({
         lineHeight: theme.lineHeights.medium,
         fontFamily: theme.fontFamilies.OpenSans_400Regular,
         color: theme.colors.white,
-        paddingHorizontal: -10
+        paddingHorizontal: 0
+        
     }
 }));
 export default memo(InputField);

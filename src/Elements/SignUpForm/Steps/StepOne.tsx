@@ -13,7 +13,7 @@ const gender = [
   { name: "male", value: "male" },
   { name: "female", value: "female" },
 ];
-const StepOne: React.FC<IStepOneProps> = ({ form }) => {
+const StepOne: React.FC<IStepOneProps> = ({ wizard, form }) => {
   const {
     control,
     handleSubmit,
@@ -36,7 +36,20 @@ const StepOne: React.FC<IStepOneProps> = ({ form }) => {
     }, [])
   );
 
-  console.log("values", form.getValues());
+  const isStepOneValid = () => {
+    const values = getValues();
+    const stepOneKeys: StepOneFiledsType[] = [
+      "firstName",
+      "lastName",
+      "gender",
+      "birthDate",
+    ];
+    type StepOneFiledsType = "firstName" | "lastName" | "gender" | "birthDate";
+    return stepOneKeys.every((key: StepOneFiledsType) => !!values[key]);
+  };
+
+  console.log("isStepOneValid()", isStepOneValid());
+  console.log("values", getValues());
 
   return (
     <>
@@ -96,11 +109,31 @@ const StepOne: React.FC<IStepOneProps> = ({ form }) => {
         render={({ field: { onChange, value, ref } }) => (
           <View style={styles.gender}>
             <DatePicker
+              date={value}
+              onSelect={(date) => {
+                form.setValue("birthDate", date);
+              }}
             />
           </View>
         )}
         name="birthDate"
       />
+
+      <View style={styles.buttonWrapper}>
+        <View style={styles.button}>
+          <Button
+            type="primary"
+            disabled={!isStepOneValid()}
+            loading={false}
+            onPress={() => {
+              if (!wizard?.current) return;
+              wizard.current?.next();
+            }}
+          >
+            {getTranslatedText("next")}
+          </Button>
+        </View>
+      </View>
     </>
   );
 };
@@ -117,5 +150,20 @@ const styles = StyleSheet.create({
   gender: {
     width: "100%",
     marginBottom: 44,
+  },
+
+  birthDate: {
+    width: "100%",
+    marginBottom: 72,
+  },
+
+  buttonWrapper: {
+    width: "100%",
+    flexDirection: "row",
+    justifyContent: "center",
+    marginBottom: 36,
+  },
+  button: {
+    width: "90%",
   },
 });
