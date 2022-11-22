@@ -22,6 +22,7 @@ const StepOne: React.FC<IStepOneProps> = ({ wizard, form }) => {
     setFocus,
     setError,
     getValues,
+    watch,
   } = form;
   const rules = {
     required: true,
@@ -37,7 +38,7 @@ const StepOne: React.FC<IStepOneProps> = ({ wizard, form }) => {
   );
 
   const isStepOneValid = () => {
-    const values = getValues();
+    const values = watch();
     const stepOneKeys: StepOneFiledsType[] = [
       "firstName",
       "lastName",
@@ -48,8 +49,6 @@ const StepOne: React.FC<IStepOneProps> = ({ wizard, form }) => {
     return stepOneKeys.every((key: StepOneFiledsType) => !!values[key]);
   };
 
-  console.log("isStepOneValid()", isStepOneValid());
-  console.log("values", getValues());
 
   return (
     <>
