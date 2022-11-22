@@ -52,7 +52,7 @@ const IconButton: React.FC<IIconButtonProps> = ({
   return (
     <CustomIconButton
       style={{ margin: 0 }}
-      animated
+      // animated
       rippleColor={color}
       size={width}
       disabled={disabled}

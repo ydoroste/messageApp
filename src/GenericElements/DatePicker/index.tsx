@@ -24,7 +24,9 @@ const DatePicker: React.FC<IDatePickerProps> = ({ date, onSelect }) => {
   const formatText = (date: string) =>
     date
       .split("/")
-      .map((number) => (Number(number) < 10 ? `0${number}` : number))
+      .map((number) =>
+        Number(number) < 10 && number.length === 1 ? `0${number}` : number
+      )
       .join(" / ");
 
   return (

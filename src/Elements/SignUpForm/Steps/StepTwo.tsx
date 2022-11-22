@@ -22,7 +22,7 @@ const StepTwo: React.FC<IStepOneProps> = ({ wizard, form }) => {
     reset,
     setFocus,
     setError,
-    getValues,
+    watch,
   } = form;
   const rules = {
     required: true,
@@ -38,7 +38,7 @@ const StepTwo: React.FC<IStepOneProps> = ({ wizard, form }) => {
   );
 
   const isStepTwoValid = () => {
-    const values = getValues();
+    const values = watch();
     const stepOneKeys: StepTwoFiledsType[] = [
       "username",
       "password",
@@ -54,7 +54,7 @@ const StepTwo: React.FC<IStepOneProps> = ({ wizard, form }) => {
   };
 
   console.log("isStepTwoValid()", isStepTwoValid());
-  console.log("values", getValues());
+  console.log("values", watch());
 
   const { styles } = useStyles();
   return (

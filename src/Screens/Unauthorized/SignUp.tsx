@@ -10,7 +10,7 @@ import SignUpForm from "@followBack/Elements/SignUpForm/SignUpForm";
 
 export default function SignUp() {
   return (
-      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined}  keyboardVerticalOffset={100}
+      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined}  keyboardVerticalOffset={60}
                             style={{flex: 1}}>
           <Pressable  style={styles.container} onPress={Keyboard.dismiss}>
               <SignUpForm/>
