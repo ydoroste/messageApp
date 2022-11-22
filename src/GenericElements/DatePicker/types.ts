@@ -1,4 +1,5 @@
 export interface IDatePickerProps {
   onSelect: (date: string) => void;
-  date: string
+  date: string;
+  error: boolean;
 }

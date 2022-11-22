@@ -9,6 +9,8 @@ import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { useCallback, useEffect } from "react";
 import { IStepOneProps } from "@followBack/Elements/SignUpForm/types";
 import DatePicker from "@followBack/GenericElements/DatePicker";
+import Typography from "@followBack/GenericElements/Typography";
+
 const gender = [
   { name: "male", value: "male" },
   { name: "female", value: "female" },
@@ -49,7 +51,6 @@ const StepOne: React.FC<IStepOneProps> = ({ wizard, form }) => {
     return stepOneKeys.every((key: StepOneFiledsType) => !!values[key]);
   };
 
-
   return (
     <>
       <Controller
@@ -60,6 +61,7 @@ const StepOne: React.FC<IStepOneProps> = ({ wizard, form }) => {
           <View style={styles.textInput}>
             <InputField
               // @ts-ignore
+              erorr={!!errors.firstName?.message}
               ref={ref}
               placeholder={getTranslatedText("firstName")}
               onChangeText={onChange}
@@ -68,6 +70,14 @@ const StepOne: React.FC<IStepOneProps> = ({ wizard, form }) => {
           </View>
         )}
       />
+      <View style={styles.errorMessage}>
+        {errors.firstName?.message && (
+          <Typography type="smallRegularBody" color="error">
+            {errors.firstName.message}
+          </Typography>
+        )}
+      </View>
+
       <Controller
         control={control}
         rules={rules}
@@ -75,6 +85,7 @@ const StepOne: React.FC<IStepOneProps> = ({ wizard, form }) => {
           <View style={styles.textInput}>
             <InputField
               // @ts-ignore
+              erorr={!!errors.lastName?.message}
               ref={ref}
               placeholder={getTranslatedText("lastName")}
               onChangeText={onChange}
@@ -84,6 +95,13 @@ const StepOne: React.FC<IStepOneProps> = ({ wizard, form }) => {
         )}
         name="lastName"
       />
+      <View style={styles.errorMessage}>
+        {errors.lastName?.message && (
+          <Typography type="smallRegularBody" color="error">
+            {errors.lastName.message}
+          </Typography>
+        )}
+      </View>
 
       <Controller
         control={control}
@@ -102,12 +120,21 @@ const StepOne: React.FC<IStepOneProps> = ({ wizard, form }) => {
         name="gender"
       />
 
+      <View style={styles.errorMessage}>
+        {errors.gender?.message && (
+          <Typography type="smallRegularBody" color="error">
+            {errors.gender.message}
+          </Typography>
+        )}
+      </View>
+
       <Controller
         control={control}
         rules={rules}
         render={({ field: { onChange, value, ref } }) => (
           <View style={styles.gender}>
             <DatePicker
+              error={!!errors.birthDate?.message}
               date={value}
               onSelect={(date) => {
                 form.setValue("birthDate", date);
@@ -117,6 +144,14 @@ const StepOne: React.FC<IStepOneProps> = ({ wizard, form }) => {
         )}
         name="birthDate"
       />
+
+      <View style={styles.errorMessage}>
+        {errors.birthDate?.message && (
+          <Typography type="smallRegularBody" color="error">
+            {errors.birthDate.message}
+          </Typography>
+        )}
+      </View>
 
       <View style={styles.buttonWrapper}>
         <View style={styles.button}>
@@ -164,5 +199,9 @@ const styles = StyleSheet.create({
   },
   button: {
     width: "90%",
+  },
+
+  errorMessage: {
+    marginTop: 60,
   },
 });

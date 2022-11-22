@@ -11,7 +11,7 @@ import { useCallback, useEffect } from "react";
 import { IStepOneProps } from "@followBack/Elements/SignUpForm/types";
 import PasswordInput from "@followBack/GenericElements/PasswordInput";
 import PhoneNumberInput from "@followBack/GenericElements/PhoneNumberInput";
-
+import Typography from "@followBack/GenericElements/Typography";
 import useStylesWithTheme from "@followBack/Hooks/useStylesWithTheme";
 
 const StepTwo: React.FC<IStepOneProps> = ({ wizard, form }) => {
@@ -53,9 +53,6 @@ const StepTwo: React.FC<IStepOneProps> = ({ wizard, form }) => {
     return stepOneKeys.every((key: StepTwoFiledsType) => !!values[key]);
   };
 
-  console.log("isStepTwoValid()", isStepTwoValid());
-  console.log("values", watch());
-
   const { styles } = useStyles();
   return (
     <>
@@ -68,6 +65,7 @@ const StepTwo: React.FC<IStepOneProps> = ({ wizard, form }) => {
             <InputField
               // @ts-ignore
               ref={ref}
+              error={!!errors.username?.message}
               placeholder={getTranslatedText("username")}
               onChangeText={onChange}
               value={value}
@@ -76,12 +74,21 @@ const StepTwo: React.FC<IStepOneProps> = ({ wizard, form }) => {
           </View>
         )}
       />
+      <View style={styles.errorMessage}>
+        {errors.username?.message && (
+          <Typography type="smallRegularBody" color="error">
+            {errors.username.message}
+          </Typography>
+        )}
+      </View>
+
       <Controller
         control={control}
         rules={rules}
         render={({ field: { onChange, value, ref } }) => (
           <View style={styles.textInput}>
             <PasswordInput
+              error={!!errors.password?.message}
               placeholder={getTranslatedText("password")}
               onChangeText={onChange}
               value={value}
@@ -90,6 +97,13 @@ const StepTwo: React.FC<IStepOneProps> = ({ wizard, form }) => {
         )}
         name="password"
       />
+      <View style={styles.errorMessage}>
+        {errors.password?.message && (
+          <Typography type="smallRegularBody" color="error">
+            {errors.password.message}
+          </Typography>
+        )}
+      </View>
 
       <Controller
         control={control}
@@ -97,6 +111,7 @@ const StepTwo: React.FC<IStepOneProps> = ({ wizard, form }) => {
         render={({ field: { onChange, value } }) => (
           <View style={styles.passwordField}>
             <PasswordInput
+              error={!!errors.passwordConfirmation?.message}
               placeholder={getTranslatedText("passwordConfirmation")}
               onChangeText={onChange}
               value={value}
@@ -105,6 +120,13 @@ const StepTwo: React.FC<IStepOneProps> = ({ wizard, form }) => {
         )}
         name="passwordConfirmation"
       />
+      <View style={styles.errorMessage}>
+        {errors.passwordConfirmation?.message && (
+          <Typography type="smallRegularBody" color="error">
+            {errors.passwordConfirmation.message}
+          </Typography>
+        )}
+      </View>
 
       <Controller
         control={control}
@@ -112,6 +134,7 @@ const StepTwo: React.FC<IStepOneProps> = ({ wizard, form }) => {
         render={({ field: { onChange, value } }) => (
           <View style={styles.phoneNumber}>
             <PhoneNumberInput
+              error={!!errors.phoneNumber?.message}
               value={value}
               onChangePhoneNumber={(phoneNumber) => {
                 form.setValue("phoneNumber", phoneNumber);
@@ -124,6 +147,14 @@ const StepTwo: React.FC<IStepOneProps> = ({ wizard, form }) => {
         )}
         name="phoneNumber"
       />
+
+      <View style={styles.errorMessage}>
+        {errors.phoneNumber?.message && (
+          <Typography type="smallRegularBody" color="error">
+            {errors.phoneNumber.message}
+          </Typography>
+        )}
+      </View>
 
       <View style={styles.buttonWrapper}>
         <View style={styles.button}>
@@ -186,5 +217,8 @@ const useStyles = useStylesWithTheme((theme) => ({
 
   phoneNumber: {
     marginBottom: 88,
+  },
+  errorMessage: {
+    marginTop: 60,
   },
 }));

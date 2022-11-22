@@ -4,7 +4,7 @@ import DateTimePickerModal from "react-native-modal-datetime-picker";
 import useStylesWithTheme from "@followBack/Hooks/useStylesWithTheme";
 import { IDatePickerProps } from "@followBack/GenericElements/DatePicker/types";
 
-const DatePicker: React.FC<IDatePickerProps> = ({ date, onSelect }) => {
+const DatePicker: React.FC<IDatePickerProps> = ({error, date, onSelect }) => {
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
 
   const { styles } = useStyles();
@@ -34,7 +34,10 @@ const DatePicker: React.FC<IDatePickerProps> = ({ date, onSelect }) => {
       <TouchableOpacity
         activeOpacity={0.8}
         onPress={showDatePicker}
-        style={styles.buttonContainer}
+        style={{
+          ...styles.buttonContainer,
+          borderBottomColor: error ? colors.error : theme.colors.grey02,
+        }}
       >
         <Text style={{ ...styles.text, ...styles.placeholder }}>
           date of birth
@@ -64,7 +67,6 @@ const useStyles = useStylesWithTheme((theme) => ({
   buttonContainer: {
     width: "100%",
     borderWidth: 1,
-    borderBottomColor: theme.colors.grey02,
     flexDirection: "row",
     justifyContent: "space-between",
     paddingBottom: 4,
