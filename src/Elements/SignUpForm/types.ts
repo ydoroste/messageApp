@@ -10,7 +10,6 @@ export interface ISignUpFormValues {
   passwordConfirmation: string;
   phoneNumber: string;
   formattedPhoneNumber: string;
-  code: string;
 }
 
 export interface IStepOneProps {
@@ -21,4 +20,8 @@ export interface IStepOneProps {
 export interface IStepThreeProps {
   form: UseFormReturn<ISignUpFormValues, any>;
   wizard: React.MutableRefObject<any>;
+}
+
+export interface ICodeVerificationValues {
+  code: string;
 }

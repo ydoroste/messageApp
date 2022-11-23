@@ -1,6 +1,5 @@
-import * as React from "react";
+import React, { useState, useMemo } from "react";
 import { useNavigation } from "@react-navigation/core";
-import { UnauthorizedStackNavigationProps } from "@followBack/Navigation/Unauthorized/types";
 import { Controller, useForm } from "react-hook-form";
 import { StyleSheet, View } from "react-native";
 import { getTranslatedText } from "@followBack/Localization";
@@ -9,64 +8,94 @@ import CodeVerificationFields from "@followBack/GenericElements/CodeVerification
 import Typography from "@followBack/GenericElements/Typography";
 import { IStepThreeProps } from "@followBack/Elements/SignUpForm/types";
 import CodeVerificationLayout from "@followBack/Elements/CodeVerificationLayout";
+import { UnauthorizedStackNavigationProps } from "@followBack/Navigation/Unauthorized/types";
+import { encryptCodeVerificationValue } from "@followBack/Elements/CodeVerificationLayout/utils";
+import { useRoute } from "@react-navigation/native";
+import { ICodeVerificationValues } from "@followBack/Elements/SignUpForm/types";
 
-const CodeVerificationForm: React.FC<IStepThreeProps> = ({ wizard, form }) => {
+const StepThree: React.FC<IStepThreeProps> = ({ wizard, form }) => {
   const nav = useNavigation<UnauthorizedStackNavigationProps["navigation"]>();
+  const route = useRoute<UnauthorizedStackNavigationProps["route"]>();
+
   const {
     control,
     handleSubmit,
-    formState: { errors, submitCount, isValid, isSubmitting },
-    reset,
-    setFocus,
+    formState: { isValid, isSubmitting, errors },
     setError,
-    getValues,
-    watch,
-  } = form;
+  } = useForm<ICodeVerificationValues>({
+    defaultValues: {
+      code: "",
+    },
+    mode: "onChange",
+  });
 
   const rules = {
     required: true,
   };
 
+  const phoneNumber: string = form.watch()["phoneNumber"];
+
+  const hashedCodeVerificationValue = useMemo<string>(
+    () => encryptCodeVerificationValue(phoneNumber, true),
+    [phoneNumber]
+  );
+
+  const onSubmit = async (data: ICodeVerificationValues) => {
+    console.log("Data", data);
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        console.log("Verified");
+
+        resolve("resolved");
+      }, 3000);
+    });
+  };
+
   return (
     <>
-      <Controller
-        control={control}
-        name="code"
-        rules={{
-          required: true,
-          validate: (value) => value.length === 6,
-        }}
-        render={({ field: { onChange } }) => (
-          <CodeVerificationFields
-            error={!!errors?.code?.message}
-            onChange={(text) => {
-              onChange(text);
-            }}
-          />
+      <CodeVerificationLayout
+        hashedCodeVerificationValue={hashedCodeVerificationValue}
+        VerificationValue={phoneNumber}
+      >
+        <Controller
+          control={control}
+          name="code"
+          rules={{
+            required: true,
+            validate: (value) => value.length === 6,
+          }}
+          render={({ field: { onChange } }) => (
+            <CodeVerificationFields
+              error={!!errors?.code?.message}
+              onChange={(text) => {
+                onChange(text);
+              }}
+            />
+          )}
+        />
+        {errors.code?.message && (
+          <View style={style.errorMessage}>
+            <Typography type="smallRegularBody" color="error">
+              {errors.code.message}
+            </Typography>
+          </View>
         )}
-      />
-      {errors.code?.message && (
-        <View style={style.errorMessage}>
-          <Typography type="smallRegularBody" color="error">
-            {errors.code.message}
-          </Typography>
+        <View style={style.button}>
+          <Button
+            type="primary"
+            disabled={!isValid || isSubmitting}
+            loading={isSubmitting}
+            onPress={() => handleSubmit(onSubmit)}
+          >
+            {getTranslatedText("verify")}
+          </Button>
         </View>
-      )}
-      <View style={style.button}>
-        <Button
-          type="primary"
-          disabled={!isValid || isSubmitting}
-          loading={isSubmitting}
-          onPress={() => console.log("code verification")}
-        >
-          {getTranslatedText("verify")}
-        </Button>
-      </View>
+      </CodeVerificationLayout>
     </>
   );
 };
 
-export default CodeVerificationForm;
+export default StepThree;
 
 const style = StyleSheet.create({
   button: {

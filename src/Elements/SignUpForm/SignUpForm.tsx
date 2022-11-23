@@ -42,7 +42,6 @@ export default function SignUp() {
         password: "",
         passwordConfirmation: "",
         phoneNumber: "",
-        code: "",
       },
       mode: "onChange",
     });

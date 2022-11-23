@@ -8,7 +8,6 @@ import React, {useMemo, useState} from "react";
 import Typography from "@followBack/GenericElements/Typography";
 import Button from "@followBack/GenericElements/Button";
 import Timer from "@followBack/GenericElements/Timer";
-import CodeVerificationForm from "@followBack/Elements/CodeVerificationForm";
 import {useNavigation} from "@react-navigation/core";
 import {ICodeVerificationState, UnauthorizedStackNavigationProps} from "@followBack/Navigation/Unauthorized/types";
 import {UnauthorizedScreensEnum} from "@followBack/Navigation/constants";
@@ -16,6 +15,7 @@ import {getTranslatedText} from "@followBack/Localization";
 import {useRoute} from "@react-navigation/native";
 import CodeVerificationLayout from "@followBack/Elements/CodeVerificationLayout";
 import {encryptCodeVerificationValue} from "@followBack/Elements/CodeVerificationLayout/utils";
+import CodeVerificationForm from "@followBack/Elements/CodeVerificationForm";
 
 const CodeVerification: React.FC = () => {
     const nav = useNavigation<UnauthorizedStackNavigationProps['navigation']>();
@@ -46,7 +46,9 @@ const CodeVerification: React.FC = () => {
             <Pressable style={styles.container} onPress={Keyboard.dismiss}>
                 <CodeVerificationLayout key={codeVerificationValue}
                                         hashedCodeVerificationValue={hashedCodeVerificationValue}
-                                        VerificationValue={codeVerificationValue}/>
+                                        VerificationValue={codeVerificationValue}>
+                                          <CodeVerificationForm/>
+                                        </CodeVerificationLayout>
                 <View style={styles.resetLink}>
                     <Button onPress={onResetPress}
                             type="secondary">{isVerifyUsingPhone

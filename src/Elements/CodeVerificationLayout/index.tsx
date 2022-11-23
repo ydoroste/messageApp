@@ -8,11 +8,10 @@ import React, {useState} from "react";
 import Typography from "@followBack/GenericElements/Typography";
 import Button from "@followBack/GenericElements/Button";
 import Timer from "@followBack/GenericElements/Timer";
-import CodeVerificationForm from "@followBack/Elements/CodeVerificationForm";
 import {getTranslatedText} from "@followBack/Localization";
 import {ICodeVerificationLayoutProps} from "@followBack/Elements/CodeVerificationLayout/types";
 
-const CodeVerificationLayout: React.FC<ICodeVerificationLayoutProps> = ({VerificationValue, hashedCodeVerificationValue}) => {
+const CodeVerificationLayout: React.FC<ICodeVerificationLayoutProps> = ({children, VerificationValue, hashedCodeVerificationValue}) => {
     const [showResend, setShowResend] = useState(false);
     const onTimerFinish =() =>{
         setShowResend(true);
@@ -35,7 +34,7 @@ const CodeVerificationLayout: React.FC<ICodeVerificationLayoutProps> = ({Verific
                         <Button type="ternary" onPress={resendCode}>{getTranslatedText("resend")}</Button>
                     }
                 </View>
-                <CodeVerificationForm />
+               {children}
                 </>
 )
 };
