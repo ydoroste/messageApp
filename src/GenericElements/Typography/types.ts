@@ -13,6 +13,6 @@ export type typographyTypes = "smallRegularTitle" | "mediumRegularTitle" | "larg
     "largeBoldTitle" | "smallRegularBody" | "mediumRegularBody" | "smallBoldBody" | "mediumBoldBody" |
     "largeBoldBody" | "largeRegularBody";
 
-export type colorTypes = "primary" | "secondary" | "error" | "disabled";
+export type colorTypes = "primary" | "secondary" | "error" | "disabled" | "verified";
 
 export type textAlignTypes = 'auto' | 'left' | 'right' | 'center' | 'justify' | undefined;

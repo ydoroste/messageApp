@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useRef } from "react";
 import { useNavigation } from "@react-navigation/core";
 import { Controller, useForm } from "react-hook-form";
 import { StyleSheet, View } from "react-native";
@@ -13,6 +13,7 @@ import { encryptCodeVerificationValue } from "@followBack/Elements/CodeVerificat
 import { useRoute } from "@react-navigation/native";
 import { ICodeVerificationValues } from "@followBack/Elements/SignUpForm/types";
 import { ResetMethod } from "@followBack/Apis/ForgetPassword/types";
+import { UnauthorizedScreensEnum } from "@followBack/Navigation/constants";
 
 const StepThree: React.FC<IStepThreeProps> = ({ wizard, form }) => {
   const nav = useNavigation<UnauthorizedStackNavigationProps["navigation"]>();
@@ -39,8 +40,6 @@ const StepThree: React.FC<IStepThreeProps> = ({ wizard, form }) => {
     () => encryptCodeVerificationValue(phoneNumber, ResetMethod.Phone),
     [phoneNumber]
   );
-
-  console.log("hashedCodeVerificationValue", hashedCodeVerificationValue);
 
   const onSubmit = async (data: ICodeVerificationValues) => {
     console.log("Data", data);
@@ -89,7 +88,12 @@ const StepThree: React.FC<IStepThreeProps> = ({ wizard, form }) => {
               type="primary"
               disabled={!isValid || isSubmitting}
               loading={isSubmitting}
-              onPress={() => handleSubmit(onSubmit)}
+              onPress={() =>
+                // () => handleSubmit(onSubmit)
+                nav.navigate(UnauthorizedScreensEnum.verifiedSuccessfully, {
+                  userName: username,
+                })
+              }
             >
               {getTranslatedText("verify")}
             </Button>

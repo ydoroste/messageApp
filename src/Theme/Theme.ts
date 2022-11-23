@@ -12,6 +12,7 @@ export const theme : Theme = {
         white: "#FFFFFF",
         red: "#FF015C",
         blue: "#44BCFF",
+        blue02: "#3aadff",
         purple: "#5200FF"
     },
     fontFamilies: {

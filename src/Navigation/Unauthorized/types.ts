@@ -11,6 +11,8 @@ export type UnauthorizedParams = {
     [UnauthorizedScreensEnum.codeVerification]: ICodeVerificationState;
     [UnauthorizedScreensEnum.resetSuccessfully]: undefined;
     [UnauthorizedScreensEnum.noSecondaryEmail]: undefined;
+    [UnauthorizedScreensEnum.verifiedSuccessfully]: IVerifiedSuccessfullyState;
+
 };
 
 export interface  ICodeVerificationState {
@@ -25,5 +27,9 @@ export interface IResetPasswordState {
 export type UnauthorizedStackNavigationProps = NativeStackScreenProps<UnauthorizedParams>;
 
 export interface ILockScreenState {
+    userName: string
+}
+
+export interface IVerifiedSuccessfullyState {
     userName: string
 }
