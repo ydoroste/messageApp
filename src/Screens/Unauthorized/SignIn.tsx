@@ -12,7 +12,7 @@ import React from "react";
 
 import SignInForm from "@followBack/Elements/signInForm";
 
-export default function SignIn() {
+const SignIn: React.FC = ()=> {
     return (
         <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined}  keyboardVerticalOffset={100}
                               style={{flex: 1}}>
@@ -32,3 +32,4 @@ const styles = StyleSheet.create({
         paddingHorizontal: 50
     }
 });
+export default SignIn;

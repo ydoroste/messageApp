@@ -1,6 +1,6 @@
 import * as React from "react";
-import {useNavigation} from "@react-navigation/core";
-import {UnauthorizedStackNavigationProps} from "@followBack/Navigation/Unauthorized/types";
+import {useNavigation, useRoute} from "@react-navigation/core";
+import {ICodeVerificationState, UnauthorizedStackNavigationProps} from "@followBack/Navigation/Unauthorized/types";
 import {Controller, useForm} from "react-hook-form";
 import {UnauthorizedScreensEnum} from "@followBack/Navigation/constants";
 import {StyleSheet, View} from "react-native";
@@ -9,22 +9,46 @@ import Button from "@followBack/GenericElements/Button";
 import {ICodeVerificationValues} from "@followBack/Elements/CodeVerificationForm/types";
 import CodeVerificationFields from "@followBack/GenericElements/CodeVerificationFields";
 import Typography from "@followBack/GenericElements/Typography";
+import {useVerifyUser} from "@followBack/Hooks/Apis/VerifyUser";
+import {useResendVerificationCode} from "@followBack/Hooks/Apis/ResendVerificationCode";
+import {IVerifyUserApiRequest} from "@followBack/Apis/VerifyUser/types";
+import {IResendVerificationCodeRequest} from "@followBack/Apis/ResendVerificationCode/types";
+import {IVerifyResetPasswordCodeApiRequest} from "@followBack/Apis/VerifyResetPasswordCode/types";
+import {useVerifyResetPasswordCode} from "@followBack/Hooks/Apis/VerifyResetPasswordCode";
 
-const CodeVerificationForm: React.FC = () =>{
+const CodeVerificationForm: React.FC = () => {
 
     const nav = useNavigation<UnauthorizedStackNavigationProps['navigation']>();
-    const {control, handleSubmit, formState: {isValid, isSubmitting, errors}, setError}
-    = useForm<ICodeVerificationValues>({
+    const route = useRoute<UnauthorizedStackNavigationProps['route']>();
+    const {userName} = route.params as ICodeVerificationState;
+    const {control, handleSubmit, formState: {isValid, isSubmitting, errors}, setError, watch}
+        = useForm<ICodeVerificationValues>({
         defaultValues: {
             code: ""
         },
         mode: 'onChange'
     });
-    const onSubmit = async (data: ICodeVerificationValues) => {
-        console.log("Data", data);
+    const formData = watch();
+
+    const userVerifyRequest: IVerifyResetPasswordCodeApiRequest = {
+        user_name: userName,
+        code: formData.code
+    };
+    const { refetch } = useVerifyResetPasswordCode(userVerifyRequest);
+    const onSubmit = async () => {
+        const {data, isError, error} = await refetch();
+        if (isError) {
+            setError("code", {
+                message: error?.response?.data?.message
+            })
+        }
+
         return new Promise((resolve) => {
             setTimeout(() => {
-                nav.navigate(UnauthorizedScreensEnum.resetPassword);
+                nav.navigate(UnauthorizedScreensEnum.resetPassword,
+                    {
+                        resetToken: data?.data.resetToken as string
+                    });
 
                 resolve("resolved");
 
@@ -41,13 +65,13 @@ const CodeVerificationForm: React.FC = () =>{
                     validate: value => value.length === 6
                 }}
                 render={({field: {onChange}}) => (
-                        <CodeVerificationFields error={!!errors?.code?.message} onChange={(text)=>{
-                            onChange(text);
-                        }}/>
+                    <CodeVerificationFields error={!!errors?.code?.message} onChange={(text) => {
+                        onChange(text);
+                    }}/>
                 )}
             />
             <View style={style.errorMessage}>
-                { errors.code?.message &&
+                {errors.code?.message &&
                 <Typography type="smallRegularBody" color="error">
                     {errors.code.message}</Typography>}
             </View>

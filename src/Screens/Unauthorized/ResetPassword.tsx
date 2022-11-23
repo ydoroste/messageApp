@@ -13,7 +13,7 @@ export default function ResetPassword() {
             style={{flex: 1}}>
             <Pressable style={styles.container} onPress={Keyboard.dismiss}>
 
-            <ResetPasswordForm/>
+                <ResetPasswordForm/>
             </Pressable>
         </KeyboardAvoidingView>)
 }

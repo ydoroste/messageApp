@@ -1,8 +1,9 @@
 import {encryptCodeVerificationValueType} from "@followBack/Elements/CodeVerificationLayout/types";
+import {ResetMethod} from "@followBack/Apis/ForgetPassword/types";
 
-export const encryptCodeVerificationValue: encryptCodeVerificationValueType =(value, isPhoneNumber)=>{
+export const encryptCodeVerificationValue: encryptCodeVerificationValueType =(value, resetMethod)=>{
     const hashingValue = "\u2022";
-    if(isPhoneNumber){
+    if(resetMethod === ResetMethod.Phone){
       return `${hashingValue.repeat(value.length - 2)}${value.substring(value.length - 2)}`;
     }
     const emailDomainIndex = value.indexOf("@");

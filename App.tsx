@@ -1,20 +1,25 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
+import { QueryClient, QueryClientProvider } from "react-query";
 import UnauthorizedNavigation from "@followBack/Navigation/Unauthorized";
 import { NavigationContainer } from '@react-navigation/native';
 import * as React from "react";
 import { Provider as PaperProvider } from 'react-native-paper';
 import useInitialLoading from "@followBack/Hooks/useInitialLoading";
 import {ThemeProvider} from "@followBack/Contexts/ThemeContext";
+import axios from "axios";
 
+const queryClient = new QueryClient();
+axios.defaults.baseURL = 'http://mail.iinboxx.com:4000/api/';
 
-export default function App() {
+ const App: React.FC = ()=> {
         const [isAppLoaded] = useInitialLoading();
 
     if (!isAppLoaded) {
         return null;
     }
     return (
+        <QueryClientProvider client={queryClient}>
         <ThemeProvider>
             <PaperProvider>
                 <View style={{flex: 1}}>
@@ -25,5 +30,8 @@ export default function App() {
                 </View>
             </PaperProvider>
         </ ThemeProvider>
-  );
+        </QueryClientProvider>
+
+    );
 }
+export default App;
