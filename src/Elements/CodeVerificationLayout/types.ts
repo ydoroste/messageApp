@@ -2,7 +2,7 @@ import {ResetMethod} from "@followBack/Apis/ForgetPassword/types";
 import * as React from "react";
 
 export interface ICodeVerificationLayoutProps {
-    VerificationValue: string,
+    userName: string,
     hashedCodeVerificationValue: string,
     verificationMethod: ResetMethod
     children: React.ReactNode

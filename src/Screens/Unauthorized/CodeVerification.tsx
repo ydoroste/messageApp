@@ -51,6 +51,7 @@ const CodeVerification: React.FC = () => {
         const {data, error, isError} = await refetch();
     };
 
+
     return (
         <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : undefined}
@@ -60,7 +61,7 @@ const CodeVerification: React.FC = () => {
                 <CodeVerificationLayout key={codeVerificationValue}
                                         hashedCodeVerificationValue={hashedCodeVerificationValue}
                                         verificationMethod={verificationMethod}
-                                        VerificationValue={codeVerificationValue}>
+                                        userName={userName}>
                                           <CodeVerificationForm/>
                                         </CodeVerificationLayout>
                 <View style={styles.resetLink}>

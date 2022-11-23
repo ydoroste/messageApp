@@ -31,9 +31,6 @@ const StepTwo: React.FC<IStepOneProps> = ({ wizard, form }) => {
   useFocusEffect(
     useCallback(() => {
       setFocus("username");
-      return () => {
-        reset();
-      };
     }, [])
   );
 
@@ -188,11 +185,14 @@ const useStyles = useStylesWithTheme((theme) => ({
 
   gender: {
     width: "100%",
+    marginTop: 0,
     marginBottom: 44,
   },
 
   birthDate: {
     width: "100%",
+    marginTop: 0,
+
     marginBottom: 72,
   },
 
@@ -200,6 +200,8 @@ const useStyles = useStylesWithTheme((theme) => ({
     width: "100%",
     flexDirection: "row",
     justifyContent: "center",
+    marginTop: 0,
+
     marginBottom: 36,
   },
   button: {
@@ -207,6 +209,8 @@ const useStyles = useStylesWithTheme((theme) => ({
   },
   passwordField: {
     width: "100%",
+    marginTop: 0,
+
     marginBottom: 45,
   },
 

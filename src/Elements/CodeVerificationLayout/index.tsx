@@ -15,10 +15,8 @@ import {useResendVerificationCode} from "@followBack/Hooks/Apis/ResendVerificati
 import {useRoute} from "@react-navigation/core";
 import {ICodeVerificationState, UnauthorizedStackNavigationProps} from "@followBack/Navigation/Unauthorized/types";
 
-const CodeVerificationLayout: React.FC<ICodeVerificationLayoutProps> = ({children, VerificationValue, hashedCodeVerificationValue}) => {
+const CodeVerificationLayout: React.FC<ICodeVerificationLayoutProps> = ({children, userName, hashedCodeVerificationValue}) => {
     const [showResend, setShowResend] = useState(false);
-    const route = useRoute<UnauthorizedStackNavigationProps['route']>();
-    const {userName} = route.params as ICodeVerificationState;
 
     const resendVerificationCodeRequest: IResendVerificationCodeRequest = {
         user_name: userName

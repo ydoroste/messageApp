@@ -1,6 +1,5 @@
-import * as React from "react";
-import { View } from "react-native";
-import { Text, Button as CustomButton } from "react-native-paper";
+import React, { useRef } from "react";
+import { Keyboard } from "react-native";
 import useStylesWithTheme from "@followBack/Hooks/useStylesWithTheme";
 import { IDropdownProps } from "@followBack/GenericElements/Dropdown/types";
 import { memo } from "react";
@@ -13,10 +12,41 @@ const Dropdown: React.FC<IDropdownProps> = ({
   onSelect,
 }) => {
   const { styles } = useStyles();
+  const ref = useRef<SelectDropdown>(null);
+  const [isKeyboardVisible, setKeyboardVisible] = React.useState(false);
+
+  React.useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      "keyboardDidShow",
+      () => {
+        setKeyboardVisible(true); // or some other action
+      }
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      "keyboardDidHide",
+      () => {
+        setKeyboardVisible(false); // or some other action
+      }
+    );
+
+    return () => {
+      keyboardDidHideListener.remove();
+      keyboardDidShowListener.remove();
+    };
+  }, []);
+
   return (
     <SelectDropdown
       data={items}
       onSelect={onSelect}
+      onFocus={() => {
+        if (isKeyboardVisible) {
+          //ref?.current?.closeDropdown();
+          Keyboard.dismiss();
+          ref?.current?.openDropdown();
+        }
+      }}
+      ref={ref}
       defaultButtonText={defaultText}
       buttonTextAfterSelection={(selectedItem, index) => {
         return selectedItem.name;
@@ -53,8 +83,7 @@ const useStyles = useStylesWithTheme((theme) => ({
   dropdownRowText: {
     color: theme.colors.grey02,
     paddingVertical: 3,
-    letterSpacing: 0
-
+    letterSpacing: 0,
   },
   dropdownButton: {
     width: "100%",
@@ -67,7 +96,7 @@ const useStyles = useStylesWithTheme((theme) => ({
   dropdownButtonText: {
     justifyContent: "flex-start",
     marginLeft: 4,
-    letterSpacing: 0
+    letterSpacing: 0,
   },
 
   textStyle: {

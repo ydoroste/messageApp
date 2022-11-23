@@ -1,5 +1,5 @@
 import { Controller } from "react-hook-form";
-import { View, StyleSheet, TextInput, Text } from "react-native";
+import { View, StyleSheet, Pressable, Keyboard, Text } from "react-native";
 import InputField from "@followBack/GenericElements/InputField";
 import * as React from "react";
 import Button from "@followBack/GenericElements/Button";
@@ -33,9 +33,6 @@ const StepOne: React.FC<IStepOneProps> = ({ wizard, form }) => {
   useFocusEffect(
     useCallback(() => {
       setFocus("firstName");
-      return () => {
-        reset();
-      };
     }, [])
   );
 
@@ -61,8 +58,8 @@ const StepOne: React.FC<IStepOneProps> = ({ wizard, form }) => {
           <View style={styles.textInput}>
             <InputField
               // @ts-ignore
-              erorr={!!errors.firstName?.message}
               ref={ref}
+              error={!!errors.firstName?.message}
               placeholder={getTranslatedText("firstName")}
               onChangeText={onChange}
               value={value}
@@ -85,8 +82,8 @@ const StepOne: React.FC<IStepOneProps> = ({ wizard, form }) => {
           <View style={styles.textInput}>
             <InputField
               // @ts-ignore
-              erorr={!!errors.lastName?.message}
               ref={ref}
+              error={!!errors.lastName?.message}
               placeholder={getTranslatedText("lastName")}
               onChangeText={onChange}
               value={value}
@@ -107,15 +104,15 @@ const StepOne: React.FC<IStepOneProps> = ({ wizard, form }) => {
         control={control}
         rules={rules}
         render={({ field: { onChange, value, ref } }) => (
-          <View style={styles.gender}>
-            <Dropdown
-              defaultText={getTranslatedText("gender")}
-              items={gender}
-              onSelect={(selectedItem, index) => {
-                form.setValue("gender", selectedItem.value);
-              }}
-            />
-          </View>
+            <View style={styles.gender}>
+              <Dropdown
+                defaultText={getTranslatedText("gender")}
+                items={gender}
+                onSelect={(selectedItem, index) => {
+                  form.setValue("gender", selectedItem.value);
+                }}
+              />
+            </View>
         )}
         name="gender"
       />

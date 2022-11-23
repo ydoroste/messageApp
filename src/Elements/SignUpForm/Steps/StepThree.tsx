@@ -12,11 +12,11 @@ import { UnauthorizedStackNavigationProps } from "@followBack/Navigation/Unautho
 import { encryptCodeVerificationValue } from "@followBack/Elements/CodeVerificationLayout/utils";
 import { useRoute } from "@react-navigation/native";
 import { ICodeVerificationValues } from "@followBack/Elements/SignUpForm/types";
+import { ResetMethod } from "@followBack/Apis/ForgetPassword/types";
 
 const StepThree: React.FC<IStepThreeProps> = ({ wizard, form }) => {
   const nav = useNavigation<UnauthorizedStackNavigationProps["navigation"]>();
   const route = useRoute<UnauthorizedStackNavigationProps["route"]>();
-
   const {
     control,
     handleSubmit,
@@ -33,12 +33,14 @@ const StepThree: React.FC<IStepThreeProps> = ({ wizard, form }) => {
     required: true,
   };
 
-  const phoneNumber: string = form.watch()["phoneNumber"];
+  const { username, phoneNumber } = form.watch();
 
   const hashedCodeVerificationValue = useMemo<string>(
-    () => encryptCodeVerificationValue(phoneNumber, true),
+    () => encryptCodeVerificationValue(phoneNumber, ResetMethod.Phone),
     [phoneNumber]
   );
+
+  console.log("hashedCodeVerificationValue", hashedCodeVerificationValue);
 
   const onSubmit = async (data: ICodeVerificationValues) => {
     console.log("Data", data);
@@ -54,42 +56,45 @@ const StepThree: React.FC<IStepThreeProps> = ({ wizard, form }) => {
   return (
     <>
       <CodeVerificationLayout
+        verificationMethod={ResetMethod.Phone}
         hashedCodeVerificationValue={hashedCodeVerificationValue}
-        VerificationValue={phoneNumber}
+        userName={username}
       >
-        <Controller
-          control={control}
-          name="code"
-          rules={{
-            required: true,
-            validate: (value) => value.length === 6,
-          }}
-          render={({ field: { onChange } }) => (
-            <CodeVerificationFields
-              error={!!errors?.code?.message}
-              onChange={(text) => {
-                onChange(text);
-              }}
-            />
+        <>
+          <Controller
+            control={control}
+            name="code"
+            rules={{
+              required: true,
+              validate: (value) => value.length === 6,
+            }}
+            render={({ field: { onChange } }) => (
+              <CodeVerificationFields
+                error={!!errors?.code?.message}
+                onChange={(text) => {
+                  onChange(text);
+                }}
+              />
+            )}
+          />
+          {errors.code?.message && (
+            <View style={style.errorMessage}>
+              <Typography type="smallRegularBody" color="error">
+                {errors.code.message}
+              </Typography>
+            </View>
           )}
-        />
-        {errors.code?.message && (
-          <View style={style.errorMessage}>
-            <Typography type="smallRegularBody" color="error">
-              {errors.code.message}
-            </Typography>
+          <View style={style.button}>
+            <Button
+              type="primary"
+              disabled={!isValid || isSubmitting}
+              loading={isSubmitting}
+              onPress={() => handleSubmit(onSubmit)}
+            >
+              {getTranslatedText("verify")}
+            </Button>
           </View>
-        )}
-        <View style={style.button}>
-          <Button
-            type="primary"
-            disabled={!isValid || isSubmitting}
-            loading={isSubmitting}
-            onPress={() => handleSubmit(onSubmit)}
-          >
-            {getTranslatedText("verify")}
-          </Button>
-        </View>
+        </>
       </CodeVerificationLayout>
     </>
   );
@@ -100,6 +105,7 @@ export default StepThree;
 const style = StyleSheet.create({
   button: {
     marginTop: 60,
+    marginBottom: 36,
     width: "90%",
   },
   errorMessage: {
