@@ -7,6 +7,7 @@ export enum UnauthorizedScreensEnum {
     codeVerification = 'codeVerification',
     resetSuccessfully = 'resetSuccessfully',
     noSecondaryEmail = 'noSecondaryEmail',
+    verifiedSuccessfully = 'verifiedSuccessfully'
 }
 
 
@@ -42,6 +43,10 @@ export const UnauthorizedScreens: Record<UnauthorizedScreensEnum, IScreensDetail
     [UnauthorizedScreensEnum.noSecondaryEmail]: {
         title: "",
         name: "noSecondaryEmail"
+    },
+    [UnauthorizedScreensEnum.verifiedSuccessfully]: {
+        title: "",
+        name: "verifiedSuccessfully"
     }
 };
 

@@ -2,6 +2,8 @@ import {encryptCodeVerificationValueType} from "@followBack/Elements/CodeVerific
 import {ResetMethod} from "@followBack/Apis/ForgetPassword/types";
 
 export const encryptCodeVerificationValue: encryptCodeVerificationValueType =(value, resetMethod)=>{
+    if(!value) return "";
+  
     const hashingValue = "\u2022";
     if(resetMethod === ResetMethod.Phone){
       return `${hashingValue.repeat(value.length - 2)}${value.substring(value.length - 2)}`;

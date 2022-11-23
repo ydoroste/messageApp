@@ -13,7 +13,7 @@ import {
   TouchableWithoutFeedback,
   TouchableNativeFeedback,
 } from "react-native";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import useStylesWithTheme from "@followBack/Hooks/useStylesWithTheme";
 import StepOne from "@followBack/Elements/SignUpForm/Steps/StepOne";
 import StepTwo from "@followBack/Elements/SignUpForm/Steps/StepTwo";
@@ -45,6 +45,17 @@ export default function SignUp() {
       },
       mode: "onChange",
     });
+
+  const { reset, setFocus } = form;
+
+  useFocusEffect(
+    useCallback(() => {
+      setFocus("firstName");
+      return () => {
+        reset();
+      };
+    }, [])
+  );
 
   const onSubmit = async (data: ISignUpFormValues) => {
     return new Promise((resolve) => {
