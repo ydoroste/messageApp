@@ -17,6 +17,7 @@ import React, { useState, useRef } from "react";
 import useStylesWithTheme from "@followBack/Hooks/useStylesWithTheme";
 import StepOne from "@followBack/Elements/SignUpForm/Steps/StepOne";
 import StepTwo from "@followBack/Elements/SignUpForm/Steps/StepTwo";
+import StepThree from "@followBack/Elements/SignUpForm/Steps/StepThree";
 
 import Wizard from "react-native-wizard";
 import StepIndicator from "@followBack/GenericElements/StepIndicator";
@@ -41,6 +42,7 @@ export default function SignUp() {
         password: "",
         passwordConfirmation: "",
         phoneNumber: "",
+        code: "",
       },
       mode: "onChange",
     });
@@ -56,7 +58,7 @@ export default function SignUp() {
   const [isFirstStep, setIsFirstStep] = useState(true);
   const [isLastStep, setIsLastStep] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
-  console.log("currentStep", currentStep);
+
   const stepList = [
     {
       content: <StepOne form={form} wizard={wizard} />,
@@ -65,9 +67,7 @@ export default function SignUp() {
       content: <StepTwo form={form} wizard={wizard} />,
     },
     {
-      content: (
-        <View style={{ width: 100, height: 500, backgroundColor: "#9be07d" }} />
-      ),
+      content: <StepThree form={form} wizard={wizard} />,
     },
   ];
   return (

@@ -74,13 +74,14 @@ const StepTwo: React.FC<IStepOneProps> = ({ wizard, form }) => {
           </View>
         )}
       />
-      <View style={styles.errorMessage}>
-        {errors.username?.message && (
+
+      {errors.username?.message && (
+        <View style={styles.errorMessage}>
           <Typography type="smallRegularBody" color="error">
             {errors.username.message}
           </Typography>
-        )}
-      </View>
+        </View>
+      )}
 
       <Controller
         control={control}
@@ -97,13 +98,13 @@ const StepTwo: React.FC<IStepOneProps> = ({ wizard, form }) => {
         )}
         name="password"
       />
-      <View style={styles.errorMessage}>
-        {errors.password?.message && (
+      {errors.password?.message && (
+        <View style={styles.errorMessage}>
           <Typography type="smallRegularBody" color="error">
             {errors.password.message}
           </Typography>
-        )}
-      </View>
+        </View>
+      )}
 
       <Controller
         control={control}
@@ -120,13 +121,14 @@ const StepTwo: React.FC<IStepOneProps> = ({ wizard, form }) => {
         )}
         name="passwordConfirmation"
       />
-      <View style={styles.errorMessage}>
-        {errors.passwordConfirmation?.message && (
+
+      {errors.passwordConfirmation?.message && (
+        <View style={styles.errorMessage}>
           <Typography type="smallRegularBody" color="error">
             {errors.passwordConfirmation.message}
           </Typography>
-        )}
-      </View>
+        </View>
+      )}
 
       <Controller
         control={control}
@@ -148,13 +150,13 @@ const StepTwo: React.FC<IStepOneProps> = ({ wizard, form }) => {
         name="phoneNumber"
       />
 
-      <View style={styles.errorMessage}>
-        {errors.phoneNumber?.message && (
+      {errors.phoneNumber?.message && (
+        <View style={styles.errorMessage}>
           <Typography type="smallRegularBody" color="error">
             {errors.phoneNumber.message}
           </Typography>
-        )}
-      </View>
+        </View>
+      )}
 
       <View style={styles.buttonWrapper}>
         <View style={styles.button}>

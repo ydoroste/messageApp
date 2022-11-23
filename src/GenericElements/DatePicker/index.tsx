@@ -3,10 +3,11 @@ import { TouchableOpacity, Text } from "react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import useStylesWithTheme from "@followBack/Hooks/useStylesWithTheme";
 import { IDatePickerProps } from "@followBack/GenericElements/DatePicker/types";
+import useTheme from "@followBack/Hooks/useTheme";
 
-const DatePicker: React.FC<IDatePickerProps> = ({error, date, onSelect }) => {
+const DatePicker: React.FC<IDatePickerProps> = ({ error, date, onSelect }) => {
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
-
+  const { colors } = useTheme();
   const { styles } = useStyles();
   const showDatePicker = () => {
     setDatePickerVisibility(true);
@@ -36,7 +37,7 @@ const DatePicker: React.FC<IDatePickerProps> = ({error, date, onSelect }) => {
         onPress={showDatePicker}
         style={{
           ...styles.buttonContainer,
-          borderBottomColor: error ? colors.error : theme.colors.grey02,
+          borderBottomColor: error ? colors.error : colors.grey02,
         }}
       >
         <Text style={{ ...styles.text, ...styles.placeholder }}>

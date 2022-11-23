@@ -1,5 +1,5 @@
 import { UseFormReturn } from "react-hook-form";
-import React from 'react'
+import React from "react";
 export interface ISignUpFormValues {
   firstName: string;
   lastName: string;
@@ -8,12 +8,17 @@ export interface ISignUpFormValues {
   username: string;
   password: string;
   passwordConfirmation: string;
-  phoneNumber: string
-  formattedPhoneNumber: string
-
+  phoneNumber: string;
+  formattedPhoneNumber: string;
+  code: string;
 }
 
 export interface IStepOneProps {
   form: UseFormReturn<ISignUpFormValues, any>;
-  wizard: React.MutableRefObject<any>
+  wizard: React.MutableRefObject<any>;
+}
+
+export interface IStepThreeProps {
+  form: UseFormReturn<ISignUpFormValues, any>;
+  wizard: React.MutableRefObject<any>;
 }

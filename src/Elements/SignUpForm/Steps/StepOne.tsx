@@ -70,13 +70,13 @@ const StepOne: React.FC<IStepOneProps> = ({ wizard, form }) => {
           </View>
         )}
       />
-      <View style={styles.errorMessage}>
-        {errors.firstName?.message && (
+      {errors.firstName?.message && (
+        <View style={styles.errorMessage}>
           <Typography type="smallRegularBody" color="error">
             {errors.firstName.message}
           </Typography>
-        )}
-      </View>
+        </View>
+      )}
 
       <Controller
         control={control}
@@ -95,13 +95,13 @@ const StepOne: React.FC<IStepOneProps> = ({ wizard, form }) => {
         )}
         name="lastName"
       />
-      <View style={styles.errorMessage}>
-        {errors.lastName?.message && (
+      {errors.lastName?.message && (
+        <View style={styles.errorMessage}>
           <Typography type="smallRegularBody" color="error">
             {errors.lastName.message}
           </Typography>
-        )}
-      </View>
+        </View>
+      )}
 
       <Controller
         control={control}
@@ -120,13 +120,13 @@ const StepOne: React.FC<IStepOneProps> = ({ wizard, form }) => {
         name="gender"
       />
 
-      <View style={styles.errorMessage}>
-        {errors.gender?.message && (
+      {errors.gender?.message && (
+        <View style={styles.errorMessage}>
           <Typography type="smallRegularBody" color="error">
             {errors.gender.message}
           </Typography>
-        )}
-      </View>
+        </View>
+      )}
 
       <Controller
         control={control}
@@ -145,13 +145,13 @@ const StepOne: React.FC<IStepOneProps> = ({ wizard, form }) => {
         name="birthDate"
       />
 
-      <View style={styles.errorMessage}>
-        {errors.birthDate?.message && (
+      {errors.birthDate?.message && (
+        <View style={styles.errorMessage}>
           <Typography type="smallRegularBody" color="error">
             {errors.birthDate.message}
           </Typography>
-        )}
-      </View>
+        </View>
+      )}
 
       <View style={styles.buttonWrapper}>
         <View style={styles.button}>
