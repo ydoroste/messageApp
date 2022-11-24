@@ -57,6 +57,7 @@ const DatePicker: React.FC<IDatePickerProps> = ({ error, date, onSelect }) => {
       <DateTimePickerModal
         isVisible={isDatePickerVisible}
         mode="date"
+        date={new Date(new Date().setFullYear(new Date().getFullYear() - 13))}
         onConfirm={handleConfirm}
         onCancel={hideDatePicker}
       />

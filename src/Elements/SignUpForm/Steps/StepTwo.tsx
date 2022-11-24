@@ -13,6 +13,10 @@ import PasswordInput from "@followBack/GenericElements/PasswordInput";
 import PhoneNumberInput from "@followBack/GenericElements/PhoneNumberInput";
 import Typography from "@followBack/GenericElements/Typography";
 import useStylesWithTheme from "@followBack/Hooks/useStylesWithTheme";
+import {ILoginApiRequest} from "@followBack/Apis/Login/types";
+import {useLogin} from "@followBack/Hooks/Apis/Login";
+import {useRegister} from "@followBack/Hooks/Apis/Register";
+import {IRegisterApiRequest} from "@followBack/Apis/Register/types";
 
 const StepTwo: React.FC<IStepOneProps> = ({ wizard, form }) => {
   const {
@@ -28,7 +32,20 @@ const StepTwo: React.FC<IStepOneProps> = ({ wizard, form }) => {
     required: true,
   };
 
-  useFocusEffect(
+    const values = watch();
+    const request: IRegisterApiRequest ={
+        first_name: values.firstName,
+        last_name: values.lastName,
+        gender: values.gender,
+        birth_date: values.birthDate,
+        user_name: values.username,
+        phone_number: values.formattedPhoneNumber,
+        password: values.password
+    };
+    const { refetch } = useRegister(request);
+
+
+    useFocusEffect(
     useCallback(() => {
       setFocus("username");
     }, [])
@@ -49,7 +66,17 @@ const StepTwo: React.FC<IStepOneProps> = ({ wizard, form }) => {
       | "phoneNumber";
     return stepOneKeys.every((key: StepTwoFiledsType) => !!values[key]);
   };
+    const onSubmit = async ()=> {
+        const {data, error, isError} = await refetch();
+        if(isError){
+            //handle error here
+            return;
+        }
+        //no errors from apis
+        if (!wizard?.current) return;
+        wizard.current?.next();
 
+    };
   const { styles } = useStyles();
   return (
     <>
@@ -161,10 +188,7 @@ const StepTwo: React.FC<IStepOneProps> = ({ wizard, form }) => {
             type="primary"
             disabled={!isStepTwoValid()}
             loading={false}
-            onPress={() => {
-              if (!wizard?.current) return;
-              wizard.current?.next();
-            }}
+            onPress={onSubmit}
           >
             {getTranslatedText("next")}
           </Button>

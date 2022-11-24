@@ -14,105 +14,111 @@ import { useRoute } from "@react-navigation/native";
 import { ICodeVerificationValues } from "@followBack/Elements/SignUpForm/types";
 import { ResetMethod } from "@followBack/Apis/ForgetPassword/types";
 import { UnauthorizedScreensEnum } from "@followBack/Navigation/constants";
+import {ILoginApiRequest} from "@followBack/Apis/Login/types";
+import {useLogin} from "@followBack/Hooks/Apis/Login";
+import {useVerifyUser} from "@followBack/Hooks/Apis/VerifyUser";
+import {IVerifyUserApiRequest} from "@followBack/Apis/VerifyUser/types";
 
 const StepThree: React.FC<IStepThreeProps> = ({ wizard, form }) => {
-  const nav = useNavigation<UnauthorizedStackNavigationProps["navigation"]>();
-  const route = useRoute<UnauthorizedStackNavigationProps["route"]>();
-  const {
-    control,
-    handleSubmit,
-    formState: { isValid, isSubmitting, errors },
-    setError,
-  } = useForm<ICodeVerificationValues>({
-    defaultValues: {
-      code: "",
-    },
-    mode: "onChange",
-  });
-
-  const rules = {
-    required: true,
-  };
-
-  const { username, phoneNumber } = form.watch();
-
-  const hashedCodeVerificationValue = useMemo<string>(
-    () => encryptCodeVerificationValue(phoneNumber, ResetMethod.Phone),
-    [phoneNumber]
-  );
-
-  const onSubmit = async (data: ICodeVerificationValues) => {
-    console.log("Data", data);
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        console.log("Verified");
-
-        resolve("resolved");
-      }, 3000);
+    const nav = useNavigation<UnauthorizedStackNavigationProps["navigation"]>();
+    const route = useRoute<UnauthorizedStackNavigationProps["route"]>();
+    const {
+        control,
+        handleSubmit,
+        formState: { isValid, isSubmitting, errors },
+        setError,
+        watch
+    } = useForm<ICodeVerificationValues>({
+        defaultValues: {
+            code: "",
+        },
+        mode: "onChange",
     });
-  };
 
-  return (
-    <>
-      <CodeVerificationLayout
-        verificationMethod={ResetMethod.Phone}
-        hashedCodeVerificationValue={hashedCodeVerificationValue}
-        userName={username}
-      >
+    const rules = {
+        required: true,
+    };
+
+    const { username, phoneNumber } = form.watch();
+
+    const hashedCodeVerificationValue = useMemo<string>(
+        () => encryptCodeVerificationValue(phoneNumber, ResetMethod.Phone),
+        [phoneNumber]
+    );
+    const values = watch();
+    const request: IVerifyUserApiRequest ={
+        user_name: username,
+        code: values.code
+    };
+    const { refetch } = useVerifyUser(request);
+
+    const onSubmit = async () => {
+        const {data, error, isError} = await refetch();
+        if(isError){
+            //handle error here
+            return;
+        }
+        nav.navigate(UnauthorizedScreensEnum.verifiedSuccessfully, {
+            userName: username,
+        });
+    };
+
+    return (
         <>
-          <Controller
-            control={control}
-            name="code"
-            rules={{
-              required: true,
-              validate: (value) => value.length === 6,
-            }}
-            render={({ field: { onChange } }) => (
-              <CodeVerificationFields
-                error={!!errors?.code?.message}
-                onChange={(text) => {
-                  onChange(text);
-                }}
-              />
-            )}
-          />
-          {errors.code?.message && (
-            <View style={style.errorMessage}>
-              <Typography type="smallRegularBody" color="error">
-                {errors.code.message}
-              </Typography>
-            </View>
-          )}
-          <View style={style.button}>
-            <Button
-              type="primary"
-              disabled={!isValid || isSubmitting}
-              loading={isSubmitting}
-              onPress={() =>
-                // () => handleSubmit(onSubmit)
-                nav.navigate(UnauthorizedScreensEnum.verifiedSuccessfully, {
-                  userName: username,
-                })
-              }
+            <CodeVerificationLayout
+                verificationMethod={ResetMethod.Phone}
+                hashedCodeVerificationValue={hashedCodeVerificationValue}
+                userName={username}
             >
-              {getTranslatedText("verify")}
-            </Button>
-          </View>
+                <>
+                    <Controller
+                        control={control}
+                        name="code"
+                        rules={{
+                            required: true,
+                            validate: (value) => value.length === 6,
+                        }}
+                        render={({ field: { onChange } }) => (
+                            <CodeVerificationFields
+                                error={!!errors?.code?.message}
+                                onChange={(text) => {
+                                    onChange(text);
+                                }}
+                            />
+                        )}
+                    />
+                    {errors.code?.message && (
+                        <View style={style.errorMessage}>
+                            <Typography type="smallRegularBody" color="error">
+                                {errors.code.message}
+                            </Typography>
+                        </View>
+                    )}
+                    <View style={style.button}>
+                        <Button
+                            type="primary"
+                            disabled={!isValid || isSubmitting}
+                            loading={isSubmitting}
+                            onPress={onSubmit}
+                        >
+                            {getTranslatedText("verify")}
+                        </Button>
+                    </View>
+                </>
+            </CodeVerificationLayout>
         </>
-      </CodeVerificationLayout>
-    </>
-  );
+    );
 };
 
 export default StepThree;
 
 const style = StyleSheet.create({
-  button: {
-    marginTop: 60,
-    marginBottom: 36,
-    width: "90%",
-  },
-  errorMessage: {
-    marginTop: 60,
-  },
+    button: {
+        marginTop: 60,
+        marginBottom: 36,
+        width: "90%",
+    },
+    errorMessage: {
+        marginTop: 60,
+    },
 });
