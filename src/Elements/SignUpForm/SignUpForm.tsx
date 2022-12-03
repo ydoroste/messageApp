@@ -1,18 +1,4 @@
-import {
-  Text,
-  TextInput,
-  StyleSheet,
-  KeyboardAvoidingView,
-  View,
-  Dimensions,
-  Button,
-  SafeAreaView,
-  Pressable,
-  Platform,
-  Keyboard,
-  TouchableWithoutFeedback,
-  TouchableNativeFeedback,
-} from "react-native";
+import { View, Pressable } from "react-native";
 import React, { useState, useRef, useCallback } from "react";
 import useStylesWithTheme from "@followBack/Hooks/useStylesWithTheme";
 import StepOne from "@followBack/Elements/SignUpForm/Steps/StepOne";
@@ -25,9 +11,14 @@ import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { UnauthorizedStackNavigationProps } from "@followBack/Navigation/Unauthorized/types";
 import { ISignUpFormValues } from "@followBack/Elements/signUpForm/types";
 import { useForm, UseFormReturn } from "react-hook-form";
+import {
+  StepOneFiledsType,
+  StepTwoFiledsType,
+  StepThreeFiledsType,
+} from "@followBack/Elements/SignUpForm/types";
 
 export default function SignUp() {
-  const wizard = useRef();
+  const wizard = useRef<React.MutableRefObject<any>>();
   const { styles } = useStyles();
   const nav = useNavigation<UnauthorizedStackNavigationProps["navigation"]>();
 
@@ -42,11 +33,45 @@ export default function SignUp() {
         password: "",
         passwordConfirmation: "",
         phoneNumber: "",
+        acceptsCoditionsAndTerms: false,
+        country: null
       },
       mode: "onChange",
     });
 
-  const { reset, setFocus } = form;
+  const { reset, setFocus, watch } = form;
+
+  const values = watch();
+
+  const isStepOneValid = () => {
+    const stepOneKeys: StepOneFiledsType[] = [
+      "firstName",
+      "lastName",
+      "gender",
+      "birthDate",
+    ];
+    return stepOneKeys.every((key: StepOneFiledsType) => !!values[key]);
+  };
+
+  const isStepTwoValid = () => {
+    const stepOneKeys: StepTwoFiledsType[] = [
+      "username",
+      "password",
+      "passwordConfirmation",
+      "phoneNumber",
+    ];
+
+    return stepOneKeys.every((key: StepTwoFiledsType) => !!values[key]);
+  };
+
+  const isStepThreeValid = () => {
+    const stepThreeKeys: StepThreeFiledsType[] = [
+      "code",
+      "acceptsCoditionsAndTerms",
+    ];
+
+    return stepThreeKeys.every((key: StepThreeFiledsType) => !!values[key]);
+  };
 
   useFocusEffect(
     useCallback(() => {
@@ -71,13 +96,27 @@ export default function SignUp() {
 
   const stepList = [
     {
-      content: <StepOne form={form} wizard={wizard} />,
+      content: (
+        <StepOne form={form} wizard={wizard} isStepValid={isStepOneValid()} />
+      ),
+
+      isValid: isStepOneValid(),
     },
     {
-      content: <StepTwo form={form} wizard={wizard} />,
+      content: (
+        <StepTwo form={form} wizard={wizard} isStepValid={isStepTwoValid()} />
+      ),
+      isValid: isStepTwoValid(),
     },
     {
-      content: <StepThree form={form} wizard={wizard} />,
+      content: (
+        <StepThree
+          form={form}
+          wizard={wizard}
+          isStepValid={isStepThreeValid()}
+        />
+      ),
+      isValid: isStepThreeValid(),
     },
   ];
   return (
@@ -99,13 +138,27 @@ export default function SignUp() {
         />
       </View>
       <View style={styles.indicatorsWrapper}>
-        {stepList.map((val, index) => (
-          <StepIndicator
-            key={index}
-            disabled={index !== currentStep}
-            isLastIndicator={index + 1 === stepList.length}
-          />
-        ))}
+        {stepList.map(({ isValid }, index) => {
+          const previousSteps = stepList.slice(0, index);
+          const isAccessable = previousSteps.every(({ isValid }) => isValid);
+          const isCurrentStep = index === currentStep;
+          console.log("isAccessable", isAccessable)
+          return (
+            <Pressable
+              key={index}
+              onPress={() => {
+                if (!wizard?.current || isCurrentStep || !isAccessable) return;
+
+                wizard?.current.goTo(index);
+              }}
+            >
+              <StepIndicator
+                disabled={!isCurrentStep}
+                isLastIndicator={index + 1 === stepList.length}
+              />
+            </Pressable>
+          );
+        })}
       </View>
     </>
   );

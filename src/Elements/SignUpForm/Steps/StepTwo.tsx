@@ -8,17 +8,15 @@ import Button from "@followBack/GenericElements/Button";
 import { getTranslatedText } from "@followBack/Localization";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { useCallback, useEffect } from "react";
-import { IStepOneProps } from "@followBack/Elements/SignUpForm/types";
+import { IStepProps } from "@followBack/Elements/SignUpForm/types";
 import PasswordInput from "@followBack/GenericElements/PasswordInput";
 import PhoneNumberInput from "@followBack/GenericElements/PhoneNumberInput";
 import Typography from "@followBack/GenericElements/Typography";
 import useStylesWithTheme from "@followBack/Hooks/useStylesWithTheme";
-import {ILoginApiRequest} from "@followBack/Apis/Login/types";
-import {useLogin} from "@followBack/Hooks/Apis/Login";
-import {useRegister} from "@followBack/Hooks/Apis/Register";
-import {IRegisterApiRequest} from "@followBack/Apis/Register/types";
+import { IResendVerificationCodeRequest } from "@followBack/Apis/ResendVerificationCode/types";
+import { useResendVerificationCode } from "@followBack/Hooks/Apis/ResendVerificationCode";
 
-const StepTwo: React.FC<IStepOneProps> = ({ wizard, form }) => {
+const StepTwo: React.FC<IStepProps> = ({ wizard, form, isStepValid }) => {
   const {
     control,
     handleSubmit,
@@ -32,51 +30,41 @@ const StepTwo: React.FC<IStepOneProps> = ({ wizard, form }) => {
     required: true,
   };
 
-    const values = watch();
-    const request: IRegisterApiRequest ={
-        first_name: values.firstName,
-        last_name: values.lastName,
-        gender: values.gender,
-        birth_date: values.birthDate,
-        user_name: values.username,
-        phone_number: values.formattedPhoneNumber,
-        password: values.password
-    };
-    const { refetch } = useRegister(request);
-
-
-    useFocusEffect(
+  useFocusEffect(
     useCallback(() => {
       setFocus("username");
     }, [])
   );
 
-  const isStepTwoValid = () => {
-    const values = watch();
-    const stepOneKeys: StepTwoFiledsType[] = [
-      "username",
-      "password",
-      "passwordConfirmation",
-      "phoneNumber",
-    ];
-    type StepTwoFiledsType =
-      | "username"
-      | "password"
-      | "passwordConfirmation"
-      | "phoneNumber";
-    return stepOneKeys.every((key: StepTwoFiledsType) => !!values[key]);
-  };
-    const onSubmit = async ()=> {
-        const {data, error, isError} = await refetch();
-        if(isError){
-            //handle error here
-            return;
-        }
-        //no errors from apis
-        if (!wizard?.current) return;
-        wizard.current?.next();
+  const { country, formattedPhoneNumber } = watch();
 
-    };
+  const resendVerificationCodeRequest: IResendVerificationCodeRequest = {
+    user_name: formattedPhoneNumber,
+  };
+
+  const { refetch, error } = useResendVerificationCode(
+    resendVerificationCodeRequest
+  );
+
+  const onSubmit = async () => {
+    const { password, passwordConfirmation } = watch();
+
+    if (password !== passwordConfirmation) {
+      setError("passwordConfirmation", {
+        message: getTranslatedText("passwordNotMatch"),
+      });
+      return;
+    }
+
+    try {
+      const a = await refetch();
+    } catch (e) {
+      console.dir("error", e);
+    }
+
+    if (!wizard?.current) return;
+    wizard.current?.next();
+  };
   const { styles } = useStyles();
   return (
     <>
@@ -95,17 +83,17 @@ const StepTwo: React.FC<IStepOneProps> = ({ wizard, form }) => {
               value={value}
               right={<TextInput.Affix text="@em.ls" textStyle={styles.email} />}
             />
+
+            {errors.username?.message && (
+              <View style={styles.errorMessage}>
+                <Typography type="smallRegularBody" color="error">
+                  {errors.username.message}
+                </Typography>
+              </View>
+            )}
           </View>
         )}
       />
-
-      {errors.username?.message && (
-        <View style={styles.errorMessage}>
-          <Typography type="smallRegularBody" color="error">
-            {errors.username.message}
-          </Typography>
-        </View>
-      )}
 
       <Controller
         control={control}
@@ -118,17 +106,17 @@ const StepTwo: React.FC<IStepOneProps> = ({ wizard, form }) => {
               onChangeText={onChange}
               value={value}
             />
+            {errors.password?.message && (
+              <View style={styles.errorMessage}>
+                <Typography type="smallRegularBody" color="error">
+                  {errors.password.message}
+                </Typography>
+              </View>
+            )}
           </View>
         )}
         name="password"
       />
-      {errors.password?.message && (
-        <View style={styles.errorMessage}>
-          <Typography type="smallRegularBody" color="error">
-            {errors.password.message}
-          </Typography>
-        </View>
-      )}
 
       <Controller
         control={control}
@@ -141,18 +129,17 @@ const StepTwo: React.FC<IStepOneProps> = ({ wizard, form }) => {
               onChangeText={onChange}
               value={value}
             />
+            {errors.passwordConfirmation?.message && (
+              <View style={styles.errorMessage}>
+                <Typography type="smallRegularBody" color="error">
+                  {errors.passwordConfirmation.message}
+                </Typography>
+              </View>
+            )}
           </View>
         )}
         name="passwordConfirmation"
       />
-
-      {errors.passwordConfirmation?.message && (
-        <View style={styles.errorMessage}>
-          <Typography type="smallRegularBody" color="error">
-            {errors.passwordConfirmation.message}
-          </Typography>
-        </View>
-      )}
 
       <Controller
         control={control}
@@ -161,32 +148,36 @@ const StepTwo: React.FC<IStepOneProps> = ({ wizard, form }) => {
           <View style={styles.phoneNumber}>
             <PhoneNumberInput
               error={!!errors.phoneNumber?.message}
+              country={country}
               value={value}
               onChangePhoneNumber={(phoneNumber) => {
                 form.setValue("phoneNumber", phoneNumber);
+              }}
+              onChangeCountry={(country) => {
+                form.setValue("country", country);
               }}
               onChangeFormattedPhoneNumber={(formattedPhoneNumber) => {
                 form.setValue("formattedPhoneNumber", formattedPhoneNumber);
               }}
             />
+
+            {errors.phoneNumber?.message && (
+              <View style={styles.errorMessage}>
+                <Typography type="smallRegularBody" color="error">
+                  {errors.phoneNumber.message}
+                </Typography>
+              </View>
+            )}
           </View>
         )}
         name="phoneNumber"
       />
 
-      {errors.phoneNumber?.message && (
-        <View style={styles.errorMessage}>
-          <Typography type="smallRegularBody" color="error">
-            {errors.phoneNumber.message}
-          </Typography>
-        </View>
-      )}
-
       <View style={styles.buttonWrapper}>
         <View style={styles.button}>
           <Button
             type="primary"
-            disabled={!isStepTwoValid()}
+            disabled={!isStepValid}
             loading={false}
             onPress={onSubmit}
           >
@@ -249,6 +240,6 @@ const useStyles = useStylesWithTheme((theme) => ({
     marginBottom: 88,
   },
   errorMessage: {
-    marginTop: 60,
+    marginTop: 10,
   },
 }));

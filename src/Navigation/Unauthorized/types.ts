@@ -11,7 +11,7 @@ export type UnauthorizedParams = {
     [UnauthorizedScreensEnum.codeVerification]: ICodeVerificationState;
     [UnauthorizedScreensEnum.resetSuccessfully]: undefined;
     [UnauthorizedScreensEnum.noSecondaryEmail]: undefined;
-    [UnauthorizedScreensEnum.verifiedSuccessfully]: IVerifiedSuccessfullyState;
+    [UnauthorizedScreensEnum.createdSuccessfully]: ICreatedSuccessfullyState;
 
 };
 
@@ -30,6 +30,6 @@ export interface ILockScreenState {
     userName: string
 }
 
-export interface IVerifiedSuccessfullyState {
+export interface ICreatedSuccessfullyState {
     userName: string
 }

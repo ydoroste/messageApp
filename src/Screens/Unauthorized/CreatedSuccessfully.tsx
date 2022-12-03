@@ -2,7 +2,7 @@ import { ImageBackground, StyleSheet, View } from "react-native";
 import { useNavigation } from "@react-navigation/core";
 import {
   UnauthorizedStackNavigationProps,
-  IVerifiedSuccessfullyState,
+  ICreatedSuccessfullyState,
 } from "@followBack/Navigation/Unauthorized/types";
 import * as React from "react";
 import Typography from "@followBack/GenericElements/Typography";
@@ -11,10 +11,10 @@ import { getTranslatedText } from "@followBack/Localization";
 import { UnauthorizedScreensEnum } from "@followBack/Navigation/constants";
 import { useRoute } from "@react-navigation/native";
 
-const VerifiedSuccessfully: React.FC = () => {
+const CreatedSuccessfully: React.FC = () => {
   const nav = useNavigation<UnauthorizedStackNavigationProps["navigation"]>();
   const route = useRoute<UnauthorizedStackNavigationProps["route"]>();
-  const { userName } = route.params as IVerifiedSuccessfullyState;
+  const { userName } = route.params as ICreatedSuccessfullyState;
 
   const onSignInPress = () => {
     nav.navigate(UnauthorizedScreensEnum.signIn);
@@ -30,7 +30,7 @@ const VerifiedSuccessfully: React.FC = () => {
           {userName}
         </Typography>
 
-        <View style={styles.verifiedTextContainer}>
+        <View style={styles.createdTextContainer}>
             <Typography
               type="mediumRegularTitle"
               textAlign="center"
@@ -44,7 +44,7 @@ const VerifiedSuccessfully: React.FC = () => {
             textAlign="center"
             color="verified"
           >
-            {getTranslatedText("verified")}
+            {getTranslatedText("created")}
           </Typography>
         </View>
       </View>
@@ -57,7 +57,7 @@ const VerifiedSuccessfully: React.FC = () => {
     </View>
   );
 };
-export default VerifiedSuccessfully;
+export default CreatedSuccessfully;
 
 const styles = StyleSheet.create({
   container: {
@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
   textContainer: {
     marginBottom: 82,
   },
-  verifiedTextContainer: {
+  createdTextContainer: {
     flexDirection: "row",
     alignItems: "center",
   },

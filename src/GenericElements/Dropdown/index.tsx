@@ -10,10 +10,12 @@ const Dropdown: React.FC<IDropdownProps> = ({
   items,
   defaultText,
   onSelect,
+  value
 }) => {
   const { styles } = useStyles();
   const ref = useRef<SelectDropdown>(null);
   const [isKeyboardVisible, setKeyboardVisible] = React.useState(false);
+  const selectedItem =  items.find(item=> value === item.value)
 
   React.useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
@@ -46,6 +48,7 @@ const Dropdown: React.FC<IDropdownProps> = ({
           ref?.current?.openDropdown();
         }
       }}
+      defaultValue={selectedItem}
       ref={ref}
       defaultButtonText={defaultText}
       buttonTextAfterSelection={(selectedItem, index) => {

@@ -10,18 +10,26 @@ export interface ISignUpFormValues {
   passwordConfirmation: string;
   phoneNumber: string;
   formattedPhoneNumber: string;
-}
-
-export interface IStepOneProps {
-  form: UseFormReturn<ISignUpFormValues, any>;
-  wizard: React.MutableRefObject<any>;
-}
-
-export interface IStepThreeProps {
-  form: UseFormReturn<ISignUpFormValues, any>;
-  wizard: React.MutableRefObject<any>;
-}
-
-export interface ICodeVerificationValues {
   code: string;
+  acceptsCoditionsAndTerms: boolean;
+  country: any;
 }
+
+export interface IStepProps {
+  form: UseFormReturn<ISignUpFormValues, any>;
+  wizard: React.MutableRefObject<any>;
+  isStepValid: boolean;
+}
+
+export type StepOneFiledsType =
+  | "firstName"
+  | "lastName"
+  | "gender"
+  | "birthDate";
+
+export type StepTwoFiledsType =
+  | "username"
+  | "password"
+  | "passwordConfirmation"
+  | "phoneNumber";
+export type StepThreeFiledsType = "code" | "acceptsCoditionsAndTerms";

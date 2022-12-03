@@ -32,6 +32,7 @@ export default {
       "a password reset link has been sent to the registered phone number, please press here to reset your password.",
     yourAccountHasBeenLocked: "your account has been locked.",
     hasBeen: "has been  ",
-    verified: "verified!",
+    verified: "created!",
+    termsAndConditions: "by creating a followback account, i understand and agree to followback’s privacy notice & terms of use"
   }
 };

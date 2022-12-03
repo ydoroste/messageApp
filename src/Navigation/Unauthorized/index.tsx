@@ -16,7 +16,7 @@ import ChooseAccount from "@followBack/Screens/Unauthorized/ChooseAccount";
 import CodeVerification from "@followBack/Screens/Unauthorized/CodeVerification";
 import ResetSuccessfully from "@followBack/Screens/Unauthorized/ResetSuccessfully";
 import NoSecondaryEmail from "@followBack/Screens/Unauthorized/NoSecondaryEmail";
-import VerifiedSuccessfully from "@followBack/Screens/Unauthorized/VerifiedSuccessfully";
+import CreatedSuccessfully from "@followBack/Screens/Unauthorized/CreatedSuccessfully";
 
 const Stack = createNativeStackNavigator<UnauthorizedParams>();
 
@@ -74,9 +74,9 @@ const Unauthorized = () => {
           component={NoSecondaryEmail}
         />
         <Stack.Screen
-          name={UnauthorizedScreensEnum.verifiedSuccessfully}
-          options={{ title: UnauthorizedScreens.verifiedSuccessfully.title }}
-          component={VerifiedSuccessfully}
+          name={UnauthorizedScreensEnum.createdSuccessfully}
+          options={{ title: UnauthorizedScreens.createdSuccessfully.title }}
+          component={CreatedSuccessfully}
         />
       </Stack.Navigator>
     </View>

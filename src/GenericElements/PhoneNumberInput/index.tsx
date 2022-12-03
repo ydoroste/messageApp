@@ -8,6 +8,8 @@ import useTheme from "@followBack/Hooks/useTheme";
 const PhoneNumberInput: React.FC<IPhoneNumberInputProps> = ({
   onChangePhoneNumber,
   onChangeFormattedPhoneNumber,
+  onChangeCountry,
+  country,
   value,
   error,
 }) => {
@@ -16,19 +18,21 @@ const PhoneNumberInput: React.FC<IPhoneNumberInputProps> = ({
   const { colors } = useTheme();
   const [isFocused, setFocus] = useState(false);
 
+  console.log("country", country);
   return (
     <>
       <PhoneInput
         ref={phoneInput}
         value={value}
         layout="first"
-        defaultCode="US"
+        defaultCode={country?.cca2 || "US"}
         withShadow
         textInputProps={{
           placeholderTextColor: colors.grey02,
           onFocus: () => setFocus(true),
           onBlur: () => setFocus(false),
         }}
+        onChangeCountry={onChangeCountry}
         onChangeText={onChangePhoneNumber}
         onChangeFormattedText={onChangeFormattedPhoneNumber}
         withDarkTheme
