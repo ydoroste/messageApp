@@ -1,5 +1,5 @@
 import {NativeStackScreenProps} from "react-native-screens/lib/typescript/native-stack/types";
-import {UnauthorizedScreensEnum} from "@followBack/Navigation/constants";
+import {UnauthorizedScreensEnum} from "@followBack/Navigation/Unauthorized/constants";
 import {ResetMethod} from "@followBack/Apis/ForgetPassword/types";
 
 export type UnauthorizedParams = {

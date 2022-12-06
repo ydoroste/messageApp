@@ -9,7 +9,7 @@ import {useNavigation, useRoute} from "@react-navigation/core";
 import {ICodeVerificationState, UnauthorizedStackNavigationProps} from "@followBack/Navigation/Unauthorized/types";
 import {IForgetPasswordApiRequest, IForgetPasswordData, ResetMethod} from "@followBack/Apis/ForgetPassword/types";
 import {useForgetPassword} from "@followBack/Hooks/Apis/ForgetPassword";
-import {UnauthorizedScreensEnum} from "@followBack/Navigation/constants";
+import {UnauthorizedScreensEnum} from "@followBack/Navigation/Unauthorized/constants";
 import {getTranslatedText} from "@followBack/Localization";
 
 const screenHeight = Dimensions.get("window").height;

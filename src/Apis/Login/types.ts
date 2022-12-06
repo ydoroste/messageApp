@@ -11,7 +11,7 @@ export interface ILoginApiResponse {
     message?: string
 }
 
-interface ILoginApiResponseData {
+export interface ILoginApiResponseData {
     user: ILoginApiUserDetails,
     accessToken: string
 }
