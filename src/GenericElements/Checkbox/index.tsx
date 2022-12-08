@@ -43,9 +43,7 @@ const useStyles = useStylesWithTheme((theme) => ({
     width: 16,
     height: 16,
     borderRadius: 2,
-    opacity: .8,
-    backgroundColor: "red",
-
+    opacity: 0.8,
     marginTop: 5,
   },
 }));

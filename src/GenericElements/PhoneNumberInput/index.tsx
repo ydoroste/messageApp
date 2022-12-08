@@ -18,7 +18,6 @@ const PhoneNumberInput: React.FC<IPhoneNumberInputProps> = ({
   const { colors } = useTheme();
   const [isFocused, setFocus] = useState(false);
 
-  console.log("country", country);
   return (
     <>
       <PhoneInput

@@ -32,7 +32,7 @@ const StepOne: React.FC<IStepProps> = ({ wizard, form, isStepValid }) => {
 
   useFocusEffect(
     useCallback(() => {
-      setFocus("firstName");
+      setFocus("first_name");
     }, [])
   );
 
@@ -40,22 +40,22 @@ const StepOne: React.FC<IStepProps> = ({ wizard, form, isStepValid }) => {
     <>
       <Controller
         control={control}
-        name="firstName"
+        name="first_name"
         rules={rules}
         render={({ field: { onChange, value, ref } }) => (
           <View style={styles.textInput}>
             <InputField
               // @ts-ignore
               ref={ref}
-              error={!!errors.firstName?.message}
+              error={!!errors.first_name?.message}
               placeholder={getTranslatedText("firstName")}
               onChangeText={onChange}
               value={value}
             />
-            {errors.firstName?.message && (
+            {errors.first_name?.message && (
               <View style={styles.errorMessage}>
                 <Typography type="smallRegularBody" color="error">
-                  {errors.firstName.message}
+                  {errors.first_name.message}
                 </Typography>
               </View>
             )}
@@ -71,21 +71,21 @@ const StepOne: React.FC<IStepProps> = ({ wizard, form, isStepValid }) => {
             <InputField
               // @ts-ignore
               ref={ref}
-              error={!!errors.lastName?.message}
+              error={!!errors.last_name?.message}
               placeholder={getTranslatedText("lastName")}
               onChangeText={onChange}
               value={value}
             />
-            {errors.lastName?.message && (
+            {errors.last_name?.message && (
               <View style={styles.errorMessage}>
                 <Typography type="smallRegularBody" color="error">
-                  {errors.lastName.message}
+                  {errors.last_name.message}
                 </Typography>
               </View>
             )}
           </View>
         )}
-        name="lastName"
+        name="last_name"
       />
 
       <Controller
@@ -120,22 +120,22 @@ const StepOne: React.FC<IStepProps> = ({ wizard, form, isStepValid }) => {
         render={({ field: { onChange, value, ref } }) => (
           <View style={styles.gender}>
             <DatePicker
-              error={!!errors.birthDate?.message}
+              error={!!errors.birth_date?.message}
               date={value}
               onSelect={(date) => {
-                form.setValue("birthDate", date);
+                form.setValue("birth_date", date);
               }}
             />
-            {errors.birthDate?.message && (
+            {errors.birth_date?.message && (
               <View style={styles.errorMessage}>
                 <Typography type="smallRegularBody" color="error">
-                  {errors.birthDate.message}
+                  {errors.birth_date.message}
                 </Typography>
               </View>
             )}
           </View>
         )}
-        name="birthDate"
+        name="birth_date"
       />
 
       <View style={styles.buttonWrapper}>

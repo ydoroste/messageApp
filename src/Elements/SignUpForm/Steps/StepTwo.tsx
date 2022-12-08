@@ -3,7 +3,7 @@ import { View, StyleSheet, Text } from "react-native";
 import { TextInput } from "react-native-paper";
 
 import InputField from "@followBack/GenericElements/InputField";
-import * as React from "react";
+import React, { useState } from "react";
 import Button from "@followBack/GenericElements/Button";
 import { getTranslatedText } from "@followBack/Localization";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
@@ -13,10 +13,17 @@ import PasswordInput from "@followBack/GenericElements/PasswordInput";
 import PhoneNumberInput from "@followBack/GenericElements/PhoneNumberInput";
 import Typography from "@followBack/GenericElements/Typography";
 import useStylesWithTheme from "@followBack/Hooks/useStylesWithTheme";
-import { IResendVerificationCodeRequest } from "@followBack/Apis/ResendVerificationCode/types";
-import { useResendVerificationCode } from "@followBack/Hooks/Apis/ResendVerificationCode";
+
+import { useRegister } from "@followBack/Hooks/Apis/Register";
+import { IRegisterApiRequest } from "@followBack/Apis/Register/types";
+
+import {
+  StepOneFileds,
+  StepTwoFileds,
+} from "@followBack/Elements/SignUpForm/types";
 
 const StepTwo: React.FC<IStepProps> = ({ wizard, form, isStepValid }) => {
+  const [errorMessage, setErrorMessage] = useState("");
   const {
     control,
     handleSubmit,
@@ -30,21 +37,25 @@ const StepTwo: React.FC<IStepProps> = ({ wizard, form, isStepValid }) => {
     required: true,
   };
 
+  const values = form.watch();
+
+  const request: IRegisterApiRequest = {
+    first_name: values.first_name,
+    last_name: values.last_name,
+    gender: values.gender,
+    birth_date: values.birth_date,
+    user_name: values.user_name,
+    phone_number: values.formattedPhoneNumber,
+    password: values.password,
+  };
+
   useFocusEffect(
     useCallback(() => {
-      setFocus("username");
+      setFocus("user_name");
     }, [])
   );
 
-  const { country, formattedPhoneNumber } = watch();
-
-  const resendVerificationCodeRequest: IResendVerificationCodeRequest = {
-    user_name: formattedPhoneNumber,
-  };
-
-  const { refetch, error } = useResendVerificationCode(
-    resendVerificationCodeRequest
-  );
+  const { refetch } = useRegister(request);
 
   const onSubmit = async () => {
     const { password, passwordConfirmation } = watch();
@@ -56,38 +67,57 @@ const StepTwo: React.FC<IStepProps> = ({ wizard, form, isStepValid }) => {
       return;
     }
 
-    try {
-      const a = await refetch();
-    } catch (e) {
-      console.dir("error", e);
+    const { data, error, isError } = await refetch();
+
+    if (isError) {
+      console.log("error", error.response);
+      const errors = error?.response?.data?.errors;
+
+      if (!errors || !wizard?.current)
+        return setErrorMessage("Something went wrong!");
+
+      const errorKeys = Object.keys(errors);
+
+      for (let i = 0; i < errorKeys.length; i++) {
+        const errorKey = errorKeys[i];
+        setError(errorKey, { message: errors[errorKey] });
+      }
+
+      const stepIndex: number = StepOneFileds.some((stepOneField) =>
+        errorKeys.includes(stepOneField)
+      )
+        ? 0
+        : 1;
+
+      return wizard.current?.goTo(stepIndex);
     }
 
-    if (!wizard?.current) return;
     wizard.current?.next();
   };
+
   const { styles } = useStyles();
   return (
     <>
       <Controller
         control={control}
-        name="username"
+        name="user_name"
         rules={rules}
         render={({ field: { onChange, value, ref } }) => (
           <View style={styles.textInput}>
             <InputField
               // @ts-ignore
               ref={ref}
-              error={!!errors.username?.message}
+              error={!!errors.user_name?.message}
               placeholder={getTranslatedText("username")}
               onChangeText={onChange}
               value={value}
               right={<TextInput.Affix text="@em.ls" textStyle={styles.email} />}
             />
 
-            {errors.username?.message && (
+            {errors.user_name?.message && (
               <View style={styles.errorMessage}>
                 <Typography type="smallRegularBody" color="error">
-                  {errors.username.message}
+                  {errors.user_name.message}
                 </Typography>
               </View>
             )}
@@ -147,11 +177,11 @@ const StepTwo: React.FC<IStepProps> = ({ wizard, form, isStepValid }) => {
         render={({ field: { onChange, value } }) => (
           <View style={styles.phoneNumber}>
             <PhoneNumberInput
-              error={!!errors.phoneNumber?.message}
-              country={country}
+              error={!!errors.phone_number?.message}
+              country={values.country}
               value={value}
               onChangePhoneNumber={(phoneNumber) => {
-                form.setValue("phoneNumber", phoneNumber);
+                form.setValue("phone_number", phoneNumber);
               }}
               onChangeCountry={(country) => {
                 form.setValue("country", country);
@@ -161,16 +191,16 @@ const StepTwo: React.FC<IStepProps> = ({ wizard, form, isStepValid }) => {
               }}
             />
 
-            {errors.phoneNumber?.message && (
+            {errors.phone_number?.message && (
               <View style={styles.errorMessage}>
                 <Typography type="smallRegularBody" color="error">
-                  {errors.phoneNumber.message}
+                  {errors.phone_number.message}
                 </Typography>
               </View>
             )}
           </View>
         )}
-        name="phoneNumber"
+        name="phone_number"
       />
 
       <View style={styles.buttonWrapper}>

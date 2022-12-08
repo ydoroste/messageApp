@@ -75,7 +75,17 @@ const Unauthorized = () => {
         />
         <Stack.Screen
           name={UnauthorizedScreensEnum.createdSuccessfully}
-          options={{ title: UnauthorizedScreens.createdSuccessfully.title }}
+          options={{
+            title: UnauthorizedScreens.createdSuccessfully.title,
+            header: (props) => (
+              <UnauthorizedHeader
+                handleBackButtonPress={() => {
+                  props.navigation.navigate(UnauthorizedScreensEnum.signIn);
+                }}
+                {...props}
+              />
+            ),
+          }}
           component={CreatedSuccessfully}
         />
       </Stack.Navigator>

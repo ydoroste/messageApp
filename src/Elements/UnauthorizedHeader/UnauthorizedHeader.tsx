@@ -6,10 +6,17 @@ import useStylesWithTheme from "@followBack/Hooks/useStylesWithTheme";
 import useTheme from "@followBack/Hooks/useTheme";
 import IconButton from "@followBack/GenericElements/IconButton";
 
-const UnauthorizedHeader: React.FC<NativeStackHeaderProps> = ({ navigation, route, options, back })=>{
+interface UnauthorizedHeaderProps extends NativeStackHeaderProps{
+    handleBackButtonPress?: ()=> void;
+}
+const UnauthorizedHeader: React.FC<UnauthorizedHeaderProps> = ({handleBackButtonPress,  navigation, route, options, back })=>{
 
     const canGoBack = navigation.canGoBack();
     const onBackButtonPress = ()=>{
+        if(!!handleBackButtonPress){
+            handleBackButtonPress()
+            return;
+        }
         canGoBack && navigation.goBack();
     };
     const {colors} = useTheme();

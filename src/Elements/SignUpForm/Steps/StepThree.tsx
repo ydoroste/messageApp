@@ -13,55 +13,58 @@ import { encryptCodeVerificationValue } from "@followBack/Elements/CodeVerificat
 import { useRoute } from "@react-navigation/native";
 import { ResetMethod } from "@followBack/Apis/ForgetPassword/types";
 import { UnauthorizedScreensEnum } from "@followBack/Navigation/constants";
-import { ILoginApiRequest } from "@followBack/Apis/Login/types";
-import { useLogin } from "@followBack/Hooks/Apis/Login";
-import { useRegister } from "@followBack/Hooks/Apis/Register";
-import { IRegisterApiRequest } from "@followBack/Apis/Register/types";
-import { IStepProps } from "@followBack/Elements/SignUpForm/types";
+import { IStepThreeProps } from "@followBack/Elements/SignUpForm/types";
 
-const StepThree: React.FC<IStepProps> = ({ wizard, form, isStepValid }) => {
+import { useVerifyUser } from "@followBack/Hooks/Apis/VerifyUser";
+import { IVerifyUserApiRequest } from "@followBack/Apis/VerifyUser/types";
+
+const StepThree: React.FC<IStepThreeProps> = ({
+  user_name,
+  phone_number,
+  wizard,
+  form,
+  isStepValid,
+}) => {
   const nav = useNavigation<UnauthorizedStackNavigationProps["navigation"]>();
   const route = useRoute<UnauthorizedStackNavigationProps["route"]>();
+
   const {
     control,
-    formState: { isValid, isSubmitting, errors },
+    handleSubmit,
+    formState: { errors, submitCount, isValid, isSubmitting },
+    reset,
+    setFocus,
     setError,
     watch,
   } = form;
 
-  const { acceptsCoditionsAndTerms, username, phoneNumber } = form.watch();
+  const values = watch();
+  const { terms_and_conditions, code } = values;
 
   const hashedCodeVerificationValue = useMemo<string>(
-    () => encryptCodeVerificationValue(phoneNumber, ResetMethod.Phone),
-    [phoneNumber]
+    () => encryptCodeVerificationValue(phone_number, ResetMethod.Phone),
+    [phone_number]
   );
 
-  const values = watch();
-
-  const request: IRegisterApiRequest = {
-    first_name: values.firstName,
-    last_name: values.lastName,
-    gender: values.gender,
-    birth_date: values.birthDate,
-    user_name: values.username,
-    phone_number: values.formattedPhoneNumber,
-    password: values.password,
-    code: values.code,
-    acceptsCoditionsAndTerms: values.acceptsCoditionsAndTerms,
+  const userVerifyRequest: IVerifyUserApiRequest = {
+    user_name,
+    code,
+    terms_and_conditions,
   };
-  const { refetch } = useRegister(request);
+
+  const { refetch } = useVerifyUser(userVerifyRequest);
 
   const onSubmit = async () => {
-    // const {data, error, isError} = await refetch();
-    // console.log("error", error)
-    // if(isError){
-    //     //handle error here
-    //     return;
-    // }
-    // //no errors from apis
+    const { data, error, isError } = await refetch();
+    if (isError) {
+      setError("code", {
+        message: error?.response?.data?.message,
+      });
+      return;
+    }
 
     nav.navigate(UnauthorizedScreensEnum.createdSuccessfully, {
-      userName: username,
+      userName: user_name,
     });
   };
 
@@ -70,7 +73,7 @@ const StepThree: React.FC<IStepProps> = ({ wizard, form, isStepValid }) => {
       <CodeVerificationLayout
         verificationMethod={ResetMethod.Phone}
         hashedCodeVerificationValue={hashedCodeVerificationValue}
-        userName={username}
+        userName={user_name}
       >
         <View style={style.container}>
           <View style={style.code}>
@@ -101,24 +104,24 @@ const StepThree: React.FC<IStepProps> = ({ wizard, form, isStepValid }) => {
 
           <View style={style.checkboxWrapper}>
             <CheckBox
+              isChecked={terms_and_conditions}
               disabled={false}
               text={getTranslatedText("termsAndConditions")}
-              isChecked={acceptsCoditionsAndTerms}
               onValueChange={(isChecked) =>
-                form.setValue("acceptsCoditionsAndTerms", isChecked)
+                form.setValue("terms_and_conditions", isChecked)
               }
             />
           </View>
 
-            <View style={style.button}>
-              <Button
-                type="primary"
-                disabled={!isStepValid || !isValid || isSubmitting}
-                loading={isSubmitting}
-                onPress={onSubmit}
-              >
-                {getTranslatedText("verify")}
-              </Button>
+          <View style={style.button}>
+            <Button
+              type="primary"
+              disabled={!isStepValid || !isValid || isSubmitting}
+              loading={isSubmitting}
+              onPress={onSubmit}
+            >
+              {getTranslatedText("verify")}
+            </Button>
           </View>
         </View>
       </CodeVerificationLayout>
@@ -136,8 +139,7 @@ const style = StyleSheet.create({
 
   checkboxWrapper: {
     marginBottom: 100,
-    paddingLeft: 10
-
+    paddingLeft: 10,
   },
   code: {
     marginBottom: 40,
