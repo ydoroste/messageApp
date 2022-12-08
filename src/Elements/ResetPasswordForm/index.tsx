@@ -5,7 +5,7 @@ import Button from "@followBack/GenericElements/Button";
 import {getTranslatedText} from "@followBack/Localization";
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {ICodeVerificationState, UnauthorizedStackNavigationProps} from "@followBack/Navigation/Unauthorized/types";
-import {UnauthorizedScreensEnum} from "@followBack/Navigation/constants";
+import {UnauthorizedScreensEnum} from "@followBack/Navigation/Unauthorized/constants";
 import PasswordInput from "@followBack/GenericElements/PasswordInput";
 import {IResetPasswordForm} from "@followBack/Elements/ResetPasswordForm/types";
 import {useState} from "react";

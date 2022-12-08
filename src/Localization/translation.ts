@@ -1,3 +1,6 @@
+import Button from "@followBack/GenericElements/Button";
+import * as React from "react";
+
 export default {
   en: {
     signIn: "sign in",
@@ -33,6 +36,6 @@ export default {
     yourAccountHasBeenLocked: "your account has been locked.",
     hasBeen: "has been  ",
     created: "created!",
-    termsAndConditions: "by creating a followback account, i understand and agree to followback’s privacy notice & terms of use"
+    termsAndConditions: "by creating a followback account, i understand and agree to followback’s privacy notice & terms of use",
   }
 };

@@ -2,7 +2,7 @@ import * as React from "react";
 import {useNavigation, useRoute} from "@react-navigation/core";
 import {ICodeVerificationState, UnauthorizedStackNavigationProps} from "@followBack/Navigation/Unauthorized/types";
 import {Controller, useForm} from "react-hook-form";
-import {UnauthorizedScreensEnum} from "@followBack/Navigation/constants";
+import {UnauthorizedScreensEnum} from "@followBack/Navigation/Unauthorized/constants";
 import {StyleSheet, View} from "react-native";
 import {getTranslatedText} from "@followBack/Localization";
 import Button from "@followBack/GenericElements/Button";

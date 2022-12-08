@@ -7,11 +7,8 @@ import ResetPassword from "@followBack/Screens/Unauthorized/ResetPassword";
 import SignUp from "@followBack/Screens/Unauthorized/SignUp";
 import useTheme from "@followBack/Hooks/useTheme";
 import LockedAccount from "@followBack/Screens/Unauthorized/LockedAccount";
-import { UnauthorizedParams } from "@followBack/Navigation/Unauthorized/types";
-import {
-  UnauthorizedScreens,
-  UnauthorizedScreensEnum,
-} from "@followBack/Navigation/constants";
+import {UnauthorizedParams} from "@followBack/Navigation/Unauthorized/types";
+import {UnauthorizedScreens, UnauthorizedScreensEnum} from "@followBack/Navigation/Unauthorized/constants";
 import ChooseAccount from "@followBack/Screens/Unauthorized/ChooseAccount";
 import CodeVerification from "@followBack/Screens/Unauthorized/CodeVerification";
 import ResetSuccessfully from "@followBack/Screens/Unauthorized/ResetSuccessfully";
@@ -91,6 +88,7 @@ const Unauthorized = () => {
       </Stack.Navigator>
     </View>
   );
+
 };
 
 export default Unauthorized;

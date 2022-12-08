@@ -8,7 +8,7 @@ import * as React from "react";
 import Typography from "@followBack/GenericElements/Typography";
 import Button from "@followBack/GenericElements/Button";
 import { getTranslatedText } from "@followBack/Localization";
-import { UnauthorizedScreensEnum } from "@followBack/Navigation/constants";
+import {UnauthorizedScreensEnum} from "@followBack/Navigation/Unauthorized/constants";
 import { useRoute } from "@react-navigation/native";
 
 const CreatedSuccessfully: React.FC = () => {

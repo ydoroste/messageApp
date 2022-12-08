@@ -9,10 +9,12 @@ import {getTranslatedText} from "@followBack/Localization";
 import Typography from "@followBack/GenericElements/Typography";
 import {useFocusEffect, useNavigation } from '@react-navigation/native';
 import {UnauthorizedStackNavigationProps} from "@followBack/Navigation/Unauthorized/types";
-import {UnauthorizedScreensEnum} from "@followBack/Navigation/constants";
+import {UnauthorizedScreensEnum} from "@followBack/Navigation/Unauthorized/constants";
 import {useCallback, useEffect} from "react";
 import {useLogin} from "@followBack/Hooks/Apis/Login";
-import {ILoginApiRequest} from "@followBack/Apis/Login/types";
+import {ILoginApiRequest, ILoginApiResponse, ILoginApiResponseData} from "@followBack/Apis/Login/types";
+import {setAccessToken} from "@followBack/Utils/accessToken";
+import {useUserDetails} from "@followBack/Hooks/useUserDetails";
 
 const SignInForm: React.FC = () => {
     const nav = useNavigation<UnauthorizedStackNavigationProps['navigation']>();
@@ -33,7 +35,7 @@ const SignInForm: React.FC = () => {
         password: values.password
     };
     const { refetch } = useLogin(request);
-
+    const {setIsAuthenticated} = useUserDetails();
     const onForgetPasswordPress = () =>{
         nav.navigate(UnauthorizedScreensEnum.chooseAccount);
     };
@@ -62,7 +64,12 @@ const SignInForm: React.FC = () => {
            });
            return;
        }
-       console.log("Data", data);
+       const signInData = data?.data as ILoginApiResponseData;
+       if(signInData.accessToken && signInData.accessToken !== ""){
+           await setAccessToken(signInData.accessToken);
+           setIsAuthenticated(true);
+       }
+
     };
 
     return (
