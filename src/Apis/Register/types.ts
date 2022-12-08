@@ -29,4 +29,4 @@ export interface IRegisterApiResponseError {
 export interface IRegisterApiResponse {
   success: boolean;
   message?: string;
-}
+} 

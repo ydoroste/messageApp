@@ -12,7 +12,7 @@ import { UnauthorizedStackNavigationProps } from "@followBack/Navigation/Unautho
 import { encryptCodeVerificationValue } from "@followBack/Elements/CodeVerificationLayout/utils";
 import { useRoute } from "@react-navigation/native";
 import { ResetMethod } from "@followBack/Apis/ForgetPassword/types";
-import { UnauthorizedScreensEnum } from "@followBack/Navigation/constants";
+import { UnauthorizedScreensEnum } from "@followBack/Navigation/Unauthorized/constants";
 import { IStepThreeProps } from "@followBack/Elements/SignUpForm/types";
 
 import { useVerifyUser } from "@followBack/Hooks/Apis/VerifyUser";
@@ -37,7 +37,7 @@ const StepThree: React.FC<IStepThreeProps> = ({
     setError,
     watch,
   } = form;
-
+  console.log("isSubmitting", isSubmitting)
   const values = watch();
   const { terms_and_conditions, code } = values;
 
@@ -118,7 +118,7 @@ const StepThree: React.FC<IStepThreeProps> = ({
               type="primary"
               disabled={!isStepValid || !isValid || isSubmitting}
               loading={isSubmitting}
-              onPress={onSubmit}
+              onPress={handleSubmit(onSubmit)}
             >
               {getTranslatedText("verify")}
             </Button>

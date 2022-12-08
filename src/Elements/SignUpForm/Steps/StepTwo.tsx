@@ -37,6 +37,8 @@ const StepTwo: React.FC<IStepProps> = ({ wizard, form, isStepValid }) => {
     required: true,
   };
 
+
+  console.log("is submitting sign up", isSubmitting)
   const values = form.watch();
 
   const request: IRegisterApiRequest = {
@@ -207,9 +209,9 @@ const StepTwo: React.FC<IStepProps> = ({ wizard, form, isStepValid }) => {
         <View style={styles.button}>
           <Button
             type="primary"
-            disabled={!isStepValid}
-            loading={false}
-            onPress={onSubmit}
+            disabled={!isStepValid || !isValid ||  isSubmitting}
+            loading={isSubmitting}
+            onPress={handleSubmit(onSubmit)}
           >
             {getTranslatedText("next")}
           </Button>
