@@ -8,7 +8,7 @@ import {getTranslatedText} from "@followBack/Localization";
 import {useNavigation} from '@react-navigation/native';
 import {UnauthorizedStackNavigationProps} from "@followBack/Navigation/Unauthorized/types";
 import {ISelectAccountFormValue} from "@followBack/Elements/SelectAccountForm/types";
-import {UnauthorizedScreensEnum} from "@followBack/Navigation/constants";
+import {UnauthorizedScreensEnum} from "@followBack/Navigation/Unauthorized/constants";
 import {useForgetPassword} from "@followBack/Hooks/Apis/ForgetPassword";
 import {IForgetPasswordApiRequest, IForgetPasswordData, ResetMethod} from "@followBack/Apis/ForgetPassword/types";
 import Typography from "@followBack/GenericElements/Typography";

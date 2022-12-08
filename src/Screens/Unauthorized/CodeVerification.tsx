@@ -3,7 +3,7 @@ import React, {useMemo, useState} from "react";
 import Button from "@followBack/GenericElements/Button";
 import {useNavigation} from "@react-navigation/core";
 import {ICodeVerificationState, UnauthorizedStackNavigationProps} from "@followBack/Navigation/Unauthorized/types";
-import {UnauthorizedScreensEnum} from "@followBack/Navigation/constants";
+import {UnauthorizedScreensEnum} from "@followBack/Navigation/Unauthorized/constants";
 import {getTranslatedText} from "@followBack/Localization";
 import {useRoute} from "@react-navigation/native";
 import CodeVerificationLayout from "@followBack/Elements/CodeVerificationLayout";
