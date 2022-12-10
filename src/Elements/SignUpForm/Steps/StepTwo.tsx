@@ -8,7 +8,7 @@ import Button from "@followBack/GenericElements/Button";
 import { getTranslatedText } from "@followBack/Localization";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { useCallback, useEffect } from "react";
-import { IStepProps } from "@followBack/Elements/SignUpForm/types";
+import { IStepTwoProps } from "@followBack/Elements/SignUpForm/types";
 import PasswordInput from "@followBack/GenericElements/PasswordInput";
 import PhoneNumberInput from "@followBack/GenericElements/PhoneNumberInput";
 import Typography from "@followBack/GenericElements/Typography";
@@ -22,7 +22,12 @@ import {
   StepTwoFileds,
 } from "@followBack/Elements/SignUpForm/types";
 
-const StepTwo: React.FC<IStepProps> = ({ wizard, form, isStepValid }) => {
+const StepTwo: React.FC<IStepTwoProps> = ({
+  setSignUpSuccessStatus,
+  wizard,
+  form,
+  isStepValid,
+}) => {
   const [errorMessage, setErrorMessage] = useState("");
   const {
     control,
@@ -37,8 +42,6 @@ const StepTwo: React.FC<IStepProps> = ({ wizard, form, isStepValid }) => {
     required: true,
   };
 
-
-  console.log("is submitting sign up", isSubmitting)
   const values = form.watch();
 
   const request: IRegisterApiRequest = {
@@ -60,8 +63,9 @@ const StepTwo: React.FC<IStepProps> = ({ wizard, form, isStepValid }) => {
   const { refetch } = useRegister(request);
 
   const onSubmit = async () => {
-    const { password, passwordConfirmation } = watch();
+    setErrorMessage("")
 
+    const { password, passwordConfirmation } = watch();
     if (password !== passwordConfirmation) {
       setError("passwordConfirmation", {
         message: getTranslatedText("passwordNotMatch"),
@@ -72,6 +76,8 @@ const StepTwo: React.FC<IStepProps> = ({ wizard, form, isStepValid }) => {
     const { data, error, isError } = await refetch();
 
     if (isError) {
+      setSignUpSuccessStatus(false);
+
       console.log("error", error.response);
       const errors = error?.response?.data?.errors;
 
@@ -94,6 +100,7 @@ const StepTwo: React.FC<IStepProps> = ({ wizard, form, isStepValid }) => {
       return wizard.current?.goTo(stepIndex);
     }
 
+    setSignUpSuccessStatus(true);
     wizard.current?.next();
   };
 
@@ -189,6 +196,7 @@ const StepTwo: React.FC<IStepProps> = ({ wizard, form, isStepValid }) => {
                 form.setValue("country", country);
               }}
               onChangeFormattedPhoneNumber={(formattedPhoneNumber) => {
+                setError("phone_number", undefined);
                 form.setValue("formattedPhoneNumber", formattedPhoneNumber);
               }}
             />
@@ -209,7 +217,7 @@ const StepTwo: React.FC<IStepProps> = ({ wizard, form, isStepValid }) => {
         <View style={styles.button}>
           <Button
             type="primary"
-            disabled={!isStepValid || !isValid ||  isSubmitting}
+            disabled={!isStepValid || isSubmitting}
             loading={isSubmitting}
             onPress={handleSubmit(onSubmit)}
           >
@@ -217,6 +225,14 @@ const StepTwo: React.FC<IStepProps> = ({ wizard, form, isStepValid }) => {
           </Button>
         </View>
       </View>
+
+      {/* {!!errorMessage && (
+        <View style={{...styles.errorMessage, marginTop: 20, marginBottom: 20, alignItems: "center"}}>
+          <Typography type="smallRegularBody" color="error">
+            {errorMessage}
+          </Typography>
+        </View>
+      )} */}
     </>
   );
 };
