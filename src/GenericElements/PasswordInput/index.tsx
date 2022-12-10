@@ -21,7 +21,8 @@ const PasswordInput: React.FC<IPasswordInputProps> = ({showPassword = false, set
     }, [showPassword]);
     return <InputField {...props}
                        secureTextEntry={!showPasswordValue}
-                       right={<TextInput.Icon style={styles.iconStyle}
+                       right={<TextInput.Icon 
+                        style={styles.iconStyle}
                                   name={() => <IconButton
                                       name={showPasswordValue ? "shown" : "hidden"} width={18}
                                       height={16} onPress={iconPress}

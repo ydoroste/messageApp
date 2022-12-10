@@ -8,7 +8,6 @@ import React, {useState} from "react";
 import Typography from "@followBack/GenericElements/Typography";
 import Button from "@followBack/GenericElements/Button";
 import Timer from "@followBack/GenericElements/Timer";
-import CodeVerificationForm from "@followBack/Elements/CodeVerificationForm";
 import {getTranslatedText} from "@followBack/Localization";
 import {ICodeVerificationLayoutProps} from "@followBack/Elements/CodeVerificationLayout/types";
 import {IResendVerificationCodeRequest} from "@followBack/Apis/ResendVerificationCode/types";
@@ -16,10 +15,8 @@ import {useResendVerificationCode} from "@followBack/Hooks/Apis/ResendVerificati
 import {useRoute} from "@react-navigation/core";
 import {ICodeVerificationState, UnauthorizedStackNavigationProps} from "@followBack/Navigation/Unauthorized/types";
 
-const CodeVerificationLayout: React.FC<ICodeVerificationLayoutProps> = ({VerificationValue, hashedCodeVerificationValue}) => {
+const CodeVerificationLayout: React.FC<ICodeVerificationLayoutProps> = ({children, userName, hashedCodeVerificationValue}) => {
     const [showResend, setShowResend] = useState(false);
-    const route = useRoute<UnauthorizedStackNavigationProps['route']>();
-    const {userName} = route.params as ICodeVerificationState;
 
     const resendVerificationCodeRequest: IResendVerificationCodeRequest = {
         user_name: userName
@@ -49,7 +46,7 @@ const CodeVerificationLayout: React.FC<ICodeVerificationLayoutProps> = ({Verific
                     <Button type="ternary" onPress={resendCode}>{getTranslatedText("resend")}</Button>
                 }
             </View>
-            <CodeVerificationForm/>
+            {children}
         </>
     )
 };

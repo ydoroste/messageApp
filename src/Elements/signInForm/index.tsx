@@ -40,6 +40,10 @@ const SignInForm: React.FC = () => {
         nav.navigate(UnauthorizedScreensEnum.chooseAccount);
     };
 
+    const onSignUpPress =  () => {
+        nav.navigate(UnauthorizedScreensEnum.signUp);
+    }
+
     useFocusEffect(
         useCallback(() => {
             setFocus("userNameOrPhone");
@@ -113,7 +117,8 @@ const SignInForm: React.FC = () => {
             </View>
 
             <View style={styles.createAccountLink}>
-                <Button type="secondary">
+                <Button type="secondary"
+                    onPress={onSignUpPress}>
                     {getTranslatedText("createAccountLink")}</Button>
             </View>
         </>
