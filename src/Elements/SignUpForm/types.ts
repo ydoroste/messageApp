@@ -24,12 +24,13 @@ export interface IStepProps {
   isStepValid: boolean;
 }
 
-export interface IStepThreeProps {
-  form: UseFormReturn<IVerifyUserFormValues, any>;
-  wizard: React.MutableRefObject<any>;
-  isStepValid: boolean;
+export interface IStepThreeProps extends IStepProps {
   user_name: string;
   phone_number: string;
+}
+
+export interface IStepTwoProps extends IStepProps{
+  setSignUpSuccessStatus: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const StepOneFileds = [
