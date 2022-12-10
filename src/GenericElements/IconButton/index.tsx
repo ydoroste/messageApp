@@ -6,6 +6,9 @@ import {IconButton as CustomIconButton} from "react-native-paper";
 const Close = React.lazy(() => import("@followBack/Theme/Icons/Close"));
 const Hidden = React.lazy(() => import("@followBack/Theme/Icons/Hidden"));
 const Shown = React.lazy(() => import("@followBack/Theme/Icons/Shown"));
+const Send = React.lazy(() => import("@followBack/Theme/Icons/Send"));
+const Add = React.lazy(() => import("@followBack/Theme/Icons/Add"));
+const Delete = React.lazy(() => import("@followBack/Theme/Icons/Delete"));
 
 const IconButton: React.FC<IIconButtonProps> = ({name, width, height, color, disabled, onPress}) => {
     const getIcon = (icon: iconsType): React.ReactElement<IIconProps> | undefined => {
@@ -20,6 +23,15 @@ const IconButton: React.FC<IIconButtonProps> = ({name, width, height, color, dis
                 break;
             case "shown":
                 IconElement = Shown;
+                break;
+                case "add":
+                IconElement = Add;
+                break;
+                case "delete":
+                IconElement = Delete;
+                break;
+                case "send":
+                IconElement = Send;
                 break;
 
             default:

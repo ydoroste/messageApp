@@ -6,7 +6,7 @@ import useTheme from "@followBack/Hooks/useTheme";
 import {ForwardedRef, forwardRef, memo} from "react";
 import {TextInput as RNTextInput} from "react-native-paper"
 
-const InputField: React.FC<IInputFieldProps> = forwardRef(({error, value, ...props}, ref: ForwardedRef<typeof RNTextInput>)=>{
+const InputField: React.FC<IInputFieldProps> = forwardRef(({error, value, hideBorder, ...props}, ref: ForwardedRef<typeof RNTextInput>)=>{
     const {styles} = useStyles();
     const {colors, fontFamilies} = useTheme();
     return (
@@ -16,8 +16,8 @@ const InputField: React.FC<IInputFieldProps> = forwardRef(({error, value, ...pro
             ref={ref}
             keyboardAppearance="dark"
             value={value}
-            underlineColor={error ? colors.red : colors.grey02}
-            activeUnderlineColor={error ? colors.red : colors.grey02}
+            underlineColor={ hideBorder ? "transparent" : error ? colors.red : colors.grey02}
+            activeUnderlineColor={hideBorder ? "transparent" : error ? colors.red : colors.grey02}
             style={styles.inputField}
             selectionColor={colors.white}
             theme={{
