@@ -20,7 +20,7 @@ const AuthorizedHeader: React.FC<NativeStackHeaderProps> = ({ navigation, route,
     };
     return(
         <View style={styles.headerStyle}>
-            <Button onPress={onLogout} type="secondary">test</Button>
+            <Button onPress={onLogout} type="secondary">Log out</Button>
         </View>
     )
 };

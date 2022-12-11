@@ -1,3 +1,4 @@
+
 import {StatusBar} from 'expo-status-bar';
 import {StyleSheet, Text, View} from 'react-native';
 import {QueryClient, QueryClientProvider} from "react-query";
@@ -8,6 +9,7 @@ import {Provider as PaperProvider} from 'react-native-paper';
 import useInitialLoading from "@followBack/Hooks/useInitialLoading";
 import {ThemeProvider} from "@followBack/Contexts/ThemeContext";
 import axios from "axios";
+
 import {UserProvider} from "@followBack/Contexts/UserContext";
 import MainApp from "@followBack/mainApp";
 

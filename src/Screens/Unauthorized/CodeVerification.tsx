@@ -8,6 +8,7 @@ import {getTranslatedText} from "@followBack/Localization";
 import {useRoute} from "@react-navigation/native";
 import CodeVerificationLayout from "@followBack/Elements/CodeVerificationLayout";
 import {encryptCodeVerificationValue} from "@followBack/Elements/CodeVerificationLayout/utils";
+import CodeVerificationForm from "@followBack/Elements/CodeVerificationForm";
 import {IResendVerificationCodeRequest} from "@followBack/Apis/ResendVerificationCode/types";
 import {useResendVerificationCode} from "@followBack/Hooks/Apis/ResendVerificationCode";
 import {IForgetPasswordApiRequest, ResetMethod} from "@followBack/Apis/ForgetPassword/types";
@@ -51,6 +52,8 @@ const CodeVerification: React.FC = () => {
 
         const {data, error, isError} = await refetch();
     };
+    
+
 
     return (
         <KeyboardAvoidingView
@@ -61,6 +64,9 @@ const CodeVerification: React.FC = () => {
                 <CodeVerificationLayout key={codeVerificationValue}
                                         hashedCodeVerificationValue={hashedCodeVerificationValue}
                                         verificationMethod={verificationMethod}
+                                        userName={userName}>
+                                          <CodeVerificationForm/>
+                                        </CodeVerificationLayout>
                                         VerificationValue={codeVerificationValue}/>
                 <View style={styles.resetLink}>
                     { resetMethod === ResetMethod.Phone ? <Button onPress={onResetUsingEmailPress}

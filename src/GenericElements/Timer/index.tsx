@@ -5,12 +5,13 @@ import Typography from "@followBack/GenericElements/Typography";
 
 const Timer: React.FC<ITimerProps> = ({duration, onFinish = ()=>{}}) => {
     const [timer, setTimer] = React.useState(duration);
-    const id = React.useRef<number>(0);
+    let timerId: NodeJS.Timeout;
     const clear=()=>{
-        clearInterval(id.current)
+        clearInterval(timerId)
     };
+
     React.useEffect(()=>{
-        id.current = setInterval(()=>{
+        timerId = setInterval(()=>{
             setTimer((time)=>time-1)
         },1000);
         return ()=>clear();
