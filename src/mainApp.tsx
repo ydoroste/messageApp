@@ -27,7 +27,7 @@ const MainApp: React.FC = () => {
                         <NavigationContainer>
                             <StatusBar style="light"/>
                             {
-                                !isAuthenticated ?
+                                isAuthenticated ?
                                     <AuthorizedNavigation/> :
                                     <UnauthorizedNavigation/>
                             }
