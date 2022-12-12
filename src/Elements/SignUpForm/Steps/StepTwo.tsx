@@ -22,6 +22,11 @@ import {
   StepTwoFileds,
 } from "@followBack/Elements/SignUpForm/types";
 
+
+
+
+
+
 const StepTwo: React.FC<IStepTwoProps> = ({
   setSignUpSuccessStatus,
   wizard,
@@ -48,11 +53,17 @@ const StepTwo: React.FC<IStepTwoProps> = ({
 
   const values = form.watch();
 
+
+  const formatToServerDate = ()=>{
+    const [day, month, year]=  values.birth_date.split("/")
+    return `${year}-${month}-${day}`
+  }
+
   const request: IRegisterApiRequest = {
     first_name: values.first_name,
     last_name: values.last_name,
     gender: values.gender,
-    birth_date: values.birth_date,
+    birth_date: formatToServerDate(),
     user_name: values.user_name,
     phone_number: values.formattedPhoneNumber,
     password: values.password,
@@ -238,13 +249,13 @@ const StepTwo: React.FC<IStepTwoProps> = ({
         </View>
       </View>
 
-      {/* {!!errorMessage && (
+      {!!errorMessage && (
         <View style={{...styles.errorMessage, marginTop: 20, marginBottom: 20, alignItems: "center"}}>
           <Typography type="smallRegularBody" color="error">
             {errorMessage}
           </Typography>
         </View>
-      )} */}
+      )}
     </>
   );
 };
