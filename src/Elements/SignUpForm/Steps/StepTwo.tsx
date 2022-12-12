@@ -28,6 +28,10 @@ const StepTwo: React.FC<IStepTwoProps> = ({
   form,
   isStepValid,
 }) => {
+
+   const [showPassword, setShowPassword] = useState(false);
+
+
   const [errorMessage, setErrorMessage] = useState("");
   const {
     control,
@@ -63,7 +67,7 @@ const StepTwo: React.FC<IStepTwoProps> = ({
   const { refetch } = useRegister(request);
 
   const onSubmit = async () => {
-    setErrorMessage("")
+    setErrorMessage("");
 
     const { password, passwordConfirmation } = watch();
     if (password !== passwordConfirmation) {
@@ -102,6 +106,10 @@ const StepTwo: React.FC<IStepTwoProps> = ({
 
     setSignUpSuccessStatus(true);
     wizard.current?.next();
+  };
+
+  const onSetShowPassword = (value: boolean) => {
+    setShowPassword(value);
   };
 
   const { styles } = useStyles();
@@ -144,6 +152,8 @@ const StepTwo: React.FC<IStepTwoProps> = ({
               placeholder={getTranslatedText("password")}
               onChangeText={onChange}
               value={value}
+              showPassword={showPassword}
+              setShowPassword={onSetShowPassword}
             />
             {errors.password?.message && (
               <View style={styles.errorMessage}>
@@ -167,6 +177,8 @@ const StepTwo: React.FC<IStepTwoProps> = ({
               placeholder={getTranslatedText("passwordConfirmation")}
               onChangeText={onChange}
               value={value}
+              showPassword={showPassword}
+              setShowPassword={onSetShowPassword}
             />
             {errors.passwordConfirmation?.message && (
               <View style={styles.errorMessage}>

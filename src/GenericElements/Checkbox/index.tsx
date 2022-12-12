@@ -25,7 +25,7 @@ const EmlsCheckbox: React.FC<ICheckboxPorps> = ({
       />
 
       <Pressable onPress={() => onValueChange(!isChecked)}>
-        <Typography type="mediumRegularTitle" color="secondary">
+        <Typography type="largeRegularBody" color="secondary">
           {text}
         </Typography>
       </Pressable>

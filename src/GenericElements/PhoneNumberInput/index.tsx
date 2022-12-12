@@ -1,5 +1,4 @@
 import React, { useState, useRef } from "react";
-
 import PhoneInput from "react-native-phone-number-input";
 import { IPhoneNumberInputProps } from "@followBack/GenericElements/PhoneNumberInput/types";
 import { getTranslatedText } from "@followBack/Localization";
@@ -31,6 +30,7 @@ const PhoneNumberInput: React.FC<IPhoneNumberInputProps> = ({
           onFocus: () => setFocus(true),
           onBlur: () => setFocus(false),
         }}
+        filterProps={{autoFocus: true}}
         onChangeCountry={onChangeCountry}
         onChangeText={onChangePhoneNumber}
         onChangeFormattedText={onChangeFormattedPhoneNumber}

@@ -7,7 +7,7 @@ import Dropdown from "@followBack/GenericElements/Dropdown";
 import { getTranslatedText } from "@followBack/Localization";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { useCallback, useEffect } from "react";
-import { IStepProps } from "@followBack/Elements/SignUpForm/types";
+import { IStepOneProps } from "@followBack/Elements/SignUpForm/types";
 import DatePicker from "@followBack/GenericElements/DatePicker";
 import Typography from "@followBack/GenericElements/Typography";
 
@@ -15,7 +15,7 @@ const gender = [
   { name: "male", value: "male" },
   { name: "female", value: "female" },
 ];
-const StepOne: React.FC<IStepProps> = ({ wizard, form, isStepValid }) => {
+const StepOne: React.FC<IStepOneProps> = ({ wizard, form, isStepValid }) => {
   const {
     control,
     handleSubmit,

@@ -30,6 +30,9 @@ const DatePicker: React.FC<IDatePickerProps> = ({ error, date, onSelect }) => {
       )
       .join(" / ");
 
+  const maximumDate = new Date(
+    new Date().setFullYear(new Date().getFullYear() - 13)
+  );
   return (
     <>
       <TouchableOpacity
@@ -57,9 +60,10 @@ const DatePicker: React.FC<IDatePickerProps> = ({ error, date, onSelect }) => {
       <DateTimePickerModal
         isVisible={isDatePickerVisible}
         mode="date"
-        date={new Date(new Date().setFullYear(new Date().getFullYear() - 13))}
+        date={maximumDate}
         onConfirm={handleConfirm}
         onCancel={hideDatePicker}
+        maximumDate={maximumDate}
       />
     </>
   );
