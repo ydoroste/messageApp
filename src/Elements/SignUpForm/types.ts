@@ -19,19 +19,28 @@ export interface IVerifyUserFormValues {
 }
 
 export interface IStepProps {
-  form: UseFormReturn<ISignUpFormValues, any>;
   wizard: React.MutableRefObject<any>;
   isStepValid: boolean;
+}
+
+
+export interface IStepOneProps extends IStepProps{
+  form: UseFormReturn<ISignUpFormValues, any>;
+}
+
+export interface IStepTwoProps extends IStepProps{
+  form: UseFormReturn<ISignUpFormValues, any>;
+  setSignUpSuccessStatus: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export interface IStepThreeProps extends IStepProps {
   user_name: string;
   phone_number: string;
+  form: UseFormReturn<IVerifyUserFormValues, any>;
+
 }
 
-export interface IStepTwoProps extends IStepProps{
-  setSignUpSuccessStatus: React.Dispatch<React.SetStateAction<boolean>>;
-}
+
 
 export const StepOneFileds = [
   "first_name",
