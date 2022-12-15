@@ -4,23 +4,28 @@ import React, {useEffect, useState} from "react";
 import useStylesWithTheme from "@followBack/Hooks/useStylesWithTheme";
 import Typography from "@followBack/GenericElements/Typography";
 import {ICodeVerificationFields} from "@followBack/GenericElements/CodeVerificationFields/types";
+
 const width = Dimensions.get("window").width;
 const CELL_COUNT = 6;
-const CodeVerificationFields: React.FC<ICodeVerificationFields> = ({error, onChange = ()=>{}}) =>{
+const CodeVerificationFields: React.FC<ICodeVerificationFields> = ({
+                                                                       error, onChange = () => {
+    }
+                                                                   }) => {
     const [value, setValue] = useState('');
     const ref = useBlurOnFulfill({value, cellCount: CELL_COUNT});
     const [props, getCellOnLayoutHandler] = useClearByFocusCell({
         value,
         setValue,
     });
-const {styles} = useStyles();
-const setTextValue = (text: string)=>{
-    setValue(text);
-};
-useEffect(()=>{
-    onChange(value);
-},[value]);
-  return  <CodeField
+    const {styles} = useStyles();
+    const setTextValue = (text: string) => {
+        setValue(text);
+    };
+    useEffect(() => {
+        onChange(value);
+    }, [value]);
+
+    return <CodeField
         ref={ref}
         {...props}
         value={value}
@@ -39,7 +44,7 @@ useEffect(()=>{
                 <Typography
                     color={error ? "error" : "primary"}
                     type="largeRegularBody">
-                    {symbol || (isFocused ? <Cursor /> : null)}</Typography>
+                    {symbol || (isFocused ? <Cursor/> : null)}</Typography>
             </View>
         )}
     />

@@ -55,6 +55,7 @@ const SignInForm: React.FC = () => {
     const onSubmit = async () => {
         console.log("call api");
        const {data, error, isError} =  await refetch();
+       console.log("error?.response?.data?.message", error?.response?.data);
        if(isError){
            if(error?.response?.data?.message === "your account has been locked"){
                nav.navigate(UnauthorizedScreensEnum.lockedAccount, {userName: values.userNameOrPhone})
