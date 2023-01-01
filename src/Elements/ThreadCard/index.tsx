@@ -16,12 +16,12 @@ import { IContact } from '@followBack/Apis/Contacts/types';
 import _ from 'lodash';
 
 const ThreadCard: React.FC<IthreadCardProps> = ({ threadItem }) => {
+  if (!threadItem) return <></>;
   const { userDetails } = useUserDetails();
   const { colors } = useTheme();
   const [usernames, setUsernames] = useState<string | undefined>('');
 
   let others: IContact[] = [];
-
   others = excludeUser({
     users: [
       threadItem.lastHeader.formContact,
@@ -31,7 +31,6 @@ const ThreadCard: React.FC<IthreadCardProps> = ({ threadItem }) => {
     ],
     userAddress: `${userDetails.user_name}@iinboxx.com`,
   });
-
   others =
     others.length === 0 &&
     threadItem?.lastHeader.formContact.address ===
@@ -45,26 +44,20 @@ const ThreadCard: React.FC<IthreadCardProps> = ({ threadItem }) => {
       : others;
 
   useEffect(() => {
-    const getFinalUsers = () => {
-      others.forEach(async (user) => {
-        if (!user.name) {
-          user.name = await getUserName(user.address);
-        }
-      });
-      return others;
+    let finalUsernames: IContact[] = JSON.parse(JSON.stringify(others));
+    finalUsernames.forEach(async (user, index) => {
+      if (user.name == undefined) {
+        finalUsernames[index].name = user.address;
+        const userName = await getUserName(user.address);
+        finalUsernames[index].name = userName;
+      }
+    });
+    const getFullData = async () => {
+      const data = await getThreadParticipantsUserName(finalUsernames);
+      setUsernames(data);
     };
-    others =
-      others.length === 0 &&
-      threadItem?.lastHeader.formContact.address ===
-        `${userDetails.user_name}@iinboxx.com`
-        ? [
-            {
-              name: userDetails.user_name,
-              address: `${userDetails.user_name}@iinboxx.com`,
-            },
-          ]
-        : getFinalUsers();
-  }, [others]);
+    getFullData();
+  }, [threadItem, usernames, setUsernames]);
 
   const message =
     threadItem.text?.trim() && threadItem.text?.trim() !== ''
@@ -91,7 +84,7 @@ const ThreadCard: React.FC<IthreadCardProps> = ({ threadItem }) => {
             ellipsizeMode='tail'
             numberOfLines={1}
           >
-            {getThreadParticipantsUserName(others)}
+            {usernames}
           </Typography>
         </View>
 

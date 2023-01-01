@@ -23,7 +23,7 @@ export const getThreadMessagesApi = async ({
     .then((res) => {
       return {
         totalCount: res.data.totalCount,
-        data: sortDataSet(res.data.data),
+        data: sortDataSet(res.data.data, false),
         page: res.data.page,
       };
     })

@@ -21,10 +21,7 @@ const ComposeStack = () => {
   const Stack = createNativeStackNavigator();
 
   return (
-    <Stack.Navigator
-      initialRouteName={AuthorizedScreensEnum.compose}
-      screenOptions={{ animation: 'none' }}
-    >
+    <Stack.Navigator initialRouteName={AuthorizedScreensEnum.compose}>
       <Stack.Screen
         name={AuthorizedScreensEnum.compose}
         component={Compose}
@@ -48,7 +45,6 @@ const ThreadsListStack = () => {
         name={AuthorizedScreensEnum.threadsList}
         component={ThreadsList}
         options={{
-          animation: 'none',
           header: (props) => <MailBoxHeader hideSearch {...props} />,
         }}
       />
@@ -56,7 +52,6 @@ const ThreadsListStack = () => {
       <Stack.Screen
         options={{
           headerShown: false,
-          animation: 'none',
         }}
         name={AuthorizedScreensEnum.threadDetails}
         component={ThreadDetails}

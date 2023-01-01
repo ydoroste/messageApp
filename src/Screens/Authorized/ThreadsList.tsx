@@ -7,8 +7,6 @@ import {
   StyleSheet,
   View,
   Dimensions,
-  TouchableWithoutFeedback,
-  TouchableOpacity,
 } from 'react-native';
 
 import useTheme from '@followBack/Hooks/useTheme';
@@ -25,7 +23,12 @@ import { Thread } from '@followBack/Apis/threadsList/type';
 import { Swipeable } from 'react-native-gesture-handler';
 import IconButton from '@followBack/GenericElements/IconButton';
 import { editBookmark } from '@followBack/Apis/Bookmarks';
-import { makeid } from '@followBack/Utils/messages';
+import { getContactsListApi } from '@followBack/Apis/Contacts';
+import {
+  deleteContacts,
+  getContacts,
+  setContacts,
+} from '@followBack/Utils/contactDetails';
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -60,6 +63,19 @@ const ThreadList: React.FC = () => {
     }, [])
   );
 
+  useFocusEffect(() => {
+    const getContactsData = async () => {
+      const contactsList = await getContacts();
+      if (typeof contactsList !== typeof undefined && contactsList !== null) {
+        return;
+      }
+      const contactsFromAPI = await getContactsListApi({ searchValue: '' });
+      await setContacts(JSON.stringify(contactsFromAPI.contacts));
+      console.log('contacts from API', contactsFromAPI);
+    };
+    getContactsData();
+  });
+
   useEffect(() => {
     if (typeof data === typeof undefined) return;
     let flattenData = data?.pages
@@ -86,28 +102,6 @@ const ThreadList: React.FC = () => {
           color={item.favorite ? colors.white : colors.grey01}
         />
       </View>
-    );
-  };
-
-  const RenderedThreadItem = ({ item }: { item: Thread | undefined }) => {
-    if (!item) return <></>;
-    return (
-      <Swipeable
-        renderRightActions={(progress, dragX) => renderRightActions(item)}
-        rightThreshold={windowWidth / 10}
-      >
-        <TouchableOpacity
-          style={{ marginVertical: 5 }}
-          onPress={() => {
-            nav.navigate(AuthorizedScreensEnum.threadsListStack, {
-              screen: AuthorizedScreensEnum.threadDetails,
-              params: { threadInfo: item },
-            });
-          }}
-        >
-          <ThreadCard threadItem={item} />
-        </TouchableOpacity>
-      </Swipeable>
     );
   };
 
@@ -168,7 +162,24 @@ const ThreadList: React.FC = () => {
             scrollIndicatorInsets={{ right: 1 }}
             data={threadsList}
             renderItem={({ item }: { item: Thread }) => (
-              <RenderedThreadItem item={item} />
+              <Swipeable
+                renderRightActions={(progress, dragX) =>
+                  renderRightActions(item)
+                }
+                rightThreshold={windowWidth / 10}
+              >
+                <Pressable
+                  style={{ marginVertical: 5 }}
+                  onPress={() => {
+                    nav.navigate(AuthorizedScreensEnum.threadsListStack, {
+                      screen: AuthorizedScreensEnum.threadDetails,
+                      params: { threadInfo: item },
+                    });
+                  }}
+                >
+                  <ThreadCard threadItem={item} />
+                </Pressable>
+              </Swipeable>
             )}
             estimatedItemSize={100}
             onEndReached={loadNextPageData}

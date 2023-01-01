@@ -40,6 +40,8 @@ import { makeid } from '@followBack/Utils/messages';
 import { Buffer } from 'buffer';
 import * as FileSystem from 'expo-file-system';
 import { getThreadListApi } from '@followBack/Apis/threadsList';
+import { getUserName } from '@followBack/Utils/stringUtils';
+import { IContact } from '@followBack/Apis/Contacts/types';
 
 interface ComposeHeaderProps extends NativeStackHeaderProps {
   handleBackButtonPress?: () => void;
@@ -109,8 +111,11 @@ const Compose: React.FC<ComposeHeaderProps> = ({ navigation }) => {
 
   const { colors } = useTheme();
 
-  const formatTags = (tags: string[]) =>
-    tags.map((mail) => ({ name: mail.trim(), address: mail.trim() }));
+  const formatTags = (tags: IContact[]) =>
+    tags.map((mail) => ({
+      name: mail.name,
+      address: mail.address.trim(),
+    }));
   const formattedToTags = formatTags(toList);
   const formattedCcTags = formatTags(ccList);
   const formattedBccTags = formatTags(bccList);

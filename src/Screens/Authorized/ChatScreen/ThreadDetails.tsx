@@ -89,27 +89,6 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
   const hasData = allMessages.length > 0;
   const firstMessage = allMessages[0];
 
-  let others = excludeUser({
-    users: [
-      threadInfo.lastHeader.formContact,
-      ...threadInfo.lastHeader.toList,
-      ...(threadInfo.lastHeader.ccList ?? []),
-      ...(threadInfo.lastHeader.bccList ?? []),
-    ],
-    userAddress: `${userDetails.user_name}@iinboxx.com`,
-  });
-  others =
-    others.length === 0 &&
-    threadInfo?.lastHeader.formContact.address ===
-      `${userDetails.user_name}@iinboxx.com`
-      ? [
-          {
-            name: userDetails.user_name,
-            address: `${userDetails.user_name}@iinboxx.com`,
-          },
-        ]
-      : others;
-
   const firstMessageDate = hasData
     ? conversationDateTime(firstMessage?.createdAt ?? '')
     : '';
@@ -120,25 +99,40 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
     }
   };
 
-  // useEffect(() => {
-  //   const getFinalUsers = () => {
-  //     others.forEach(async (user) => {
-  //       if (!user.name) {
-  //         user.name = await getUserName(user.address);
-  //       }
-  //     });
-  //     return others;
-  //   };
-
-  // }, [others]);
-
   useEffect(() => {
+    let others = excludeUser({
+      users: [
+        threadInfo.lastHeader.formContact,
+        ...threadInfo.lastHeader.toList,
+        ...(threadInfo.lastHeader.ccList ?? []),
+        ...(threadInfo.lastHeader.bccList ?? []),
+      ],
+      userAddress: `${userDetails.user_name}@iinboxx.com`,
+    });
+    others =
+      others.length === 0 &&
+      threadInfo?.lastHeader.formContact.address ===
+        `${userDetails.user_name}@iinboxx.com`
+        ? [
+            {
+              name: userDetails.user_name,
+              address: `${userDetails.user_name}@iinboxx.com`,
+            },
+          ]
+        : others;
+    let finalUsernames: IContact[] = JSON.parse(JSON.stringify(others));
+    finalUsernames.forEach(async (user, index) => {
+      if (user.name == undefined) {
+        const userName = await getUserName(user.address);
+        finalUsernames[index].name = userName;
+      }
+    });
     const getFullData = async () => {
-      const data = await getThreadParticipantsUserName(others);
+      const data = await getThreadParticipantsUserName(finalUsernames);
       setUsernames(data);
     };
     getFullData();
-  }, [others]);
+  }, []);
 
   // MARK: - Load thread messages from API
   useEffect(() => {
@@ -152,8 +146,9 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
         ? data?.pages.flatMap((page) => page?.data)
         : [];
     setAllMessages(flattenData);
-    setLastMessageData(flattenData[0]);
-    scrollViewRef.current?.scrollToEnd({ animated: false });
+    setLastMessageData(flattenData[flattenData.length - 1]);
+    console.log('Last Message ==> ', flattenData[flattenData.length - 1]);
+    scrollViewRef.current?.scrollToEnd();
   }, [data]);
 
   useFocusEffect(
@@ -424,7 +419,10 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
   ];
 
   const renderMessageItem = ({ item }: { item: IThreadMessage }) => (
-    <View style={{ marginVertical: 7 }}>
+    <Pressable
+      style={{ marginVertical: 7 }}
+      onLongPress={(e) => Keyboard.dismiss()}
+    >
       {item?.failedToSend ? (
         <FailedMessage
           item={item}
@@ -440,7 +438,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
           />
         )
       )}
-    </View>
+    </Pressable>
   );
 
   if (!hasData || isError) {
@@ -451,6 +449,96 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
       />
     );
   }
+
+  const renderChat = () => {
+    return (
+      <View style={styles.chatWrapper}>
+        {hasData && (
+          <View style={{ flex: 1 }}>
+            <View style={{ minHeight: 2, minWidth: 2, flex: 1 }}>
+              <FlashList
+                ref={scrollViewRef}
+                data={[...failedMessages, ...allMessages]}
+                renderItem={renderMessageItem}
+                keyExtractor={(item, _) => `message-${item?.messageId}`}
+                onEndReachedThreshold={0.5}
+                scrollIndicatorInsets={{ right: 1 }}
+                onEndReached={async () => {
+                  await loadNextPageData();
+                }}
+                indicatorStyle='white'
+                showsVerticalScrollIndicator={true}
+                contentContainerStyle={{ paddingHorizontal: 5 }}
+                estimatedListSize={{
+                  width: Dimensions.get('window').width - 10,
+                  height: Dimensions.get('window').height - 80,
+                }}
+                estimatedItemSize={59}
+              />
+            </View>
+            <View style={{ height: 35 }} />
+          </View>
+        )}
+        {attachmentsLocalURI.length > 0 && (
+          <>
+            <ScrollView
+              horizontal
+              style={{ maxHeight: 95, marginBottom: 60 }}
+              showsHorizontalScrollIndicator
+              scrollIndicatorInsets={{ bottom: 1 }}
+            >
+              <View style={{ height: 90, flexDirection: 'row' }}>
+                {attachmentsLocalURI.map((att, index) => {
+                  return (
+                    <Pressable
+                      key={`attachment-${att}`}
+                      onPress={() => {
+                        var currentToCompare = attachmentsLocalURI.slice();
+                        currentToCompare.splice(index, 1);
+                        setAttachmentsLocalURI(currentToCompare);
+                        var newAttachments = attachments.slice();
+                        newAttachments.splice(index, 1);
+                        setAttachments(newAttachments);
+                      }}
+                      style={{ justifyContent: 'center' }}
+                    >
+                      <Image
+                        key={makeid(index)}
+                        source={{ uri: att }}
+                        style={{
+                          width: 80,
+                          height: 80,
+                          margin: 5,
+                          borderRadius: 5,
+                        }}
+                      />
+                      {attachments.length < attachmentsLocalURI.length && (
+                        <ActivityIndicator
+                          size='small'
+                          color={colors.white}
+                          style={{
+                            position: 'absolute',
+                            alignSelf: 'center',
+                          }}
+                        />
+                      )}
+                    </Pressable>
+                  );
+                })}
+              </View>
+            </ScrollView>
+          </>
+        )}
+        {replyToMessage !== undefined && (
+          <View style={{ height: 80 }}>
+            <Typography type='largeBoldBody' color='chat'>
+              {'Replying to: ' + replyToMessage.text.trimEnd()}
+            </Typography>
+          </View>
+        )}
+      </View>
+    );
+  };
 
   return (
     <KeyboardAvoidingView
@@ -467,95 +555,14 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
             navigation={navigation}
           />
         )}
-
-        <View style={styles.chatWrapper}>
-          {hasData && (
-            <View style={{ flex: 1 }}>
-              <View style={{ minHeight: 2, minWidth: 2, flex: 1 }}>
-                <FlashList
-                  ref={scrollViewRef}
-                  data={[...failedMessages, ...allMessages]}
-                  renderItem={renderMessageItem}
-                  keyExtractor={(item, _) => `message-${item?.messageId}`}
-                  onEndReachedThreshold={0.3}
-                  scrollIndicatorInsets={{ right: 1 }}
-                  onEndReached={async () => {
-                    await loadNextPageData();
-                  }}
-                  indicatorStyle='white'
-                  showsVerticalScrollIndicator={true}
-                  contentContainerStyle={{ paddingHorizontal: 5 }}
-                  estimatedItemSize={100}
-                  inverted={false}
-                />
-              </View>
-              <View style={{ height: 35 }} />
-            </View>
-          )}
-          {attachmentsLocalURI.length > 0 && (
-            <>
-              <ScrollView
-                horizontal
-                style={{ maxHeight: 95, marginBottom: 60 }}
-                showsHorizontalScrollIndicator
-                scrollIndicatorInsets={{ bottom: 1 }}
-              >
-                <View style={{ height: 90, flexDirection: 'row' }}>
-                  {attachmentsLocalURI.map((att, index) => {
-                    return (
-                      <Pressable
-                        key={`attachment-${att}`}
-                        onPress={() => {
-                          var currentToCompare = attachmentsLocalURI.slice();
-                          currentToCompare.splice(index, 1);
-                          setAttachmentsLocalURI(currentToCompare);
-                          var newAttachments = attachments.slice();
-                          newAttachments.splice(index, 1);
-                          setAttachments(newAttachments);
-                        }}
-                        style={{ justifyContent: 'center' }}
-                      >
-                        <Image
-                          key={makeid(index)}
-                          source={{ uri: att }}
-                          style={{
-                            width: 80,
-                            height: 80,
-                            margin: 5,
-                            borderRadius: 5,
-                          }}
-                        />
-                        {attachments.length < attachmentsLocalURI.length && (
-                          <ActivityIndicator
-                            size='small'
-                            color={colors.white}
-                            style={{
-                              position: 'absolute',
-                              alignSelf: 'center',
-                            }}
-                          />
-                        )}
-                      </Pressable>
-                    );
-                  })}
-                </View>
-              </ScrollView>
-            </>
-          )}
-          {replyToMessage !== undefined && (
-            <View style={{ height: 80 }}>
-              <Typography type='largeBoldBody' color='chat'>
-                {'Replying to: ' + replyToMessage.text.trimEnd()}
-              </Typography>
-            </View>
-          )}
-        </View>
+        {renderChat()}
         <MailSender
           text={mail}
           onChangeMailContent={onChangeMailContent}
           onPressCompose={onPressCompose}
           onPressAttachments={onPressAttachments}
           tempAttachments={attachments}
+          isFocus={refetchData}
         />
       </View>
     </KeyboardAvoidingView>

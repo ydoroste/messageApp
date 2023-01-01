@@ -1,6 +1,9 @@
 import { useInfiniteQuery } from 'react-query';
 
-import { getThreadMessagesApi, MESSAGES_LIMIT } from '@followBack/Apis/ThreadMessages';
+import {
+  getThreadMessagesApi,
+  MESSAGES_LIMIT,
+} from '@followBack/Apis/ThreadMessages';
 import { IThreadMessagesAPIResponse } from '@followBack/Apis/ThreadMessages/types';
 
 export const useFetchThreadMessages = ({
@@ -26,7 +29,7 @@ export const useFetchThreadMessages = ({
       },
       keepPreviousData: true,
       enabled: refetchData,
-      refetchInterval: 2000,
+      refetchInterval: 1000,
       refetchOnWindowFocus: true,
       refetchOnReconnect: true,
       refetchOnMount: true,

@@ -1,10 +1,15 @@
-import React from "react";
-import { IAvatarProps } from "./types";
-import { View, Text, Image } from "react-native";
-import useStylesWithTheme from "@followBack/Hooks/useStylesWithTheme";
-import Hidden from "@followBack/Theme/Icons/Hidden";
+import React from 'react';
+import { IAvatarProps } from './types';
+import { View, Text, Image } from 'react-native';
+import useStylesWithTheme from '@followBack/Hooks/useStylesWithTheme';
+import Hidden from '@followBack/Theme/Icons/Hidden';
+import { IContact } from '@followBack/Apis/Contacts/types';
 
-const AvatarItem: React.FC<IAvatarProps> = ({ users }) => {
+const AvatarItem: React.FC<IAvatarProps> = ({
+  users,
+}: {
+  users: IContact[];
+}) => {
   const { styles } = useStyles();
 
   const hasTwoUsers = users.length === 2;
@@ -35,13 +40,7 @@ const AvatarItem: React.FC<IAvatarProps> = ({ users }) => {
 
         return (
           <View key={index} style={currentContainerStyles}>
-            {!!imageURL && isFirstUser && (
-              <Image
-                size={avatarSize}
-                source={{ uri: imageURL }}
-                style={styles.avatar}
-              />
-            )}
+            {!!imageURL && isFirstUser && <Image source={{ uri: imageURL }} />}
 
             {!imageURL && isFirstUser && (
               <Text style={userInitialsStyles}>{firstChar?.toUpperCase()}</Text>
@@ -63,8 +62,8 @@ export default AvatarItem;
 
 const useStyles = useStylesWithTheme((theme) => ({
   center: {
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 
   singleUserContainer: {
@@ -72,7 +71,7 @@ const useStyles = useStylesWithTheme((theme) => ({
     width: 55,
     height: 55,
     backgroundColor: theme.colors.grey01,
-    position: "relative",
+    position: 'relative',
   },
 
   multiUsersContainer: {
@@ -80,43 +79,40 @@ const useStyles = useStylesWithTheme((theme) => ({
     width: 34,
     height: 34,
     backgroundColor: theme.colors.grey01,
-    position: "relative",
+    position: 'relative',
   },
 
- 
-
   firstUserAvatarPosiion: {
-    width: "100%",
-    height: "100%"
+    width: '100%',
+    height: '100%',
   },
 
   othersAvatarPosition: {
-    position: "absolute",
+    position: 'absolute',
     top: 34 / 2,
     backgroundColor: theme.colors.grey01,
-    left: 34/ 2,
+    left: 34 / 2,
     borderRadius: 34 / 2,
     width: 34,
     height: 34,
     borderColor: theme.colors.black,
-    borderWidth: 1
+    borderWidth: 1,
   },
-
 
   avatar: {
     backgroundColor: theme.colors.grey01,
-    width: "100%",
-    height: "100%",
+    width: '100%',
+    height: '100%',
   },
   singleUserInitials: {
     color: theme.colors.grey03,
-    fontWeight: "700",
+    fontWeight: '700',
     fontSize: 18,
   },
 
   multiUsersInitials: {
     color: theme.colors.grey03,
-    fontWeight: "700",
+    fontWeight: '700',
 
     fontSize: theme.fontSizes.small,
   },
