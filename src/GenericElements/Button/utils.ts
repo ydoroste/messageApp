@@ -12,7 +12,7 @@ export const typesToButtons: Record<buttonTypes, IButtonTypes> = {
         textType: "largeRegularBody",
         textColorType: "secondary",
         textDecoration: "underline",
-        showLabelStyle: true
+        showLabelStyle: true,
     },
     "ternary": {
         mode: "text",
@@ -20,6 +20,12 @@ export const typesToButtons: Record<buttonTypes, IButtonTypes> = {
         textColorType: "secondary",
         showLabelStyle: true
     },
+    "mediumTernary": {
+        mode: "text",
+        textType: "largeRegularBody",
+        textColorType: "secondary",
+        showLabelStyle: true
+    }
 };
 
 

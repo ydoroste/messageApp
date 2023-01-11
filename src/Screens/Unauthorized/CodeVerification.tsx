@@ -67,7 +67,7 @@ const CodeVerification: React.FC = () => {
                                         userName={userName}>
                                           <CodeVerificationForm/>
                                         </CodeVerificationLayout>
-                                        VerificationValue={codeVerificationValue}/>
+
                 <View style={styles.resetLink}>
                     { resetMethod === ResetMethod.Phone ? <Button onPress={onResetUsingEmailPress}
                             type="secondary">{getTranslatedText("resetUsingEmail")}</Button>

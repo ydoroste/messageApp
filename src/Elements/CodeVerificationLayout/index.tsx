@@ -28,7 +28,7 @@ const CodeVerificationLayout: React.FC<ICodeVerificationLayoutProps> = ({childre
         setShowResend(true);
     };
     const resendCode = async () => {
-        const a = await refetch();
+        await refetch();
         setShowResend(false);
     };
 

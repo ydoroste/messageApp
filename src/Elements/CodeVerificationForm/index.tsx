@@ -40,20 +40,14 @@ const CodeVerificationForm: React.FC = () => {
         if (isError) {
             setError("code", {
                 message: error?.response?.data?.message
-            })
+            });
+            return;
         }
 
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                nav.navigate(UnauthorizedScreensEnum.resetPassword,
-                    {
-                        resetToken: data?.data.resetToken as string
-                    });
-
-                resolve("resolved");
-
-            }, 3000);
-        });
+        nav.navigate(UnauthorizedScreensEnum.resetPassword,
+            {
+                resetToken: data?.data.resetToken as string
+            });
     };
     return (
         <>

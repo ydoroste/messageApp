@@ -9,6 +9,9 @@ import { IconButton as CustomIconButton } from "react-native-paper";
 const Close = React.lazy(() => import("@followBack/Theme/Icons/Close"));
 const Hidden = React.lazy(() => import("@followBack/Theme/Icons/Hidden"));
 const Shown = React.lazy(() => import("@followBack/Theme/Icons/Shown"));
+const Send = React.lazy(() => import("@followBack/Theme/Icons/Send"));
+const Add = React.lazy(() => import("@followBack/Theme/Icons/Add"));
+const Delete = React.lazy(() => import("@followBack/Theme/Icons/Delete"));
 const DownArrow = React.lazy(() => import("@followBack/Theme/Icons/DownArrow"));
 
 const IconButton: React.FC<IIconButtonProps> = ({
@@ -24,23 +27,31 @@ const IconButton: React.FC<IIconButtonProps> = ({
   ): React.ReactElement<IIconProps> | undefined => {
     let IconElement: React.FC<IIconProps>;
 
-    switch (icon) {
-      case "close":
-        IconElement = Close;
-        break;
-      case "hidden":
-        IconElement = Hidden;
-        break;
-      case "shown":
-        IconElement = Shown;
-        break;
-
-      case "downArrow":
-        IconElement = DownArrow;
-        break;
-      default:
-        IconElement = Close;
-        break;
+        switch (icon) {
+            case "close":
+                IconElement = Close;
+                break;
+            case "hidden":
+                IconElement = Hidden;
+                break;
+            case "shown":
+                IconElement = Shown;
+                break;
+                case "add":
+                IconElement = Add;
+                break;
+                case "delete":
+                IconElement = Delete;
+                break;
+                case "send":
+                IconElement = Send;
+                break;
+            case "downArrow":
+                IconElement = DownArrow;
+                break;
+            default:
+                IconElement = Close;
+                break;
     }
     return (
       <React.Suspense fallback={null}>

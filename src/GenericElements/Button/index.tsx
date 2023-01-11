@@ -7,18 +7,19 @@ import {typesToButtons} from "@followBack/GenericElements/Button/utils";
 import {memo} from "react";
 import useTheme from "@followBack/Hooks/useTheme";
 
-const Button: React.FC<IButtonProps> = ({disabled, children, type, ...props})=>{
+const Button: React.FC<IButtonProps> = ({disabled, children, type, icon, ...props})=>{
     const {styles} = useStyles();
     const {colors} = useTheme();
     const {textType, textDecoration, textColorType, mode} = typesToButtons[type];
     return <CustomButton uppercase={false}
                          {...props}
+                         icon={icon}
                          disabled={disabled}
                          style={styles[type]}
                          mode={mode}
                          color={colors.grey03}
                          contentStyle={type === "primary" && styles.primaryContentStyle}
-                         labelStyle={type === "primary" ? styles.primaryTextStyle : styles.textStyle}
+                         labelStyle={[type === "primary" ? styles.primaryTextStyle : styles.textStyle, !!icon && styles.iconWithButton]}
     >
         <Typography type={textType}
                     color={disabled ? "disabled" : textColorType}
@@ -44,23 +45,33 @@ const useStyles = useStylesWithTheme(theme => ({
         minWidth: 10,
         borderRadius: 0
     },
+    mediumTernary: {
+        backgroundColor: "transparent",
+        minWidth: 0,
+        borderRadius: 0
+    },
     textStyle: {
         marginHorizontal: 0,
         marginVertical: 0,
         fontFamily: theme.fontFamilies.OpenSans_400Regular,
         fontWeight: "400",
-        fontSize: 15,
         letterSpacing: 0,
     },
     primaryTextStyle: {
         fontFamily: theme.fontFamilies.OpenSans_400Regular,
         fontWeight: "400",
-        fontSize: 15,
         letterSpacing: 0,
     },
     primaryContentStyle: {
         height: 40
+    },
+    iconWithButton: {
+        alignItems: "center",
+        justifyContent: "center",
+        paddingHorizontal: 10,
+
     }
+
 
 }));
 
