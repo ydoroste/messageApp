@@ -37,7 +37,6 @@ const StepThree: React.FC<IStepThreeProps> = ({
     setError,
     watch,
   } = form;
-  console.log("isSubmitting", isSubmitting)
   const values = watch();
   const { terms_and_conditions, code } = values;
 

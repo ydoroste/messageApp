@@ -13,6 +13,7 @@ const Send = React.lazy(() => import("@followBack/Theme/Icons/Send"));
 const Add = React.lazy(() => import("@followBack/Theme/Icons/Add"));
 const Delete = React.lazy(() => import("@followBack/Theme/Icons/Delete"));
 const DownArrow = React.lazy(() => import("@followBack/Theme/Icons/DownArrow"));
+const Drawer = React.lazy(() => import("@followBack/Theme/Icons/Drawer"));
 
 const IconButton: React.FC<IIconButtonProps> = ({
   name,
@@ -27,31 +28,35 @@ const IconButton: React.FC<IIconButtonProps> = ({
   ): React.ReactElement<IIconProps> | undefined => {
     let IconElement: React.FC<IIconProps>;
 
-        switch (icon) {
-            case "close":
-                IconElement = Close;
-                break;
-            case "hidden":
-                IconElement = Hidden;
-                break;
-            case "shown":
-                IconElement = Shown;
-                break;
-                case "add":
-                IconElement = Add;
-                break;
-                case "delete":
-                IconElement = Delete;
-                break;
-                case "send":
-                IconElement = Send;
-                break;
-            case "downArrow":
-                IconElement = DownArrow;
-                break;
-            default:
-                IconElement = Close;
-                break;
+    switch (icon) {
+      case "close":
+        IconElement = Close;
+        break;
+      case "hidden":
+        IconElement = Hidden;
+        break;
+      case "shown":
+        IconElement = Shown;
+        break;
+      case "add":
+        IconElement = Add;
+        break;
+      case "delete":
+        IconElement = Delete;
+        break;
+      case "send":
+        IconElement = Send;
+        break;
+      case "downArrow":
+        IconElement = DownArrow;
+        break;
+      case "drawer":
+        IconElement = Drawer;
+        break;
+
+      default:
+        IconElement = Close;
+        break;
     }
     return (
       <React.Suspense fallback={null}>
