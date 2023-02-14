@@ -16,8 +16,9 @@ import Delete from "@followBack/Theme/Icons/Delete";
 import { useState } from "react";
 import Divider from "@followBack/GenericElements/Divider";
 import AutoCompleteTags from "@followBack/GenericElements/AutocompleteTags";
+import { AuthorizedScreensEnum } from "@followBack/Navigation/Authorized/constants";
 
-const Compose: React.FC = () => {
+const Compose: React.FC = ({ navigation }) => {
   const { colors } = useTheme();
   const [showSubject, setShowSubject] = useState(false);
   const [showCC, setShowCC] = useState(false);
@@ -26,7 +27,7 @@ const Compose: React.FC = () => {
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : undefined}
       keyboardVerticalOffset={100}
-      style={{ flex: 1 }}
+      style={{ flex: 1, backgroundColor: colors.black }}
     >
       <Pressable onPress={Keyboard.dismiss} style={styles.container}>
         <View>
@@ -127,7 +128,11 @@ const Compose: React.FC = () => {
             />
           </View>
           <IconButton
-            onPress={() => {}}
+            onPress={() => {
+              navigation.navigate(AuthorizedScreensEnum.composeStack, {
+                screen: AuthorizedScreensEnum.threadsListDetails,
+              });
+            }}
             name="send"
             width={17}
             height={17}

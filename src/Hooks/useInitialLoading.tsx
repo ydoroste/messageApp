@@ -12,8 +12,6 @@ const isAppLoaded = fontLoaded && !isLoading;
 
     useEffect(()=>{
         const loadApp = async () => {
-        //    console.log("font loaded", isAppLoaded);
-        //    console.log("font loaded", isAppLoaded);
             await SplashScreen.hideAsync();
         };
 
