@@ -69,7 +69,6 @@ export const UserProvider: React.FC<IUserProviderProp> = ({ children }) => {
             headers: { "x-auth-token": token },
           }
         );
-
         setUserDetails(data);
       } catch (e) {
         console.log("userDetails-error", e);

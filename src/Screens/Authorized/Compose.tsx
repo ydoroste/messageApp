@@ -15,14 +15,34 @@ import InputField from "@followBack/GenericElements/InputField";
 import Delete from "@followBack/Theme/Icons/Delete";
 import { useState } from "react";
 import Divider from "@followBack/GenericElements/Divider";
-import AutoCompleteTags from "@followBack/GenericElements/AutocompleteTags";
 import { AuthorizedScreensEnum } from "@followBack/Navigation/Authorized/constants";
-
+import { ComposeAutoComplete } from "@followBack/Elements/ComposeAutoComplete";
+import { useCompose } from "@followBack/Hooks/Apis/Compose";
+import { IComposeApiRequest } from "@followBack/Apis/Compose/types";
 const Compose: React.FC = ({ navigation }) => {
+  const [toTags, setToTags] = useState([]);
+  const [ccTags, setCcTags] = useState([]);
+  const [bccTags, setBccTags] = useState([]);
+
+  const [subject, setSubject] = useState("");
+
+  const [mail, setMail] = useState("");
+
   const { colors } = useTheme();
   const [showSubject, setShowSubject] = useState(false);
   const [showCC, setShowCC] = useState(false);
   const [showBcc, setShowBcc] = useState(false);
+
+  const composeRequest: IComposeApiRequest = {
+    subject,
+    text: mail,
+    to: toTags.map((mail) => ({ address: mail })),
+  };
+
+  const { refetch } = useCompose(composeRequest);
+  const onPressCompose = () => {
+    refetch();
+  };
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : undefined}
@@ -69,13 +89,35 @@ const Compose: React.FC = ({ navigation }) => {
           </View>
 
           <View style={styles.fieldsContainer}>
+            <Divider />
+
+            {showSubject && (
+              <View style={styles.fields}>
+                <Typography color="primary" type="largeRegularBody">
+                  subject:{" "}
+                </Typography>
+                <View style={styles.input}>
+                  <InputField
+                    hideBorder
+                    placeholder="add"
+                    value={subject}
+                    onChangeText={setSubject}
+                  />
+                </View>
+              </View>
+            )}
+
             {showBcc && (
               <View style={styles.fields}>
                 <Typography color="primary" type="largeRegularBody">
                   bcc:{" "}
                 </Typography>
                 <View style={styles.input}>
-                  <AutoCompleteTags />
+                  <ComposeAutoComplete
+                    tags={bccTags}
+                    setTags={setBccTags}
+                    type={"bcc"}
+                  />
                 </View>
               </View>
             )}
@@ -85,7 +127,11 @@ const Compose: React.FC = ({ navigation }) => {
                   cc:{" "}
                 </Typography>
                 <View style={styles.input}>
-                  <AutoCompleteTags />
+                  <ComposeAutoComplete
+                    tags={ccTags}
+                    setTags={setCcTags}
+                    type={"cc"}
+                  />
                 </View>
               </View>
             )}
@@ -94,23 +140,14 @@ const Compose: React.FC = ({ navigation }) => {
                 to:{" "}
               </Typography>
               <View style={styles.input}>
-                <AutoCompleteTags />
+                <ComposeAutoComplete
+                  tags={toTags}
+                  setTags={setToTags}
+                  type={"to"}
+                />
               </View>
             </View>
           </View>
-
-          <Divider />
-
-          {showSubject && (
-            <View style={styles.fields}>
-              <Typography color="primary" type="largeRegularBody">
-                subject:{" "}
-              </Typography>
-              <View style={styles.input}>
-                <InputField hideBorder placeholder="add" />
-              </View>
-            </View>
-          )}
         </View>
         <View style={styles.sendActions}>
           <IconButton
@@ -122,13 +159,16 @@ const Compose: React.FC = ({ navigation }) => {
           />
           <View style={styles.input}>
             <InputField
+              value={mail}
+              onChangeText={setMail}
               multiline
               mode="outlined"
-              placeholder="send a message..."
+              placeholder="write a message..."
             />
           </View>
           <IconButton
             onPress={() => {
+              onPressCompose();
               navigation.navigate(AuthorizedScreensEnum.composeStack, {
                 screen: AuthorizedScreensEnum.threadsListDetails,
               });
@@ -173,7 +213,6 @@ const styles = StyleSheet.create({
 
   input: {
     flex: 1,
-    //margin: 8
   },
   sendActions: {
     flexDirection: "row",

@@ -8,7 +8,7 @@ const Suggestion: React.FC<ISuggestionProps> = ({suggestion, onPress}) =>{
     const {styles} = useStyles();
     return(
         <View style={styles.container}>
-            <Typography onPress={onPress} color="secondary" textDecoration="underline" type="mediumRegularBody">{suggestion}  |  {suggestion}
+            <Typography onPress={onPress} color="secondary" textDecoration="underline" type="mediumRegularBody">{suggestion.name}  |  {suggestion.address}
             </Typography>
         </View>
     )
