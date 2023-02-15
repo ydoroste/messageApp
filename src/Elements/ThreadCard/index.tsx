@@ -21,14 +21,16 @@ const ThreadCard: React.FC<IthreadCardProps> = ({ threadItem }) => {
       </View>
 
       <View style={styles.content}>
-        <Typography
-          type="largeRegularTitle"
-          color="secondary"
-          ellipsizeMode="tail"
-          numberOfLines={1}
-        >
-          {threadItem.lastMessage.subject}
-        </Typography>
+        <View style={{ marginBottom: 6 }}>
+          <Typography
+            type="largeRegularTitle"
+            color="secondary"
+            ellipsizeMode="tail"
+            numberOfLines={1}
+          >
+            {threadItem.lastMessage.subject}
+          </Typography>
+        </View>
 
         <Typography
           type="mediumRegularBody"
@@ -36,7 +38,7 @@ const ThreadCard: React.FC<IthreadCardProps> = ({ threadItem }) => {
           ellipsizeMode="tail"
           numberOfLines={2}
         >
-          {threadItem.lastMessage.content}
+          {threadItem.lastMessage.text}
         </Typography>
       </View>
 
