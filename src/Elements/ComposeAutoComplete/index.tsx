@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import AutoCompleteTags from "@followBack/GenericElements/AutocompleteTags";
 import { useFecthContactsList } from "@followBack/Hooks/Apis/ContactsList";
-export const ComposeAutoComplete = ({ tags, setTags, type }) => {
-  const [searchValue, setSearchValue] = useState("");
+export const ComposeAutoComplete = ({searchValue, setSearchValue, tags, setTags, type }) => {
   const { isSuccess, isError, isLoading, data } = useFecthContactsList({
     type,
     searchValue,

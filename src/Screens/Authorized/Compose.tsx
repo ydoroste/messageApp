@@ -19,7 +19,12 @@ import { AuthorizedScreensEnum } from "@followBack/Navigation/Authorized/constan
 import { ComposeAutoComplete } from "@followBack/Elements/ComposeAutoComplete";
 import { useCompose } from "@followBack/Hooks/Apis/Compose";
 import { IComposeApiRequest } from "@followBack/Apis/Compose/types";
+import { isValidEmail } from "@followBack/Utils/validations";
 const Compose: React.FC = ({ navigation }) => {
+  const [toSearchValue, setToSearchValue] = useState("");
+  const [ccSearchValue, setcCSearchValue] = useState("");
+  const [bccSearchValue, setBccSearchValue] = useState("");
+
   const [toTags, setToTags] = useState([]);
   const [ccTags, setCcTags] = useState([]);
   const [bccTags, setBccTags] = useState([]);
@@ -33,15 +38,34 @@ const Compose: React.FC = ({ navigation }) => {
   const [showCC, setShowCC] = useState(false);
   const [showBcc, setShowBcc] = useState(false);
 
+  const formatTags = (tags) => tags.map((mail) => ({ address: mail.trim() }));
+  const formattedToTags = formatTags(toTags);
+  const formattedCcTags = formatTags(ccTags);
+  const formattedBccTags = formatTags(bccTags);
+
   const composeRequest: IComposeApiRequest = {
     subject,
     text: mail,
-    to: toTags.map((mail) => ({ address: mail })),
+    to: isValidEmail(toSearchValue)
+      ? [...formattedToTags, { address: toSearchValue }]
+      : formattedToTags,
+    cc: isValidEmail(ccSearchValue)
+      ? [...formattedCcTags, { address: ccSearchValue }]
+      : formattedCcTags,
+    bcc: isValidEmail(bccSearchValue)
+      ? [...formattedBccTags, { address: bccSearchValue }]
+      : formattedBccTags,
   };
 
   const { refetch } = useCompose(composeRequest);
-  const onPressCompose = () => {
-    refetch();
+  const onPressCompose = async () => {
+    if (!subject || toTags.length < 0) return;
+    await refetch();
+
+    navigation.navigate(AuthorizedScreensEnum.composeStack, {
+      screen: AuthorizedScreensEnum.threadDetails,
+      params: {},
+    });
   };
   return (
     <KeyboardAvoidingView
@@ -114,6 +138,8 @@ const Compose: React.FC = ({ navigation }) => {
                 </Typography>
                 <View style={styles.input}>
                   <ComposeAutoComplete
+                    searchValue={bccSearchValue}
+                    setSearchValue={setBccSearchValue}
                     tags={bccTags}
                     setTags={setBccTags}
                     type={"bcc"}
@@ -128,6 +154,8 @@ const Compose: React.FC = ({ navigation }) => {
                 </Typography>
                 <View style={styles.input}>
                   <ComposeAutoComplete
+                    searchValue={ccSearchValue}
+                    setSearchValue={setcCSearchValue}
                     tags={ccTags}
                     setTags={setCcTags}
                     type={"cc"}
@@ -141,6 +169,8 @@ const Compose: React.FC = ({ navigation }) => {
               </Typography>
               <View style={styles.input}>
                 <ComposeAutoComplete
+                  searchValue={toSearchValue}
+                  setSearchValue={setToSearchValue}
                   tags={toTags}
                   setTags={setToTags}
                   type={"to"}

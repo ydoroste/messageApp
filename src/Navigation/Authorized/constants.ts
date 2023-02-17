@@ -3,7 +3,7 @@ export enum AuthorizedScreensEnum {
   compose = "compose",
   threadsListStack = "threadsListStack",
   threadsList = "threadsList",
-  threadsListDetails = "threadsListDetails",
+  threadDetails = "threadDetails",
 }
 
 export const AuthorizedScreens: Record<AuthorizedScreensEnum, IScreensDetails> =
@@ -17,9 +17,9 @@ export const AuthorizedScreens: Record<AuthorizedScreensEnum, IScreensDetails> =
       title: "",
       name: "threadsList",
     },
-    [AuthorizedScreensEnum.threadsListDetails]: {
+    [AuthorizedScreensEnum.threadDetails]: {
       title: "",
-      name: "threadsListDetails",
+      name: "threadDetails",
     },
   };
 

@@ -7,6 +7,7 @@ import useTheme from "@followBack/Hooks/useTheme";
 import useStylesWithTheme from "@followBack/Hooks/useStylesWithTheme";
 import { IAutoCompleteTags } from "@followBack/GenericElements/AutocompleteTags/types";
 import { Value } from "react-native-reanimated";
+import { isValidEmail } from "@followBack/Utils/validations";
 const screenWidth = Dimensions.get("window").width;
 const AutoCompleteTags: React.FC<IAutoCompleteTags> = ({
   onChangeTags,
@@ -28,8 +29,12 @@ const AutoCompleteTags: React.FC<IAutoCompleteTags> = ({
         selectionColor: colors.white,
         placeholder: tags && tags.length > 0 ? undefined : "add",
         onChangeText: (text) => {
-          const lastChar = text[text.length - 1];
+          const lastCharIndex = text.length - 1;
+          const lastChar = text[lastCharIndex];
           if (parseChars.includes(lastChar)) {
+            const mail = text.slice(0, lastCharIndex);
+            if (!isValidEmail(mail)) return;
+
             onChangeTags([...tags, text]);
             onChangeText("");
           } else {

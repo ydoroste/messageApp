@@ -7,10 +7,19 @@ import {
 import { getAccessToken } from "@followBack/Utils/accessToken";
 import { CORE_SERVICE_URL } from "@followBack/Apis/constants";
 
+export const snatizeComposeApi = (request) => {
+  const toBeSnatizedKeys = ["cc", "bcc"];
+  return Object.keys(request).reduce((acc, key) => {
+    if (toBeSnatizedKeys.includes(key) && request[key].length === 0) return acc;
+    acc[key] = request[key];
+    return acc;
+  }, {});
+};
+
 export const composeApi = async (request: IComposeApiRequest) => {
   return PostApi<IComposeApiRequest, IComposeApiResponse>(
     `${CORE_SERVICE_URL}${Apis.compose}`,
-    request,
+    snatizeComposeApi(request),
     undefined,
     {
       headers: {
