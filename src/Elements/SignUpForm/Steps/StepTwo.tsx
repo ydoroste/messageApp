@@ -22,20 +22,13 @@ import {
   StepTwoFileds,
 } from "@followBack/Elements/SignUpForm/types";
 
-
-
-
-
-
 const StepTwo: React.FC<IStepTwoProps> = ({
   setSignUpSuccessStatus,
   wizard,
   form,
   isStepValid,
 }) => {
-
-   const [showPassword, setShowPassword] = useState(false);
-
+  const [showPassword, setShowPassword] = useState(false);
 
   const [errorMessage, setErrorMessage] = useState("");
   const {
@@ -53,11 +46,13 @@ const StepTwo: React.FC<IStepTwoProps> = ({
 
   const values = form.watch();
 
+  const formatToServerDate = () => {
+    const [month, day, year] = values.birth_date.split("/");
+    const formattedMonth = Number(month) < 10 ? `0${month}` : month;
+    const formattedDay = Number(day) < 10 ? `0${day}` : day;
 
-  const formatToServerDate = ()=>{
-    const [day, month, year]=  values.birth_date.split("/")
-    return `${year}-${month}-${day}`
-  }
+    return `${year}-${formattedMonth}-${formattedDay}`;
+  };
 
   const request: IRegisterApiRequest = {
     first_name: values.first_name,
@@ -75,6 +70,7 @@ const StepTwo: React.FC<IStepTwoProps> = ({
     }, [])
   );
 
+  console.log("request", request);
   const { refetch } = useRegister(request);
 
   const onSubmit = async () => {
@@ -250,7 +246,14 @@ const StepTwo: React.FC<IStepTwoProps> = ({
       </View>
 
       {!!errorMessage && (
-        <View style={{...styles.errorMessage, marginTop: 20, marginBottom: 20, alignItems: "center"}}>
+        <View
+          style={{
+            ...styles.errorMessage,
+            marginTop: 20,
+            marginBottom: 20,
+            alignItems: "center",
+          }}
+        >
           <Typography type="smallRegularBody" color="error">
             {errorMessage}
           </Typography>
