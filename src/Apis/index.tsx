@@ -12,4 +12,5 @@ export enum Apis {
   userDetailsPath = "users/getUserData",
   contactsList = "contacts/get",
   compose = "mail/compose",
+  threadMessages = "threads/fetchThreadMsgs",
 }

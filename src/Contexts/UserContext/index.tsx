@@ -10,7 +10,6 @@ import {
 import {
   deleteAccessToken,
   getAccessToken,
-  setAccessToken,
 } from "@followBack/Utils/accessToken";
 import { GetApi } from "@followBack/Utils/httpApis/apis";
 import { AUTH_SERVICE_URL } from "@followBack/Apis/constants";

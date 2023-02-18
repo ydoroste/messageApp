@@ -1,22 +1,59 @@
 import React from "react";
 import { IAvatarProps } from "./types";
 import { View, Text, Image } from "react-native";
-import { Avatar } from "react-native-paper";
-import Typography from "@followBack/GenericElements/Typography";
 import useStylesWithTheme from "@followBack/Hooks/useStylesWithTheme";
-import { useUserDetails } from "@followBack/Hooks/useUserDetails";
 
-const AvatarItem: React.FC<IAvatarProps> = ({ imageURL }) => {
+const AvatarItem: React.FC<IAvatarProps> = ({ users }) => {
   const { styles } = useStyles();
-  const {
-    userDetails: { user_name },
-  } = useUserDetails();
+
+  const hasTwoUsers = users.length === 2;
+  const isMultiChat = users.length > 2;
+
+  const isGroup = hasTwoUsers || isMultiChat;
+  const containerStyles = isGroup
+    ? [styles.multiUsersContainer]
+    : [styles.singleUserContainer];
+
+  const userInitialsStyles = isGroup
+    ? [styles.multiUsersInitials]
+    : [styles.singleUserInitials];
+
   return (
-    <View style={styles.container}>
-      {!!imageURL && (
-        <Image size={55} source={{ uri: imageURL }} style={styles.avatar} />
-      )}
-      {!imageURL && <Text style={styles.userInitials}>{user_name[0]}</Text>}
+    <View style={containerStyles}>
+      {users.map(({ imageURL, name }, index) => {
+        const isSecondUser = hasTwoUsers && index === 1;
+        const isFirstUser = index === 0;
+        const isOthers = !isFirstUser && isGroup;
+
+        console.log("!imageURL && isFirstUser", !imageURL && isFirstUser);
+        const currentContainerStyles = isFirstUser
+          ? [styles.center, styles.firstUserAvatarPosiion]
+          : [styles.center, styles.othersAvatarPosition];
+
+        const avatarSize = hasTwoUsers ? 25 : 55;
+
+        return (
+          <View key={index} style={currentContainerStyles}>
+            {!!imageURL && isFirstUser && (
+              <Image
+                size={avatarSize}
+                source={{ uri: imageURL }}
+                style={styles.avatar}
+              />
+            )}
+
+            {!imageURL && isFirstUser && (
+              <Text style={userInitialsStyles}>{name[0]}</Text>
+            )}
+
+            {isOthers && (
+              <Text style={userInitialsStyles}>
+                {hasTwoUsers ? name[0] : users.length - 1}
+              </Text>
+            )}
+          </View>
+        );
+      })}
     </View>
   );
 };
@@ -24,13 +61,36 @@ const AvatarItem: React.FC<IAvatarProps> = ({ imageURL }) => {
 export default AvatarItem;
 
 const useStyles = useStylesWithTheme((theme) => ({
-  container: {
+  center: {
     backgroundColor: theme.colors.grey01,
-    width: 55,
-    height: 55,
-    borderRadius: 55 / 2,
     justifyContent: "center",
     alignItems: "center",
+  },
+  multiUsersContainer: {
+    position: "relative",
+    width: 25,
+    height: 25,
+    borderRadius: 25 / 2,
+  },
+
+  singleUserContainer: {
+    borderRadius: 55 / 2,
+    width: 55,
+    height: 55,
+  },
+  othersAvatarPosition: {
+    position: "absolute",
+    top: 25 / 2,
+    left: 25 / 2,
+    width: 25,
+    height: 25,
+    borderRadius: 25 / 2,
+  },
+
+  firstUserAvatarPosiion: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 55 / 2,
   },
 
   avatar: {
@@ -39,9 +99,16 @@ const useStyles = useStylesWithTheme((theme) => ({
     height: "100%",
     borderRadius: "50%",
   },
-  userInitials: {
+  singleUserInitials: {
     color: theme.colors.grey03,
     fontWeight: "700",
     fontSize: 18,
+  },
+
+  multiUsersInitials: {
+    color: theme.colors.grey03,
+    fontWeight: "700",
+
+    fontSize: theme.fontSizes.small,
   },
 }));

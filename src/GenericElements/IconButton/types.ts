@@ -7,4 +7,4 @@ export interface IIconButtonProps extends IIconProps{
     disabled?: boolean
 }
 
-export type iconsType = "close" | "hidden" | "shown" | "send" | "delete" | "add" | "downArrow" | "drawer";
+export type iconsType = "close" | "hidden" | "shown" | "send" | "delete" | "add" | "downArrow" | "drawer" | "back";

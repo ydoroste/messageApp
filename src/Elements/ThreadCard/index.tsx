@@ -17,7 +17,7 @@ const ThreadCard: React.FC<IthreadCardProps> = ({ threadItem }) => {
   return (
     <View style={styles.container}>
       <View style={{ marginRight: 8 }}>
-        <Avatar imageURL={null} />
+        <Avatar users={[{ name: threadItem.lastMessage.to }]} />
       </View>
 
       <View style={styles.content}>

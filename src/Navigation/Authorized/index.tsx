@@ -7,13 +7,13 @@ import ThreadDetails from "@followBack/Screens/Authorized/ThreadDetails";
 
 import { AuthorizedScreensEnum } from "@followBack/Navigation/Authorized/constants";
 import { AuthorizedParams } from "@followBack/Navigation/Authorized/types";
-import AuthorizedHeader from "@followBack/Elements/AuthorizedHeader/AuthorizedHeader";
+import MailBoxHeader from "@followBack/Elements/Headers/Authorized/MailBoxHeader/MailBoxHeader";
 import CustomDrawerContent from "./DrawerContent";
 import useTheme from "@followBack/Hooks/useTheme";
 const Drawer = createDrawerNavigator<AuthorizedParams>();
 import { SearchProvider } from "@followBack/Contexts/SearchContext";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { useFetchUserMailBoxes } from "@followBack/Hooks/Apis/UserMailBoxes";
+import { useMailBoxes } from "@followBack/Hooks/useMailboxes";
 
 const ComposeStack = () => {
   const Stack = createNativeStackNavigator();
@@ -24,11 +24,17 @@ const ComposeStack = () => {
         name={AuthorizedScreensEnum.compose}
         component={Compose}
         options={{
-          header: (props) => <AuthorizedHeader {...props} hideSearch />,
+          headerShown: false,
         }}
       />
 
-      <Stack.Screen name="threadDetails" component={ThreadDetails} />
+      <Stack.Screen
+        options={{
+          headerShown: false,
+        }}
+        name="threadDetails"
+        component={ThreadDetails}
+      />
     </Stack.Navigator>
   );
 };
@@ -41,7 +47,7 @@ const ThreadsListStack = () => {
       <Stack.Screen
         name="threadsList"
         component={ThreadsList}
-        options={{ header: (props) => <AuthorizedHeader {...props} /> }}
+        options={{ header: (props) => <MailBoxHeader {...props} /> }}
       />
 
       <Stack.Screen name="threadDetails" component={ThreadDetails} />
@@ -50,14 +56,13 @@ const ThreadsListStack = () => {
 };
 
 const Authorized = () => {
-  const { data, isLoading, isError, isSuccess } = useFetchUserMailBoxes();
-
   const { colors } = useTheme();
+  const { data, isSuccess } = useMailBoxes();
   return (
     <View style={{ flex: 1, paddingTop: 70, backgroundColor: colors.black }}>
       <SearchProvider>
         <Drawer.Navigator
-          initialRouteName={AuthorizedScreensEnum.compose}
+          initialRouteName={AuthorizedScreensEnum.threadDetails}
           drawerContent={(props) => (
             <CustomDrawerContent {...props} mailboxes={data?.mailboxes} />
           )}

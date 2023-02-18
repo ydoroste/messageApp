@@ -1,6 +1,6 @@
 import IconButton from "@followBack/GenericElements/IconButton";
 import Typography from "@followBack/GenericElements/Typography";
-import * as React from "react";
+import React, { useCallback } from "react";
 import {
   Keyboard,
   KeyboardAvoidingView,
@@ -10,9 +10,10 @@ import {
   View,
 } from "react-native";
 import useTheme from "@followBack/Hooks/useTheme";
+import { useMailBoxes } from "@followBack/Hooks/useMailboxes";
+
 import Button from "@followBack/GenericElements/Button";
 import InputField from "@followBack/GenericElements/InputField";
-import Delete from "@followBack/Theme/Icons/Delete";
 import { useState } from "react";
 import Divider from "@followBack/GenericElements/Divider";
 import { AuthorizedScreensEnum } from "@followBack/Navigation/Authorized/constants";
@@ -20,7 +21,11 @@ import { ComposeAutoComplete } from "@followBack/Elements/ComposeAutoComplete";
 import { useCompose } from "@followBack/Hooks/Apis/Compose";
 import { IComposeApiRequest } from "@followBack/Apis/Compose/types";
 import { isValidEmail } from "@followBack/Utils/validations";
+import { useFocusEffect } from "@react-navigation/native";
+
 const Compose: React.FC = ({ navigation }) => {
+  const { inboxThread } = useMailBoxes();
+
   const [toSearchValue, setToSearchValue] = useState("");
   const [ccSearchValue, setcCSearchValue] = useState("");
   const [bccSearchValue, setBccSearchValue] = useState("");
@@ -38,33 +43,51 @@ const Compose: React.FC = ({ navigation }) => {
   const [showCC, setShowCC] = useState(false);
   const [showBcc, setShowBcc] = useState(false);
 
-  const formatTags = (tags) => tags.map((mail) => ({ address: mail.trim() }));
-  const formattedToTags = formatTags(toTags);
-  const formattedCcTags = formatTags(ccTags);
-  const formattedBccTags = formatTags(bccTags);
+  const formatTags = (tags, searchValue) => {
+    const formattedTags = tags.map((mail) => ({ address: mail.trim() }));
+    return isValidEmail(searchValue)
+      ? [...formattedTags, { address: searchValue }]
+      : formattedTags;
+  };
 
   const composeRequest: IComposeApiRequest = {
     subject,
     text: mail,
-    to: isValidEmail(toSearchValue)
-      ? [...formattedToTags, { address: toSearchValue }]
-      : formattedToTags,
-    cc: isValidEmail(ccSearchValue)
-      ? [...formattedCcTags, { address: ccSearchValue }]
-      : formattedCcTags,
-    bcc: isValidEmail(bccSearchValue)
-      ? [...formattedBccTags, { address: bccSearchValue }]
-      : formattedBccTags,
+    to: formatTags(toTags, toSearchValue),
+    cc: formatTags(ccTags, ccSearchValue),
+    bcc: formatTags(bccTags, bccSearchValue),
   };
+
+  const reset = () => {
+    setToSearchValue("");
+    setcCSearchValue("");
+    setBccSearchValue("");
+    setSubject("");
+    setToTags([]);
+    setCcTags([]);
+    setBccTags([]);
+    setShowSubject(false);
+    setShowCC(false);
+    setMail("");
+
+    setShowBcc(false);
+  };
+  useFocusEffect(
+    useCallback(() => {
+      return () => {
+        reset();
+      };
+    }, [])
+  );
 
   const { refetch } = useCompose(composeRequest);
   const onPressCompose = async () => {
     if (!subject || toTags.length < 0) return;
-    await refetch();
-
+    const { data } = await refetch();
+    console.log("data", data);
     navigation.navigate(AuthorizedScreensEnum.composeStack, {
       screen: AuthorizedScreensEnum.threadDetails,
-      params: {},
+      params: { id: 1 },
     });
   };
   return (
@@ -76,40 +99,59 @@ const Compose: React.FC = ({ navigation }) => {
       <Pressable onPress={Keyboard.dismiss} style={styles.container}>
         <View>
           <View style={styles.header}>
-            <Button
-              icon={() => (
-                <View style={{ marginLeft: -13 }}>
-                  <Delete color={colors.grey02} height={16} width={15} />
-                </View>
-              )}
-              type="mediumTernary"
-            >
-              delete
-            </Button>
+            <View style={styles.leftHeaderActions}>
+              <View style={styles.back}>
+                <IconButton
+                  name="back"
+                  onPress={() => {
+                    if (navigation.canGoBack()) return navigation.goBack();
+                    if (!inboxThread) return;
 
-            <View style={styles.actionButtons}>
-              <View style={{ marginHorizontal: 4 }}>
-                <Button
-                  onPress={() => setShowSubject(!showSubject)}
-                  type="mediumTernary"
-                >
-                  subject
-                </Button>
+                    navigation.navigate(
+                      AuthorizedScreensEnum.threadsListStack,
+                      {
+                        screen: AuthorizedScreensEnum.threadsList,
+                        params: { ...inboxThread },
+                      }
+                    );
+                  }}
+                  color={colors.grey02}
+                  width={10}
+                  height={16}
+                />
               </View>
-              <View style={{ marginHorizontal: 4 }}>
-                <Button onPress={() => setShowCC(!showCC)} type="mediumTernary">
-                  cc
-                </Button>
-              </View>
-              <View style={{ marginHorizontal: 4 }}>
-                <Button
-                  onPress={() => setShowBcc(!showBcc)}
-                  type="mediumTernary"
-                >
-                  bcc
-                </Button>
+
+              <View style={styles.mailActions}>
+                <View style={styles.subject}>
+                  <Button
+                    onPress={() => setShowSubject(!showSubject)}
+                    type="mediumTernary"
+                  >
+                    subject
+                  </Button>
+                </View>
+                <View>
+                  <Button
+                    onPress={() => setShowCC(!showCC)}
+                    type="mediumTernary"
+                  >
+                    cc/
+                  </Button>
+                </View>
+                <View>
+                  <Button
+                    onPress={() => setShowBcc(!showBcc)}
+                    type="mediumTernary"
+                  >
+                    bcc
+                  </Button>
+                </View>
               </View>
             </View>
+
+            <Button style={styles.delete} type="mediumTernary">
+              delete
+            </Button>
           </View>
 
           <View style={styles.fieldsContainer}>
@@ -225,12 +267,26 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 10,
   },
-  actionButtons: {
+
+  back: {
+    marginRight: 21,
+  },
+
+  subject: {
+    marginRight: 16,
+  },
+  leftHeaderActions: {
     display: "flex",
     flexDirection: "row",
-    justifyContent: "flex-end",
+    alignItems: "center",
+  },
+
+  mailActions: {
+    display: "flex",
+    flexDirection: "row",
   },
 
   fieldsContainer: {

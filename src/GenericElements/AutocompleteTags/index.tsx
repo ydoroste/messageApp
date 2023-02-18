@@ -64,7 +64,7 @@ const AutoCompleteTags: React.FC<IAutoCompleteTags> = ({
           suggestion={suggestion}
         />
       )}
-      renderTag={(tag, onPress) => <Tag onPress={onPress} tag={tag} />}
+      renderTag={(tag, onPress) => <Tag  onPress={onPress} tag={tag} />}
       flatListStyle={styles.listStyle}
     />
   );

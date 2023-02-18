@@ -53,6 +53,9 @@ const IconButton: React.FC<IIconButtonProps> = ({
       case "drawer":
         IconElement = Drawer;
         break;
+      case "back":
+        IconElement = DownArrow;
+        break;
 
       default:
         IconElement = Close;
