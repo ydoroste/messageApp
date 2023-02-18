@@ -1,6 +1,6 @@
 import IconButton from "@followBack/GenericElements/IconButton";
 import Typography from "@followBack/GenericElements/Typography";
-import React, { useCallback } from "react";
+import React, { useCallback, useReducer } from "react";
 import {
   Keyboard,
   KeyboardAvoidingView,
@@ -10,11 +10,8 @@ import {
   View,
 } from "react-native";
 import useTheme from "@followBack/Hooks/useTheme";
-import { useMailBoxes } from "@followBack/Hooks/useMailboxes";
-
 import Button from "@followBack/GenericElements/Button";
 import InputField from "@followBack/GenericElements/InputField";
-import { useState } from "react";
 import Divider from "@followBack/GenericElements/Divider";
 import { AuthorizedScreensEnum } from "@followBack/Navigation/Authorized/constants";
 import { ComposeAutoComplete } from "@followBack/Elements/ComposeAutoComplete";
@@ -22,56 +19,89 @@ import { useCompose } from "@followBack/Hooks/Apis/Compose";
 import { IComposeApiRequest } from "@followBack/Apis/Compose/types";
 import { isValidEmail } from "@followBack/Utils/validations";
 import { useFocusEffect } from "@react-navigation/native";
+import { useMailBoxes } from "@followBack/Hooks/useMailboxes";
+
+const SET_KEY_VALUE = "SET_KEY_VALUE";
+
+const RESET = "RESET";
+
+const initialState = {
+  toSearchValue: "",
+  ccSearchValue: "",
+  bccSearchValue: "",
+  toTags: [],
+  ccTags: [],
+  bccTags: [],
+  subject: "",
+  mail: "",
+  showSubject: false,
+  showCC: false,
+  showBcc: false,
+};
+
+const reducer = (state, { type, payload }) => {
+  switch (type) {
+    case SET_KEY_VALUE:
+      return { ...state, [payload.key]: payload.value };
+
+    case RESET:
+      return initialState;
+
+    default:
+      return state;
+  }
+};
 
 const Compose: React.FC = ({ navigation }) => {
   const { inboxThread } = useMailBoxes();
 
-  const [toSearchValue, setToSearchValue] = useState("");
-  const [ccSearchValue, setcCSearchValue] = useState("");
-  const [bccSearchValue, setBccSearchValue] = useState("");
+  const [state, dispatch] = useReducer(reducer, initialState);
+  const {
+    toSearchValue,
+    ccSearchValue,
+    bccSearchValue,
+    toTags,
+    ccTags,
+    bccTags,
+    mail,
+    subject,
+    showSubject,
+    showCC,
+    showBcc,
+  } = state;
 
-  const [toTags, setToTags] = useState([]);
-  const [ccTags, setCcTags] = useState([]);
-  const [bccTags, setBccTags] = useState([]);
-
-  const [subject, setSubject] = useState("");
-
-  const [mail, setMail] = useState("");
+  const setKeyValue = ({ key, value }) => {
+    dispatch({
+      type: SET_KEY_VALUE,
+      payload: { key, value },
+    });
+  };
 
   const { colors } = useTheme();
-  const [showSubject, setShowSubject] = useState(false);
-  const [showCC, setShowCC] = useState(false);
-  const [showBcc, setShowBcc] = useState(false);
 
-  const formatTags = (tags, searchValue) => {
-    const formattedTags = tags.map((mail) => ({ address: mail.trim() }));
-    return isValidEmail(searchValue)
-      ? [...formattedTags, { address: searchValue }]
-      : formattedTags;
-  };
+  const formatTags = (tags) => tags.map((mail) => ({ address: mail.trim() }));
+  const formattedToTags = formatTags(toTags);
+  const formattedCcTags = formatTags(ccTags);
+  const formattedBccTags = formatTags(bccTags);
 
   const composeRequest: IComposeApiRequest = {
     subject,
     text: mail,
-    to: formatTags(toTags, toSearchValue),
-    cc: formatTags(ccTags, ccSearchValue),
-    bcc: formatTags(bccTags, bccSearchValue),
+    to: isValidEmail(toSearchValue)
+      ? [...formattedToTags, { address: toSearchValue }]
+      : formattedToTags,
+    cc: isValidEmail(ccSearchValue)
+      ? [...formattedCcTags, { address: ccSearchValue }]
+      : formattedCcTags,
+    bcc: isValidEmail(bccSearchValue)
+      ? [...formattedBccTags, { address: bccSearchValue }]
+      : formattedBccTags,
   };
 
   const reset = () => {
-    setToSearchValue("");
-    setcCSearchValue("");
-    setBccSearchValue("");
-    setSubject("");
-    setToTags([]);
-    setCcTags([]);
-    setBccTags([]);
-    setShowSubject(false);
-    setShowCC(false);
-    setMail("");
-
-    setShowBcc(false);
+    dispatch({ type: RESET, payload: null });
   };
+
   useFocusEffect(
     useCallback(() => {
       return () => {
@@ -84,10 +114,9 @@ const Compose: React.FC = ({ navigation }) => {
   const onPressCompose = async () => {
     if (!subject || toTags.length < 0) return;
     const { data } = await refetch();
-    console.log("data", data);
     navigation.navigate(AuthorizedScreensEnum.composeStack, {
       screen: AuthorizedScreensEnum.threadDetails,
-      params: { id: 1 },
+      params: {},
     });
   };
   return (
@@ -124,7 +153,9 @@ const Compose: React.FC = ({ navigation }) => {
               <View style={styles.mailActions}>
                 <View style={styles.subject}>
                   <Button
-                    onPress={() => setShowSubject(!showSubject)}
+                    onPress={() =>
+                      setKeyValue({ key: "showSubject", value: !showSubject })
+                    }
                     type="mediumTernary"
                   >
                     subject
@@ -132,7 +163,9 @@ const Compose: React.FC = ({ navigation }) => {
                 </View>
                 <View>
                   <Button
-                    onPress={() => setShowCC(!showCC)}
+                    onPress={() =>
+                      setKeyValue({ key: "showCC", value: !showCC })
+                    }
                     type="mediumTernary"
                   >
                     cc/
@@ -140,7 +173,9 @@ const Compose: React.FC = ({ navigation }) => {
                 </View>
                 <View>
                   <Button
-                    onPress={() => setShowBcc(!showBcc)}
+                    onPress={() =>
+                      setKeyValue({ key: "showBcc", value: !showBcc })
+                    }
                     type="mediumTernary"
                   >
                     bcc
@@ -149,9 +184,33 @@ const Compose: React.FC = ({ navigation }) => {
               </View>
             </View>
 
-            <Button style={styles.delete} type="mediumTernary">
+            <Button onPress={reset} style={styles.delete} type="mediumTernary">
               delete
             </Button>
+
+            <View style={styles.actionButtons}>
+              <View style={{ marginHorizontal: 4 }}>
+                <Button
+                  onPress={() => setShowSubject(!showSubject)}
+                  type="mediumTernary"
+                >
+                  subject
+                </Button>
+              </View>
+              <View style={{ marginHorizontal: 4 }}>
+                <Button onPress={() => setShowCC(!showCC)} type="mediumTernary">
+                  cc
+                </Button>
+              </View>
+              <View style={{ marginHorizontal: 4 }}>
+                <Button
+                  onPress={() => setShowBcc(!showBcc)}
+                  type="mediumTernary"
+                >
+                  bcc
+                </Button>
+              </View>
+            </View>
           </View>
 
           <View style={styles.fieldsContainer}>
@@ -167,7 +226,9 @@ const Compose: React.FC = ({ navigation }) => {
                     hideBorder
                     placeholder="add"
                     value={subject}
-                    onChangeText={setSubject}
+                    onChangeText={(text) =>
+                      setKeyValue({ key: "subject", value: text })
+                    }
                   />
                 </View>
               </View>
@@ -181,9 +242,13 @@ const Compose: React.FC = ({ navigation }) => {
                 <View style={styles.input}>
                   <ComposeAutoComplete
                     searchValue={bccSearchValue}
-                    setSearchValue={setBccSearchValue}
+                    setSearchValue={(text) =>
+                      setKeyValue({ key: "bccSearchValue", value: text })
+                    }
                     tags={bccTags}
-                    setTags={setBccTags}
+                    setTags={(tags) =>
+                      setKeyValue({ key: "bccTags", value: tags })
+                    }
                     type={"bcc"}
                   />
                 </View>
@@ -197,9 +262,13 @@ const Compose: React.FC = ({ navigation }) => {
                 <View style={styles.input}>
                   <ComposeAutoComplete
                     searchValue={ccSearchValue}
-                    setSearchValue={setcCSearchValue}
+                    setSearchValue={(text) =>
+                      setKeyValue({ key: "ccSearchValue", value: text })
+                    }
                     tags={ccTags}
-                    setTags={setCcTags}
+                    setTags={(tags) =>
+                      setKeyValue({ key: "ccTags", value: tags })
+                    }
                     type={"cc"}
                   />
                 </View>
@@ -212,9 +281,13 @@ const Compose: React.FC = ({ navigation }) => {
               <View style={styles.input}>
                 <ComposeAutoComplete
                   searchValue={toSearchValue}
-                  setSearchValue={setToSearchValue}
+                  setSearchValue={(text) =>
+                    setKeyValue({ key: "toSearchValue", value: text })
+                  }
                   tags={toTags}
-                  setTags={setToTags}
+                  setTags={(tags) =>
+                    setKeyValue({ key: "toTags", value: tags })
+                  }
                   type={"to"}
                 />
               </View>
@@ -232,7 +305,7 @@ const Compose: React.FC = ({ navigation }) => {
           <View style={styles.input}>
             <InputField
               value={mail}
-              onChangeText={setMail}
+              onChangeText={(mail) => setKeyValue({ key: "mail", value: mail })}
               multiline
               mode="outlined"
               placeholder="write a message..."
@@ -267,26 +340,12 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
     marginBottom: 10,
   },
-
-  back: {
-    marginRight: 21,
-  },
-
-  subject: {
-    marginRight: 16,
-  },
-  leftHeaderActions: {
+  actionButtons: {
     display: "flex",
     flexDirection: "row",
-    alignItems: "center",
-  },
-
-  mailActions: {
-    display: "flex",
-    flexDirection: "row",
+    justifyContent: "flex-end",
   },
 
   fieldsContainer: {
