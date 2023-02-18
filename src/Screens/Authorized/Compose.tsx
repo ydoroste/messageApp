@@ -128,7 +128,7 @@ const Compose: React.FC = ({ navigation }) => {
       <Pressable onPress={Keyboard.dismiss} style={styles.container}>
         <View>
           <View style={styles.header}>
-            <View style={styles.leftHeaderActions}>
+            <View style={styles.flexCenter}>
               <View style={styles.back}>
                 <IconButton
                   name="back"
@@ -150,7 +150,7 @@ const Compose: React.FC = ({ navigation }) => {
                 />
               </View>
 
-              <View style={styles.mailActions}>
+              <View style={styles.flexCenter}>
                 <View style={styles.subject}>
                   <Button
                     onPress={() =>
@@ -187,37 +187,13 @@ const Compose: React.FC = ({ navigation }) => {
             <Button onPress={reset} style={styles.delete} type="mediumTernary">
               delete
             </Button>
-
-            <View style={styles.actionButtons}>
-              <View style={{ marginHorizontal: 4 }}>
-                <Button
-                  onPress={() => setShowSubject(!showSubject)}
-                  type="mediumTernary"
-                >
-                  subject
-                </Button>
-              </View>
-              <View style={{ marginHorizontal: 4 }}>
-                <Button onPress={() => setShowCC(!showCC)} type="mediumTernary">
-                  cc
-                </Button>
-              </View>
-              <View style={{ marginHorizontal: 4 }}>
-                <Button
-                  onPress={() => setShowBcc(!showBcc)}
-                  type="mediumTernary"
-                >
-                  bcc
-                </Button>
-              </View>
-            </View>
           </View>
 
           <View style={styles.fieldsContainer}>
             <Divider />
 
             {showSubject && (
-              <View style={styles.fields}>
+              <View style={styles.flexCenter}>
                 <Typography color="primary" type="largeRegularBody">
                   subject:{" "}
                 </Typography>
@@ -235,7 +211,7 @@ const Compose: React.FC = ({ navigation }) => {
             )}
 
             {showBcc && (
-              <View style={styles.fields}>
+              <View style={styles.flexCenter}>
                 <Typography color="primary" type="largeRegularBody">
                   bcc:{" "}
                 </Typography>
@@ -274,7 +250,7 @@ const Compose: React.FC = ({ navigation }) => {
                 </View>
               </View>
             )}
-            <View style={styles.fields}>
+            <View style={styles.flexCenter}>
               <Typography color="primary" type="largeRegularBody">
                 to:{" "}
               </Typography>
@@ -294,7 +270,7 @@ const Compose: React.FC = ({ navigation }) => {
             </View>
           </View>
         </View>
-        <View style={styles.sendActions}>
+        <View style={styles.flexCenter}>
           <IconButton
             onPress={() => {}}
             name="add"
@@ -351,16 +327,19 @@ const styles = StyleSheet.create({
   fieldsContainer: {
     flexDirection: "column-reverse",
   },
-  fields: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
 
   input: {
     flex: 1,
   },
-  sendActions: {
+  flexCenter: {
     flexDirection: "row",
     alignItems: "center",
+  },
+
+  subject: {
+    marginRight: 16,
+  },
+  back: {
+    marginRight: 20,
   },
 });

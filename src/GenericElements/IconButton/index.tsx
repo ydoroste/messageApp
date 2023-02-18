@@ -14,6 +14,7 @@ const Add = React.lazy(() => import("@followBack/Theme/Icons/Add"));
 const Delete = React.lazy(() => import("@followBack/Theme/Icons/Delete"));
 const DownArrow = React.lazy(() => import("@followBack/Theme/Icons/DownArrow"));
 const Drawer = React.lazy(() => import("@followBack/Theme/Icons/Drawer"));
+const Back = React.lazy(() => import("@followBack/Theme/Icons/Back"));
 
 const IconButton: React.FC<IIconButtonProps> = ({
   name,
@@ -54,7 +55,7 @@ const IconButton: React.FC<IIconButtonProps> = ({
         IconElement = Drawer;
         break;
       case "back":
-        IconElement = DownArrow;
+        IconElement = Back;
         break;
 
       default:
