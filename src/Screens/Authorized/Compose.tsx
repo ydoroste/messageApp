@@ -1,10 +1,6 @@
 import IconButton from "@followBack/GenericElements/IconButton";
 import Typography from "@followBack/GenericElements/Typography";
-<<<<<<< Updated upstream
-import * as React from "react";
-=======
 import React, { useCallback, useReducer } from "react";
->>>>>>> Stashed changes
 import {
   Keyboard,
   KeyboardAvoidingView,
@@ -16,31 +12,15 @@ import {
 import useTheme from "@followBack/Hooks/useTheme";
 import Button from "@followBack/GenericElements/Button";
 import InputField from "@followBack/GenericElements/InputField";
-import Delete from "@followBack/Theme/Icons/Delete";
-import { useState } from "react";
 import Divider from "@followBack/GenericElements/Divider";
 import { AuthorizedScreensEnum } from "@followBack/Navigation/Authorized/constants";
 import { ComposeAutoComplete } from "@followBack/Elements/ComposeAutoComplete";
 import { useCompose } from "@followBack/Hooks/Apis/Compose";
 import { IComposeApiRequest } from "@followBack/Apis/Compose/types";
 import { isValidEmail } from "@followBack/Utils/validations";
-<<<<<<< Updated upstream
-const Compose: React.FC = ({ navigation }) => {
-  const [toSearchValue, setToSearchValue] = useState("");
-  const [ccSearchValue, setcCSearchValue] = useState("");
-  const [bccSearchValue, setBccSearchValue] = useState("");
-=======
 import { useFocusEffect } from "@react-navigation/native";
 
-const SET_TO_SEARCH_VALUE = "SET_TO_SEARCH_VALUE";
-const SET_CC_SEARCH_VALUE = "SET_CC_SEARCH_VALUE";
-const SET_BCC_SEARCH_VALUE = "SET_BCC_SEARCH_VALUE";
 
-const SET_SUBJECT = "SET_SUBJECT";
-const SET_MAIL = "SET_MAIL";
-const SET_TO_TAGS = "SET_TO_TAGS";
-const SET_CC_TAGS = "SET_CC_TAGS";
-const SET_BCC_TAGS = "SET_BCC_TAGS";
 
 const SET_KEY_VALUE = "SET_KEY_VALUE";
 
@@ -90,7 +70,6 @@ const Compose: React.FC = ({ navigation }) => {
     showCC,
     showBcc,
   } = state;
->>>>>>> Stashed changes
 
   const setKeyValue = ({ key, value }) => {
     dispatch({
@@ -120,13 +99,6 @@ const Compose: React.FC = ({ navigation }) => {
       : formattedBccTags,
   };
 
-<<<<<<< Updated upstream
-  const { refetch } = useCompose(composeRequest);
-  const onPressCompose = async () => {
-    if (!subject || toTags.length < 0) return;
-    await refetch();
-
-=======
   const reset = () => {
     dispatch({ type: RESET, payload: null });
   };
@@ -143,7 +115,6 @@ const Compose: React.FC = ({ navigation }) => {
   const onPressCompose = async () => {
     if (!subject || toTags.length < 0) return;
     const { data } = await refetch();
->>>>>>> Stashed changes
     navigation.navigate(AuthorizedScreensEnum.composeStack, {
       screen: AuthorizedScreensEnum.threadDetails,
       params: {},
@@ -158,16 +129,6 @@ const Compose: React.FC = ({ navigation }) => {
       <Pressable onPress={Keyboard.dismiss} style={styles.container}>
         <View>
           <View style={styles.header}>
-<<<<<<< Updated upstream
-            <Button
-              icon={() => (
-                <View style={{ marginLeft: -13 }}>
-                  <Delete color={colors.grey02} height={16} width={15} />
-                </View>
-              )}
-              type="mediumTernary"
-            >
-=======
             <View style={styles.leftHeaderActions}>
               <View style={styles.back}>
                 <IconButton
@@ -225,7 +186,6 @@ const Compose: React.FC = ({ navigation }) => {
             </View>
 
             <Button onPress={reset} style={styles.delete} type="mediumTernary">
->>>>>>> Stashed changes
               delete
             </Button>
 
