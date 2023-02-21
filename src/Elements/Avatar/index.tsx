@@ -20,12 +20,12 @@ const AvatarItem: React.FC<IAvatarProps> = ({ users }) => {
 
   return (
     <View style={containerStyles}>
-      {users.map(({ imageURL, name }, index) => {
-        const isSecondUser = hasTwoUsers && index === 1;
+      {users.map(({ imageURL, name, address }, index) => {
+        const firstChar =  name.length > 0 ? name[0] :  address[0]
+
         const isFirstUser = index === 0;
         const isOthers = !isFirstUser && isGroup;
 
-        console.log("!imageURL && isFirstUser", !imageURL && isFirstUser);
         const currentContainerStyles = isFirstUser
           ? [styles.center, styles.firstUserAvatarPosiion]
           : [styles.center, styles.othersAvatarPosition];
@@ -43,12 +43,12 @@ const AvatarItem: React.FC<IAvatarProps> = ({ users }) => {
             )}
 
             {!imageURL && isFirstUser && (
-              <Text style={userInitialsStyles}>{name[0]}</Text>
+              <Text style={userInitialsStyles}>{firstChar}</Text>
             )}
 
             {isOthers && (
               <Text style={userInitialsStyles}>
-                {hasTwoUsers ? name[0] : users.length - 1}
+                {hasTwoUsers ? (firstChar) : users.length - 1}
               </Text>
             )}
           </View>

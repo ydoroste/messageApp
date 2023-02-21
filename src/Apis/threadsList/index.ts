@@ -5,9 +5,9 @@ import { Apis } from "@followBack/Apis";
 
 export const getThreadListApi = async ({ id, searchValue, pageParam }) => {
   return GetApi(
-    `${CORE_SERVICE_URL}${Apis.threadList}?mailboxId=${id}&pageNum=${
-      pageParam || 0
-    }&pageSize=10&searchText=${searchValue}`,
+    `${CORE_SERVICE_URL}${Apis.threadList}?mailboxId=${id}&pageNum=${Number(
+      pageParam || 1
+    )}&pageSize=10&searchText=${searchValue}`,
     undefined,
     {
       headers: {
@@ -16,10 +16,15 @@ export const getThreadListApi = async ({ id, searchValue, pageParam }) => {
     }
   )
     .then((res) => {
-      console.log("threads", res);
+      console.log(
+        "domain",
+        `${CORE_SERVICE_URL}${Apis.threadList}?mailboxId=${id}&pageNum=${Number(
+          pageParam || 1
+        )}&pageSize=10&searchText=${searchValue}`
+      );
       return {
         data: res.data?.data?.threadsData,
-        nextPage: pageParam + 1,
+        nextPage: Number(pageParam || 1) + 1,
       };
     })
     .catch((e) => console.log(e.response.data));

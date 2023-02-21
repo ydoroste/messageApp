@@ -10,7 +10,7 @@ export const useFetchThreadMessages = ({ id }) => {
     {
       getNextPageParam: (lastPage) => {
         if (lastPage?.data?.length < 10) return undefined;
-        return lastPage.nextCursor;
+        return lastPage.nextPage;
       },
     }
   );

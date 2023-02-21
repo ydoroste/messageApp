@@ -6,5 +6,6 @@ export const colorsToTheme: Record<colorTypes, string> = {
     "secondary": "grey02",
     "error": "red",
     "disabled": "dark01",
-    "verified": "blue02"
+    "verified": "blue02",
+    "chat": "white"
 };

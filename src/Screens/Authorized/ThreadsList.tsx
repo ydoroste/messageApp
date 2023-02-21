@@ -50,8 +50,6 @@ const Compose: React.FC = ({ navigation, route }) => {
 
   const isEmptyList = threadsList.length === 0;
 
- 
-
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : undefined}
@@ -87,7 +85,8 @@ const Compose: React.FC = ({ navigation, route }) => {
               <TouchableOpacity
                 onPress={() => {
                   navigation.navigate(AuthorizedScreensEnum.threadsListStack, {
-                    screen: AuthorizedScreensEnum.threadsListDetails,
+                    screen: AuthorizedScreensEnum.threadDetails,
+                    params: { id: item.threadId },
                   });
                 }}
               >

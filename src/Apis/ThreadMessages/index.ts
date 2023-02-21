@@ -6,7 +6,7 @@ import { Apis } from "@followBack/Apis";
 export const getThreadMessagesApi = async ({ id, pageParam }) => {
   return GetApi(
     `${CORE_SERVICE_URL}${Apis.threadMessages}?threadId=${id}&pageNum=${
-      pageParam || 0
+      pageParam || 1
     }&pageSize=10`,
     undefined,
     {
@@ -16,7 +16,6 @@ export const getThreadMessagesApi = async ({ id, pageParam }) => {
     }
   )
     .then((res) => {
-      console.log("thread messages", res.data?.data?.mappedMessages);
       return {
         data: res.data?.data?.mappedMessages,
         nextPage: pageParam + 1,

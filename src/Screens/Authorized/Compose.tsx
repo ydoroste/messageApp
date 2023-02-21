@@ -231,7 +231,7 @@ const Compose: React.FC = ({ navigation }) => {
               </View>
             )}
             {showCC && (
-              <View style={styles.fields}>
+              <View style={styles.flexCenter}>
                 <Typography color="primary" type="largeRegularBody">
                   cc:{" "}
                 </Typography>

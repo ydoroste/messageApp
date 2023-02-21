@@ -1,6 +1,6 @@
 import { View } from "react-native";
 import { createDrawerNavigator } from "@react-navigation/drawer";
-import React from "react";
+import React, { useEffect } from "react";
 import Compose from "@followBack/Screens/Authorized/Compose";
 import ThreadsList from "@followBack/Screens/Authorized/ThreadsList";
 import ThreadDetails from "@followBack/Screens/Authorized/ThreadDetails";
@@ -16,6 +16,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { useMailBoxes } from "@followBack/Hooks/useMailboxes";
 
 const ComposeStack = () => {
+
   const Stack = createNativeStackNavigator();
 
   return (
@@ -50,7 +51,13 @@ const ThreadsListStack = () => {
         options={{ header: (props) => <MailBoxHeader {...props} /> }}
       />
 
-      <Stack.Screen name="threadDetails" component={ThreadDetails} />
+      <Stack.Screen
+        options={{
+          headerShown: false,
+        }}
+        name="threadDetails"
+        component={ThreadDetails}
+      />
     </Stack.Navigator>
   );
 };
