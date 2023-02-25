@@ -20,4 +20,5 @@ export interface IUserDetails {
   phone_number: string;
   user_name: string;
   wildduck_user_id: string;
+  email: string;
 }

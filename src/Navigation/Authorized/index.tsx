@@ -10,10 +10,12 @@ import { AuthorizedParams } from "@followBack/Navigation/Authorized/types";
 import MailBoxHeader from "@followBack/Elements/Headers/Authorized/MailBoxHeader/MailBoxHeader";
 import CustomDrawerContent from "./DrawerContent";
 import useTheme from "@followBack/Hooks/useTheme";
-const Drawer = createDrawerNavigator<AuthorizedParams>();
 import { SearchProvider } from "@followBack/Contexts/SearchContext";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { useMailBoxes } from "@followBack/Hooks/useMailboxes";
+
+
+const Drawer = createDrawerNavigator<AuthorizedParams>();
 
 const ComposeStack = () => {
 

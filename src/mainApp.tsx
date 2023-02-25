@@ -19,6 +19,7 @@ const queryClient = new QueryClient();
 const MainApp: React.FC = () => {
   const [isAppLoaded] = useInitialLoading();
   const { isAuthenticated } = useUserDetails();
+
   if (!isAppLoaded) {
     return null;
   }

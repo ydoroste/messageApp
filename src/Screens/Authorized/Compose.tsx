@@ -20,6 +20,7 @@ import { IComposeApiRequest } from "@followBack/Apis/Compose/types";
 import { isValidEmail } from "@followBack/Utils/validations";
 import { useFocusEffect } from "@react-navigation/native";
 import { useMailBoxes } from "@followBack/Hooks/useMailboxes";
+import MailSender from "@followBack/Elements/MailSender/MailSender";
 
 const SET_KEY_VALUE = "SET_KEY_VALUE";
 
@@ -34,7 +35,7 @@ const initialState = {
   bccTags: [],
   subject: "",
   mail: "",
-  showSubject: false,
+  showSubject: true,
   showCC: false,
   showBcc: false,
 };
@@ -53,7 +54,7 @@ const reducer = (state, { type, payload }) => {
 };
 
 const Compose: React.FC = ({ navigation }) => {
-  const { inboxThread } = useMailBoxes();
+  const { sentMailThread } = useMailBoxes();
 
   const [state, dispatch] = useReducer(reducer, initialState);
   const {
@@ -116,8 +117,12 @@ const Compose: React.FC = ({ navigation }) => {
     const { data } = await refetch();
     navigation.navigate(AuthorizedScreensEnum.composeStack, {
       screen: AuthorizedScreensEnum.threadDetails,
-      params: {},
+      params: { id: data?.thread },
     });
+  };
+
+  const onChangeMailContent = ({ value }) => {
+    setKeyValue({ key: "mail", value });
   };
   return (
     <KeyboardAvoidingView
@@ -134,13 +139,13 @@ const Compose: React.FC = ({ navigation }) => {
                   name="back"
                   onPress={() => {
                     if (navigation.canGoBack()) return navigation.goBack();
-                    if (!inboxThread) return;
+                    if (!sentMailThread) return;
 
                     navigation.navigate(
                       AuthorizedScreensEnum.threadsListStack,
                       {
                         screen: AuthorizedScreensEnum.threadsList,
-                        params: { ...inboxThread },
+                        params: { ...sentMailThread },
                       }
                     );
                   }}
@@ -269,37 +274,14 @@ const Compose: React.FC = ({ navigation }) => {
               </View>
             </View>
           </View>
+
+          
         </View>
-        <View style={styles.flexCenter}>
-          <IconButton
-            onPress={() => {}}
-            name="add"
-            width={17}
-            height={17}
-            color={colors.grey02}
+        <MailSender
+            onPressCompose={onPressCompose}
+            onChangeMailContent={onChangeMailContent}
+            mail={mail}
           />
-          <View style={styles.input}>
-            <InputField
-              value={mail}
-              onChangeText={(mail) => setKeyValue({ key: "mail", value: mail })}
-              multiline
-              mode="outlined"
-              placeholder="write a message..."
-            />
-          </View>
-          <IconButton
-            onPress={() => {
-              onPressCompose();
-              navigation.navigate(AuthorizedScreensEnum.composeStack, {
-                screen: AuthorizedScreensEnum.threadsListDetails,
-              });
-            }}
-            name="send"
-            width={17}
-            height={17}
-            color={colors.grey01}
-          />
-        </View>
       </Pressable>
     </KeyboardAvoidingView>
   );

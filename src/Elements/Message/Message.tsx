@@ -3,12 +3,23 @@ import React from "react";
 import { View, StyleSheet } from "react-native";
 import { formatMessageDate } from "@followBack/Utils/date";
 import useStylesWithTheme from "@followBack/Hooks/useStylesWithTheme";
+import { useUserDetails } from "@followBack/Hooks/useUserDetails";
+import { excludeUser } from "@followBack/Utils/messages";
+
 const Message = ({ item }) => {
   const { styles } = useStyles();
   const { text, to, from, messageDateTime } = item;
-  const chatUsers = [...to, ...from];
-  const isGroupChat = chatUsers.length > 1;
-  const messageSender = from[0];
+  const { userDetails } = useUserDetails();
+
+  const chatUsers = [...to, from];
+
+  const others = excludeUser({
+    users: chatUsers,
+    userAddress: userDetails.email,
+  });
+
+  const isGroupChat = others.length > 1;
+  const messageSender = from;
   const messageSenderLabel =
     messageSender.name.length > 0 ? messageSender.name : messageSender.address;
 
@@ -39,8 +50,7 @@ const Message = ({ item }) => {
 };
 
 const useStyles = useStylesWithTheme((theme) => ({
-  container: {
-  },
+  container: {},
   date: {
     marginBottom: 30,
     flexDirection: "row",

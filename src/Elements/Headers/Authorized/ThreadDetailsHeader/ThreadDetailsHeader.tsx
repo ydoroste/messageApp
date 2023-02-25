@@ -18,6 +18,7 @@ const ThreadDetailsHeader: React.FC<ThreadDetailsHeaderProps> = ({
   subject,
   chatUsers,
 }) => {
+  console.log("chatUsers", chatUsers)
   const { isLoading, userDetails } = useUserDetails();
   const canGoBack = navigation.canGoBack();
   const onBackButtonPress = () => {

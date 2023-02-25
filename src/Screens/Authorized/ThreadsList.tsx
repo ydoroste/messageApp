@@ -1,7 +1,8 @@
-import IconButton from "@followBack/GenericElements/IconButton";
 import Typography from "@followBack/GenericElements/Typography";
-import * as React from "react";
+import React, { useCallback, useEffect } from "react";
 import { KeyboardAvoidingView, Platform, StyleSheet, View } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
+
 import useTheme from "@followBack/Hooks/useTheme";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { FlashList } from "@shopify/flash-list";
@@ -41,6 +42,7 @@ const Compose: React.FC = ({ navigation, route }) => {
     setthreadsList(flattenData);
   }, [data]);
 
+
   if (isError)
     return (
       <Typography color="secondary" type="smallBoldBody">
@@ -56,7 +58,7 @@ const Compose: React.FC = ({ navigation, route }) => {
       keyboardVerticalOffset={100}
       style={{ flex: 1, backgroundColor: colors.black }}
     >
-      {isIitialLoading && (
+      {isLoading && (
         <Typography color="secondary" type="smallBoldBody">
           Loading...
         </Typography>
@@ -76,7 +78,7 @@ const Compose: React.FC = ({ navigation, route }) => {
         )}
       </View>
 
-      {!!threadsList && !isEmptyList && (
+      {isSuccess && !!threadsList && !isEmptyList && (
         <SafeAreaView style={styles.container}>
           <FlashList
             keyExtractor={(item) => item.threadId}

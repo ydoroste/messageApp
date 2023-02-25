@@ -16,6 +16,7 @@ export const getThreadListApi = async ({ id, searchValue, pageParam }) => {
     }
   )
     .then((res) => {
+      console.log(res.data?.data?.threadsData)
       console.log(
         "domain",
         `${CORE_SERVICE_URL}${Apis.threadList}?mailboxId=${id}&pageNum=${Number(

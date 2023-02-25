@@ -13,11 +13,19 @@ import { IthreadCardProps } from "@followBack/Elements/ThreadCard/types";
 import Typography from "@followBack/GenericElements/Typography";
 import Avatar from "@followBack/Elements/Avatar";
 import { formatMessageDate } from "@followBack/Utils/date";
+import { useUserDetails } from "@followBack/Hooks/useUserDetails";
+import { excludeUser } from "@followBack/Utils/messages";
 const ThreadCard: React.FC<IthreadCardProps> = ({ threadItem }) => {
+  const { userDetails } = useUserDetails();
+
+  const others = excludeUser({
+    users: [threadItem.lastMessage.from, ...threadItem.lastMessage.to],
+    userAddress: userDetails.email,
+  });
   return (
     <View style={styles.container}>
-      <View style={{ marginRight: 8 }}>
-        <Avatar users={[{ name: threadItem.lastMessage.to }]} />
+      <View style={{ ...styles.avatar }}>
+        <Avatar users={others} />
       </View>
 
       <View style={styles.content}>
@@ -42,7 +50,7 @@ const ThreadCard: React.FC<IthreadCardProps> = ({ threadItem }) => {
         </Typography>
       </View>
 
-      <View style={{ position: "absolute", right: 0, bottom: 7 }}>
+      <View style={styles.date}>
         <Typography type="smallRegularBody" color="secondary">
           {formatMessageDate(threadItem.lastMessage.date)}
         </Typography>
@@ -64,5 +72,11 @@ const styles = StyleSheet.create({
     position: "relative",
   },
 
+  avatar: { flex: 0.18 },
   content: { flex: 0.7 },
+  date: {
+    position: "absolute",
+    right: 0,
+    bottom: 7,
+  },
 });

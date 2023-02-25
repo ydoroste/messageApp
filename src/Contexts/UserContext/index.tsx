@@ -29,6 +29,7 @@ export const UserProvider: React.FC<IUserProviderProp> = ({ children }) => {
     phone_number: "",
     user_name: "",
     wildduck_user_id: "",
+    email: ""
   });
 
   useEffect(() => {
@@ -41,9 +42,8 @@ export const UserProvider: React.FC<IUserProviderProp> = ({ children }) => {
           setIsLoading(false);
           return;
         }
-
-        setIsLoading(false);
         setIsAuthenticated(true);
+        setIsLoading(false);
       } catch (e) {
         setIsAuthenticated(false);
         setIsLoading(false);
@@ -71,6 +71,8 @@ export const UserProvider: React.FC<IUserProviderProp> = ({ children }) => {
         setUserDetails(data);
       } catch (e) {
         console.log("userDetails-error", e);
+        setIsAuthenticated(false);
+
       }
     };
 

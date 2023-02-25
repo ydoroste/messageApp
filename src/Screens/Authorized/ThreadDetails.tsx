@@ -6,19 +6,18 @@ import ThreadDetailsHeader from "@followBack/Elements/Headers/Authorized/ThreadD
 import { useFetchThreadMessages } from "@followBack/Hooks/Apis/ThreadMessages";
 import { FlatList } from "react-native-bidirectional-infinite-scroll";
 import Message from "@followBack/Elements/Message/Message";
+import Typography from "@followBack/GenericElements/Typography";
+import MailSender from "@followBack/Elements/MailSender/MailSender";
 
 const Compose: React.FC = ({ navigation, options, route }) => {
   const { id } = route.params;
   const [flattenData, setFlattenData] = useState([]);
   const { colors } = useTheme();
+
+  const [mail, setMail] = useState("");
+  const onChangeMailContent = ({ value }) => setMail(value);
   const { data, isLoading, isError, isSuccess, hasNextPage, fetchNextPage } =
     useFetchThreadMessages({ id });
-
-  const firstMessage = flattenData[0];
-  const chatUsers = !firstMessage
-    ? []
-    : [...firstMessage.to, ...firstMessage.from];
-  const { subject } = firstMessage || { subject: "" };
 
   const loadNextPageData = async () => {
     if (hasNextPage) {
@@ -36,6 +35,18 @@ const Compose: React.FC = ({ navigation, options, route }) => {
   }, [data]);
 
   const hasData = flattenData.length > 0;
+
+  if (!hasData)
+    return (
+      <Typography type="smallRegularBody" color="secondary">
+        Loading
+      </Typography>
+    );
+
+  const firstMessage = flattenData[0];
+  const chatUsers = [...firstMessage.to, firstMessage.from];
+  const { subject } = firstMessage;
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : undefined}
@@ -69,6 +80,12 @@ const Compose: React.FC = ({ navigation, options, route }) => {
           )}
         </View>
       </SafeAreaView>
+
+      <MailSender
+        mail={mail}
+        onChangeMailContent={onChangeMailContent}
+        onPressCompose={() => console.log("send")}
+      />
     </KeyboardAvoidingView>
   );
 };
