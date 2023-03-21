@@ -2,7 +2,7 @@
   "expo": {
     "name": "MobileApp",
     "slug": "MobileApp",
-    "owner": "abdulazizmassoud",
+    "owner": "mail",
     "privacy": "hidden",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -15,7 +15,7 @@
     },
     "updates": {
       "fallbackToCacheTimeout": 0,
-      "url": "https://u.expo.dev/a2a86fda-90b2-49da-91cb-8bcc29ae6c9f"
+      "url": "https://u.expo.dev/db5be92b-1156-4d99-ba56-491f5e16b4be"
     },
     "assetBundlePatterns": [
       "**/*"
@@ -28,14 +28,15 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#000000"
-      }
+      },
+      "package": "mail.app.v1"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "extra": {
       "eas": {
-        "projectId": "a2a86fda-90b2-49da-91cb-8bcc29ae6c9f"
+        "projectId": "db5be92b-1156-4d99-ba56-491f5e16b4be"
       }
     },
     "runtimeVersion": {
