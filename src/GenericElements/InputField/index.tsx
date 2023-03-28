@@ -32,11 +32,11 @@ const InputField: React.FC<IInputFieldProps> = forwardRef(
         activeOutlineColor={colors.dark02}
         style={[styles.inputField, styles[inputMode]]}
         selectionColor={colors.white}
+        placeholderTextColor={colors.grey02}
         theme={{
           roundness: 32,
           colors: {
             text: error ? colors.red : colors.grey03,
-            placeholder: colors.grey02,
           },
           fonts: { regular: { fontFamily: fontFamilies.OpenSans_400Regular } },
         }}
@@ -54,7 +54,6 @@ const useStyles = useStylesWithTheme((theme) => ({
     fontFamily: theme.fontFamilies.OpenSans_400Regular,
     color: theme.colors.white,
     paddingHorizontal: 0,
-    // alignItems: "ce"
   },
   outlined: {
     minHeight: 20,
