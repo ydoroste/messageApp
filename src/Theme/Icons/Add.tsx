@@ -2,7 +2,7 @@ import * as React from "react";
 import {IIconProps} from "./types/IconTypes";
 import Svg, { Path } from "react-native-svg"
 
-const Close: React.FC<IIconProps> = ({width, height, color}) => {
+const Add: React.FC<IIconProps> = ({width, height, color}) => {
     return (
             <Svg
                 width={width}
@@ -21,4 +21,4 @@ const Close: React.FC<IIconProps> = ({width, height, color}) => {
     );
 };
 
-export default Close;
+export default Add;

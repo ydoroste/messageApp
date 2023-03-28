@@ -12,6 +12,7 @@ export type UnauthorizedParams = {
     [UnauthorizedScreensEnum.resetSuccessfully]: undefined;
     [UnauthorizedScreensEnum.noSecondaryEmail]: undefined;
     [UnauthorizedScreensEnum.createdSuccessfully]: ICreatedSuccessfullyState;
+    [UnauthorizedScreensEnum.singUpVerification]: ICodeVerificationState;
 
 };
 

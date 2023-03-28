@@ -4,8 +4,12 @@ import DateTimePickerModal from "react-native-modal-datetime-picker";
 import useStylesWithTheme from "@followBack/Hooks/useStylesWithTheme";
 import { IDatePickerProps } from "@followBack/GenericElements/DatePicker/types";
 import useTheme from "@followBack/Hooks/useTheme";
+import DownArrow from "@followBack/Theme/Icons/DownArrow";
+import moment from "moment";
+import Typography from "@followBack/GenericElements/Typography";
+import {StyleSheet} from 'react-native';
 
-const DatePicker: React.FC<IDatePickerProps> = ({ error, date, onSelect }) => {
+const DatePicker: React.FC<IDatePickerProps> = ({ error, date, onSelect, title, format }) => {
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const { colors } = useTheme();
   const { styles } = useStyles();
@@ -18,21 +22,10 @@ const DatePicker: React.FC<IDatePickerProps> = ({ error, date, onSelect }) => {
   };
 
   const handleConfirm = (date: Date) => {
-    onSelect(date.toLocaleString().split(",")[0]);
     hideDatePicker();
+    onSelect(date);
   };
 
-  const formatText = (date: string) =>
-    date
-      .split("/")
-      .map((number) =>
-        Number(number) < 10 && number.length === 1 ? `0${number}` : number
-      )
-      .join(" / ");
-
-  const maximumDate = new Date(
-    new Date().setFullYear(new Date().getFullYear() - 13)
-  );
   return (
     <>
       <TouchableOpacity
@@ -40,30 +33,26 @@ const DatePicker: React.FC<IDatePickerProps> = ({ error, date, onSelect }) => {
         onPress={showDatePicker}
         style={{
           ...styles.buttonContainer,
-          borderBottomColor: error ? colors.error : colors.grey02,
+          borderBottomColor: error ? colors.red : colors.grey02,
         }}
       >
-        <Text style={{ ...styles.text, ...styles.placeholder }}>
-          date of birth
-        </Text>
-        {!date && (
-          <Text style={{ ...styles.text, ...styles.placeholder }}>
-            mm / dd / yyyy
-          </Text>
-        )}
+        {!date && <Typography type="largeRegularBody" color="secondary">
+          {title}
+        </Typography>}
         {!!date && (
-          <Text style={{ ...styles.text, ...styles.dateText }}>
-            {formatText(date)}
-          </Text>
+          <Typography type="largeRegularBody" color="primary">
+            {moment(date).format(format ? format : "MM/DD/YYYY")}
+          </Typography>
         )}
+
+        <DownArrow width={17} height={10} color={colors.grey02}/>
       </TouchableOpacity>
       <DateTimePickerModal
         isVisible={isDatePickerVisible}
         mode="date"
-        date={maximumDate}
+        date={new Date()}
         onConfirm={handleConfirm}
         onCancel={hideDatePicker}
-        maximumDate={maximumDate}
       />
     </>
   );
@@ -72,10 +61,11 @@ const DatePicker: React.FC<IDatePickerProps> = ({ error, date, onSelect }) => {
 const useStyles = useStylesWithTheme((theme) => ({
   buttonContainer: {
     width: "100%",
-    borderWidth: 1,
+    borderWidth: StyleSheet.hairlineWidth,
     flexDirection: "row",
     justifyContent: "space-between",
     paddingBottom: 4,
+    alignItems: "center"
   },
 
   text: {

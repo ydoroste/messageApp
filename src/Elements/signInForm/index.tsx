@@ -42,7 +42,7 @@ const SignInForm: React.FC = () => {
 
     const onSignUpPress =  () => {
         nav.navigate(UnauthorizedScreensEnum.signUp);
-    }
+    };
 
     useFocusEffect(
         useCallback(() => {

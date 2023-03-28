@@ -52,14 +52,9 @@ const ResetPasswordForm = () => {
             setError("confirmPassword",{
                 message: error?.response?.data?.message
             })
+            return;
         }
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                nav.navigate(UnauthorizedScreensEnum.resetSuccessfully);
-                resolve("resolved");
-
-            }, 3000);
-        });
+        nav.navigate(UnauthorizedScreensEnum.resetSuccessfully)
     };
     return (
         <>
@@ -73,6 +68,7 @@ const ResetPasswordForm = () => {
                             showPassword={showPassword}
                             setShowPassword={onSetShowPassword}
                             placeholder={getTranslatedText("newPassword")}
+                            textContentType={'oneTimeCode'}
                             onChangeText={onChange}
                             value={value}
                         />
@@ -91,6 +87,7 @@ const ResetPasswordForm = () => {
                             showPassword={showPassword}
                             setShowPassword={onSetShowPassword}
                             placeholder={getTranslatedText("confirmPassword")}
+                            textContentType={'oneTimeCode'}
                             onChangeText={onChange}
                             value={value}
                             error={!!errors.confirmPassword?.message}

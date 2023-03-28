@@ -17,7 +17,7 @@ const Button: React.FC<IButtonProps> = ({disabled, children, type, icon, ...prop
                          disabled={disabled}
                          style={styles[type]}
                          mode={mode}
-                         color={colors.grey03}
+                         textColor={colors.grey03}
                          contentStyle={type === "primary" && styles.primaryContentStyle}
                          labelStyle={[type === "primary" ? styles.primaryTextStyle : styles.textStyle, !!icon && styles.iconWithButton]}
     >
@@ -43,7 +43,7 @@ const useStyles = useStylesWithTheme(theme => ({
     ternary: {
         backgroundColor: "transparent",
         minWidth: 10,
-        borderRadius: 0
+        borderRadius: 0,
     },
     mediumTernary: {
         backgroundColor: "transparent",

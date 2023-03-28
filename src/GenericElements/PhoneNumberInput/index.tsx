@@ -4,6 +4,8 @@ import { IPhoneNumberInputProps } from "@followBack/GenericElements/PhoneNumberI
 import { getTranslatedText } from "@followBack/Localization";
 import useStylesWithTheme from "@followBack/Hooks/useStylesWithTheme";
 import useTheme from "@followBack/Hooks/useTheme";
+import {StyleSheet} from 'react-native';
+
 const PhoneNumberInput: React.FC<IPhoneNumberInputProps> = ({
   onChangePhoneNumber,
   onChangeFormattedPhoneNumber,
@@ -24,7 +26,7 @@ const PhoneNumberInput: React.FC<IPhoneNumberInputProps> = ({
         value={value}
         layout="first"
         defaultCode={country?.cca2 || "US"}
-        withShadow
+       // withShadow
         textInputProps={{
           placeholderTextColor: colors.grey02,
           onFocus: () => setFocus(true),
@@ -40,15 +42,13 @@ const PhoneNumberInput: React.FC<IPhoneNumberInputProps> = ({
         containerStyle={{
           ...styles.container,
           borderBottomColor: error ? colors.red : colors.grey02,
-          borderBottomWidth: isFocused ? 2 : 1,
+          borderBottomWidth: isFocused ? 2 : StyleSheet.hairlineWidth,
         }}
         flagButtonStyle={styles.flagButton}
         countryPickerButtonStyle={styles.countryPicker}
-        codeTextStyle={{ ...styles.textStyle, ...styles.codeText }}
-        textInputStyle={{ ...styles.textStyle, ...styles.textInput }}
-        textContainerStyle={{
-          ...styles.textContainer,
-        }}
+        codeTextStyle={[styles.textStyle, styles.codeText]}
+        textInputStyle={[styles.textStyle, styles.textInput]}
+        textContainerStyle={styles.textContainer}
       />
     </>
   );
@@ -67,7 +67,7 @@ const useStyles = useStylesWithTheme((theme) => ({
   },
   textInput: {
     padding: 0,
-  },
+   },
   textStyle: {
     color: theme.colors.grey03,
     fontSize: theme.fontSizes.medium,
@@ -79,7 +79,9 @@ const useStyles = useStylesWithTheme((theme) => ({
   flagButton: {
     width: 50,
   },
-  countryPicker: {},
+  countryPicker: {
+
+  },
 }));
 
 export default PhoneNumberInput;

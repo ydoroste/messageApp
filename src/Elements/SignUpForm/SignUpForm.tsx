@@ -5,7 +5,7 @@ import StepOne from "@followBack/Elements/SignUpForm/Steps/StepOne";
 import StepTwo from "@followBack/Elements/SignUpForm/Steps/StepTwo";
 import StepThree from "@followBack/Elements/SignUpForm/Steps/StepThree";
 
-import Wizard from "react-native-wizard";
+import Wizard, {WizardRef} from "react-native-wizard";
 import StepIndicator from "@followBack/GenericElements/StepIndicator";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { UnauthorizedStackNavigationProps } from "@followBack/Navigation/Unauthorized/types";
@@ -21,7 +21,7 @@ import {
 export default function SignUp() {
   const [signUpSuccessStatus, setSignUpSuccessStatus] = useState(false);
 
-  const wizard = useRef<React.MutableRefObject<any>>();
+  const wizard = useRef<WizardRef | undefined>();
   const { styles } = useStyles();
   const nav = useNavigation<UnauthorizedStackNavigationProps["navigation"]>();
 
@@ -31,7 +31,7 @@ export default function SignUp() {
         first_name: "",
         last_name: "",
         gender: "",
-        birth_date: "",
+        birth_date: undefined,
         user_name: "",
         password: "",
         passwordConfirmation: "",
@@ -149,13 +149,12 @@ export default function SignUp() {
         }}
       >
         <Wizard
-          ref={wizard}
+            // @ts-ignore
+            ref={wizard}
           steps={stepList}
-          isFirstStep={(val) => setIsFirstStep(val)}
-          isLastStep={(val) => setIsLastStep(val)}
-          // nextStepAnimation={"slideRight"}
-          // prevStepAnimation={"slideLeft"}
-          currentStep={({ currentStep, isLastStep, isFirstStep }) => {
+          isFirstStep={setIsFirstStep}
+          isLastStep={setIsLastStep}
+          currentStep={({ currentStep }) => {
             setCurrentStep(currentStep);
           }}
         />
@@ -168,7 +167,7 @@ export default function SignUp() {
           );
           const isStepThree = index == stepList.length - 1;
 
-          const isAccessable = isStepThree
+          const isAccessible = isStepThree
             ? prevStepsAreValid && signUpSuccessStatus
             : prevStepsAreValid;
 
@@ -179,7 +178,7 @@ export default function SignUp() {
             <Pressable
               key={index}
               onPress={() => {
-                if (!wizard?.current || isCurrentStep || !isAccessable) return;
+                if (!wizard?.current || isCurrentStep || !isAccessible) return;
     
                 wizard?.current.goTo(index);
               }}
