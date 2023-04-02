@@ -14,6 +14,7 @@ import {IResendVerificationCodeRequest} from "@followBack/Apis/ResendVerificatio
 import {useResendVerificationCode} from "@followBack/Hooks/Apis/ResendVerificationCode";
 import {useRoute} from "@react-navigation/core";
 import {ICodeVerificationState, UnauthorizedStackNavigationProps} from "@followBack/Navigation/Unauthorized/types";
+import {err} from "react-native-svg/lib/typescript/xml";
 
 const CodeVerificationLayout: React.FC<ICodeVerificationLayoutProps> = ({children, userName, hashedCodeVerificationValue}) => {
     const [showResend, setShowResend] = useState(false);
@@ -21,8 +22,7 @@ const CodeVerificationLayout: React.FC<ICodeVerificationLayoutProps> = ({childre
     const resendVerificationCodeRequest: IResendVerificationCodeRequest = {
         user_name: userName
     }
-    const {refetch, error} = useResendVerificationCode(resendVerificationCodeRequest);
-    console.log("error", error);
+    const {refetch, error, isLoading, isError} = useResendVerificationCode(resendVerificationCodeRequest);
 
     const onTimerFinish = () => {
         setShowResend(true);
@@ -31,7 +31,7 @@ const CodeVerificationLayout: React.FC<ICodeVerificationLayoutProps> = ({childre
         await refetch();
         setShowResend(false);
     };
-
+    console.log("error", error?.response?.data?.message, isError);
     return (
         <>
             <View style={{alignSelf: "flex-start"}}>
@@ -47,6 +47,8 @@ const CodeVerificationLayout: React.FC<ICodeVerificationLayoutProps> = ({childre
                 }
             </View>
             {children}
+            {!isLoading && error?.response?.data?.message &&
+            <Typography textAlign="center" color="error" type="smallRegularBody">{error?.response?.data?.message}</Typography>}
         </>
     )
 };

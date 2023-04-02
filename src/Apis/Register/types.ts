@@ -26,6 +26,9 @@ export interface IRegisterApiResponseError {
     };
   };
 }
+
+export type errorFieldsAsString = "first_name" | "last_name" | "gender" | "birth_date" | "user_name" | "phone_number" | "password";
+
 export interface IRegisterApiResponse {
   success: boolean;
   message?: string;

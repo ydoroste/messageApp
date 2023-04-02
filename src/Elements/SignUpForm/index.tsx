@@ -21,6 +21,8 @@ import DatePicker from "@followBack/GenericElements/DatePicker";
 import {useState} from "react";
 import moment from "moment";
 import {ResetMethod} from "@followBack/Apis/ForgetPassword/types";
+import {errorFieldsAsString, IRegisterApiRequest} from "@followBack/Apis/Register/types";
+import {useRegister} from "@followBack/Hooks/Apis/Register";
 
 
 const gender = [
@@ -49,7 +51,17 @@ const SignUpForm: React.FC = () => {
         required: true
     };
     const values = watch();
-    const {setIsAuthenticated} = useUserDetails();
+    const request: IRegisterApiRequest = {
+        first_name: values.first_name,
+        last_name: values.last_name,
+        gender: values.gender,
+        birth_date: values?.birth_date?.toString() ?? "",
+        user_name: values.user_name,
+        phone_number: values.formattedPhoneNumber,
+        password: values.password,
+    };
+    const {refetch} = useRegister(request);
+
 
     useFocusEffect(
         useCallback(() => {
@@ -59,6 +71,16 @@ const SignUpForm: React.FC = () => {
         }, []));
 
     const onSubmit = async () => {
+        const {data, error, isError} = await refetch();
+        console.log("res", data);
+        if (isError) {
+            const errors = error?.response?.data?.errors;
+            const errorKeys = Object.keys(errors) as errorFieldsAsString[];
+            errorKeys.forEach(item => {
+                setError(item, {message: errors[item]})
+            });
+        return;
+        }
         nav.navigate(UnauthorizedScreensEnum.singUpVerification,
             {
                 phoneNumber: values.phone_number,
@@ -221,18 +243,15 @@ const SignUpForm: React.FC = () => {
                 rules={rules}
                 render={({field: {onChange, value, ref}}) => (
                     <View style={[styles.textInput, styles.fullWidth]}>
-                        <Tooltip title="not sure what to put? no worries, you can change this later">
-
-                            <InputField
-                                // @ts-ignore
-                                ref={ref}
-                                error={!!errors.user_name}
-                                placeholder={getTranslatedText("username")}
-                                onChangeText={onChange}
-                                value={value}
-                                right={<TextInput.Affix text="@em.ls" textStyle={styles.email}/>}
-                            />
-                        </Tooltip>
+                        <InputField
+                            // @ts-ignore
+                            ref={ref}
+                            error={!!errors.user_name}
+                            placeholder={getTranslatedText("username")}
+                            onChangeText={onChange}
+                            value={value}
+                            right={<TextInput.Affix text="@em.ls" textStyle={styles.email}/>}
+                        />
 
                         {errors.user_name?.message && (
                             <View style={styles.errorMessage}>
@@ -276,7 +295,7 @@ const SignUpForm: React.FC = () => {
                 <View style={styles.button}>
                     <Button
                         type="primary"
-                        disabled={isSubmitting || !isValid}
+                        disabled={isSubmitting}
                         loading={isSubmitting}
                         onPress={handleSubmit(onSubmit)}
                     >

@@ -9,10 +9,6 @@ import Button from "@followBack/GenericElements/Button";
 import {ICodeVerificationValues} from "@followBack/Elements/CodeVerificationForm/types";
 import CodeVerificationFields from "@followBack/GenericElements/CodeVerificationFields";
 import Typography from "@followBack/GenericElements/Typography";
-import {useVerifyUser} from "@followBack/Hooks/Apis/VerifyUser";
-import {useResendVerificationCode} from "@followBack/Hooks/Apis/ResendVerificationCode";
-import {IVerifyUserApiRequest} from "@followBack/Apis/VerifyUser/types";
-import {IResendVerificationCodeRequest} from "@followBack/Apis/ResendVerificationCode/types";
 import {IVerifyResetPasswordCodeApiRequest} from "@followBack/Apis/VerifyResetPasswordCode/types";
 import {useVerifyResetPasswordCode} from "@followBack/Hooks/Apis/VerifyResetPasswordCode";
 

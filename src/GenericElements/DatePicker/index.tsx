@@ -1,5 +1,5 @@
 import React, { memo, useState } from "react";
-import { TouchableOpacity, Text } from "react-native";
+import { TouchableOpacity } from "react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import useStylesWithTheme from "@followBack/Hooks/useStylesWithTheme";
 import { IDatePickerProps } from "@followBack/GenericElements/DatePicker/types";
