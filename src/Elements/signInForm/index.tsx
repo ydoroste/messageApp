@@ -1,4 +1,4 @@
-import { useForm, Controller } from "react-hook-form";
+import {useForm, Controller} from "react-hook-form";
 import {ISignInFormValues} from "@followBack/Elements/signInForm/types";
 import {View, StyleSheet, TextInput} from "react-native";
 import InputField from "@followBack/GenericElements/InputField";
@@ -7,7 +7,7 @@ import PasswordInput from "@followBack/GenericElements/PasswordInput";
 import Button from "@followBack/GenericElements/Button";
 import {getTranslatedText} from "@followBack/Localization";
 import Typography from "@followBack/GenericElements/Typography";
-import {useFocusEffect, useNavigation } from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {UnauthorizedStackNavigationProps} from "@followBack/Navigation/Unauthorized/types";
 import {UnauthorizedScreensEnum} from "@followBack/Navigation/Unauthorized/constants";
 import {useCallback, useEffect} from "react";
@@ -30,17 +30,17 @@ const SignInForm: React.FC = () => {
         required: true
     };
     const values = watch();
-    const request: ILoginApiRequest ={
+    const request: ILoginApiRequest = {
         user_name: values.userNameOrPhone,
         password: values.password
     };
-    const { refetch } = useLogin(request);
+    const {refetch} = useLogin(request);
     const {setIsAuthenticated} = useUserDetails();
-    const onForgetPasswordPress = () =>{
+    const onForgetPasswordPress = () => {
         nav.navigate(UnauthorizedScreensEnum.chooseAccount);
     };
 
-    const onSignUpPress =  () => {
+    const onSignUpPress = () => {
         nav.navigate(UnauthorizedScreensEnum.signUp);
     };
 
@@ -53,21 +53,21 @@ const SignInForm: React.FC = () => {
         }, []));
 
     const onSubmit = async () => {
-       const {data, error, isError} =  await refetch();
-       if(isError){
-           if(error?.response?.data?.message === "your account has been locked"){
-               nav.navigate(UnauthorizedScreensEnum.lockedAccount, {userName: values.userNameOrPhone})
-           }
-           setError("userNameOrPhone", {
-               message: error?.response?.data?.message
-           });
-           return;
-       }
-       const signInData = data?.data as ILoginApiResponseData;
-       if(signInData.accessToken && signInData.accessToken !== ""){
-           await setAccessToken(signInData.accessToken);
-           setIsAuthenticated(true);
-       }
+        const {data, error, isError} = await refetch();
+        if (isError) {
+            if (error?.response?.data?.message === "your account has been locked") {
+                nav.navigate(UnauthorizedScreensEnum.lockedAccount, {userName: values.userNameOrPhone})
+            }
+            setError("userNameOrPhone", {
+                message: error?.response?.data?.message
+            });
+            return;
+        }
+        const signInData = data?.data as ILoginApiResponseData;
+        if (signInData.accessToken && signInData.accessToken !== "") {
+            await setAccessToken(signInData.accessToken);
+            setIsAuthenticated(true);
+        }
 
     };
 
@@ -79,18 +79,25 @@ const SignInForm: React.FC = () => {
                 rules={rules}
                 render={({field: {onChange, value, ref}}) => (
                     <View style={styles.textInput}>
-                    <InputField
-                        // @ts-ignore
-                        ref={ref}
-                        placeholder={getTranslatedText("userNameOrPhone")}
-                        onChangeText={onChange}
-                        value={value}
-                    />
-                </View>)}
+                        <InputField
+                            // @ts-ignore
+                            ref={ref}
+                            placeholder={getTranslatedText("userNameOrPhone")}
+                            onChangeText={onChange}
+                            value={value}
+                        />
+                    </View>)}
             />
             <Controller
                 control={control}
-                rules={rules}
+                rules={{
+                    required: true,
+                    minLength: {
+                        message: "you need at least 8 characters ",
+                        value: 8
+                    }
+
+                }}
                 render={({field: {onChange, value}}) => (
                     <View style={styles.passwordField}>
 
@@ -117,7 +124,7 @@ const SignInForm: React.FC = () => {
 
             <View style={styles.createAccountLink}>
                 <Button type="secondary"
-                    onPress={onSignUpPress}>
+                        onPress={onSignUpPress}>
                     {getTranslatedText("createAccountLink")}</Button>
             </View>
         </>
