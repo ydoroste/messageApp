@@ -9,8 +9,6 @@ import {useRoute} from "@react-navigation/native";
 import CodeVerificationLayout from "@followBack/Elements/CodeVerificationLayout";
 import {encryptCodeVerificationValue} from "@followBack/Elements/CodeVerificationLayout/utils";
 import CodeVerificationForm from "@followBack/Elements/CodeVerificationForm";
-import {IResendVerificationCodeRequest} from "@followBack/Apis/ResendVerificationCode/types";
-import {useResendVerificationCode} from "@followBack/Hooks/Apis/ResendVerificationCode";
 import {IForgetPasswordApiRequest, ResetMethod} from "@followBack/Apis/ForgetPassword/types";
 import {useForgetPassword} from "@followBack/Hooks/Apis/ForgetPassword";
 
@@ -26,8 +24,6 @@ const CodeVerification: React.FC = () => {
         is_email: verificationMethod
     };
     const {refetch} = useForgetPassword(request);
-
-  //  console.log("error", error);
 
     const hashedCodeVerificationValue = useMemo<string>(()=>
         encryptCodeVerificationValue(codeVerificationValue, verificationMethod),

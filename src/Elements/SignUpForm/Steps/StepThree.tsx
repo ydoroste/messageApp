@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useRef } from "react";
 import { useNavigation } from "@react-navigation/core";
 import CheckBox from "@followBack/GenericElements/Checkbox";
-import { Controller, useForm } from "react-hook-form";
+import { Controller } from "react-hook-form";
 import { StyleSheet, View } from "react-native";
 import { getTranslatedText } from "@followBack/Localization";
 import Button from "@followBack/GenericElements/Button";

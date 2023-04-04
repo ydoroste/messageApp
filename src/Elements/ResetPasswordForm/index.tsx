@@ -52,27 +52,29 @@ const ResetPasswordForm = () => {
             setError("confirmPassword",{
                 message: error?.response?.data?.message
             })
+            return;
         }
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                nav.navigate(UnauthorizedScreensEnum.resetSuccessfully);
-                resolve("resolved");
-
-            }, 3000);
-        });
+        nav.navigate(UnauthorizedScreensEnum.resetSuccessfully)
     };
     return (
         <>
             <Controller
                 control={control}
                 name="password"
-                rules={rules}
+                rules={{
+                    required: true,
+                    minLength: {
+                        message: "you need at least 8 characters ",
+                        value: 8
+                    }
+                }}
                 render={({field: {onChange, value}}) => (
                     <View style={style.textInput}>
                         <PasswordInput
                             showPassword={showPassword}
                             setShowPassword={onSetShowPassword}
                             placeholder={getTranslatedText("newPassword")}
+                            textContentType={'oneTimeCode'}
                             onChangeText={onChange}
                             value={value}
                         />
@@ -91,6 +93,7 @@ const ResetPasswordForm = () => {
                             showPassword={showPassword}
                             setShowPassword={onSetShowPassword}
                             placeholder={getTranslatedText("confirmPassword")}
+                            textContentType={'oneTimeCode'}
                             onChangeText={onChange}
                             value={value}
                             error={!!errors.confirmPassword?.message}

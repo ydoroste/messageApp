@@ -25,6 +25,7 @@ const InputField: React.FC<IInputFieldProps> = forwardRef(
         underlineColor={
           hideBorder ? "transparent" : error ? colors.red : colors.grey02
         }
+
         activeUnderlineColor={
           hideBorder ? "transparent" : error ? colors.red : colors.grey02
         }

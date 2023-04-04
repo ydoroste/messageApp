@@ -2,7 +2,7 @@ export interface IRegisterApiRequest {
   first_name: string;
   last_name: string;
   gender: string;
-  birth_date: string;
+  birth_date: Date;
   user_name: string;
   phone_number: string;
   password: string;
@@ -26,6 +26,9 @@ export interface IRegisterApiResponseError {
     };
   };
 }
+
+export type errorFieldsAsString = "first_name" | "last_name" | "gender" | "birth_date" | "user_name" | "phone_number" | "password";
+
 export interface IRegisterApiResponse {
   success: boolean;
   message?: string;

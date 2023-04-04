@@ -7,7 +7,7 @@ export interface IForgetPasswordApiRequest {
 export interface IForgetPasswordApiResponse {
     success?: boolean,
     message?: string,
-    data: IForgetPasswordData | IApiError
+    data: IForgetPasswordData
 }
 export enum ResetMethod {
     Phone,
@@ -17,5 +17,6 @@ export enum ResetMethod {
 
 export interface IForgetPasswordData {
     phone_number: string,
+    user_name: string,
     secondary_email?: string,
 }
