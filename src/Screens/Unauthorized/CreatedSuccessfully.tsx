@@ -27,7 +27,7 @@ const CreatedSuccessfully: React.FC = () => {
           textAlign="center"
           color="primary"
         >
-          {userName}
+          {userName}@unsend.app
         </Typography>
 
         <View style={styles.createdTextContainer}>

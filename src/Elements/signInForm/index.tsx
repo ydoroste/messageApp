@@ -48,7 +48,7 @@ const SignInForm: React.FC = () => {
         user_name: values.userNameOrPhone,
         password: values.password
     };
-    const {refetch, isError} = useLogin(request);
+    const {refetch} = useLogin(request);
     const {setIsAuthenticated} = useUserDetails();
     const onVerifyAccountClick = async ()=>{
         const {data, isError, error} = await refetchForgetPassword();
@@ -63,7 +63,7 @@ const SignInForm: React.FC = () => {
             {
                 phoneNumber: resData?.phone_number,
                 resetMethod: ResetMethod.Phone,
-                userName: values.userNameOrPhone
+                userName: resData.user_name
             });
 
     };
@@ -129,7 +129,6 @@ const SignInForm: React.FC = () => {
                         message: "you need at least 8 characters ",
                         value: 8
                     }
-
                 }}
                 render={({field: {onChange, value}}) => (
                     <View style={styles.passwordField}>

@@ -252,7 +252,7 @@ const SignUpForm: React.FC = () => {
                             placeholder={getTranslatedText("username")}
                             onChangeText={onChange}
                             value={value}
-                            right={<TextInput.Affix text="@em.ls" textStyle={styles.email}/>}
+                            right={<TextInput.Affix text="@unsend.app" textStyle={styles.email}/>}
                         />
 
                         {errors.user_name?.message && (

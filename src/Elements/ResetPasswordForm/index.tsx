@@ -61,7 +61,13 @@ const ResetPasswordForm = () => {
             <Controller
                 control={control}
                 name="password"
-                rules={rules}
+                rules={{
+                    required: true,
+                    minLength: {
+                        message: "you need at least 8 characters ",
+                        value: 8
+                    }
+                }}
                 render={({field: {onChange, value}}) => (
                     <View style={style.textInput}>
                         <PasswordInput
