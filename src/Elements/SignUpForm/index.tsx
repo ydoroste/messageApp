@@ -23,6 +23,7 @@ import moment from "moment";
 import {ResetMethod} from "@followBack/Apis/ForgetPassword/types";
 import {errorFieldsAsString, IRegisterApiRequest} from "@followBack/Apis/Register/types";
 import {useRegister} from "@followBack/Hooks/Apis/Register";
+import {isValidPhoneNumber} from "@followBack/Utils/validations";
 
 
 const gender = [
@@ -55,7 +56,7 @@ const SignUpForm: React.FC = () => {
         first_name: values.first_name,
         last_name: values.last_name,
         gender: values.gender,
-        birth_date: values?.birth_date?.toString() ?? "",
+        birth_date: values?.birth_date ?? new Date(),
         user_name: values.user_name,
         phone_number: values.formattedPhoneNumber,
         password: values.password,
@@ -65,14 +66,15 @@ const SignUpForm: React.FC = () => {
 
     useFocusEffect(
         useCallback(() => {
-            setTimeout(() => {
-                setFocus("first_name");
-            }, 100);
-        }, []));
+            setFocus("first_name");
+            }, []));
 
-    const onSubmit = async () => {
+    const onSubmit = async (formData: ISignUpFormValues) => {
+        if(!isValidPhoneNumber(formData.formattedPhoneNumber)){
+            setError("phone_number", {message: "invalid phone number"});
+            return;
+        }
         const {data, error, isError} = await refetch();
-        console.log("res", data);
         if (isError) {
             const errors = error?.response?.data?.errors;
             const errorKeys = Object.keys(errors) as errorFieldsAsString[];
@@ -211,7 +213,7 @@ const SignUpForm: React.FC = () => {
                             if (!value)
                                 return false;
                             const years = moment().diff(value, 'years', false);
-                            return years >= 13 ? true : "you need to be 13 years or older to join us"
+                            return years >= 13 ? true : "13 years & over only."
                         }
                     }}
                     render={({field: {onChange, value, ref}}) => (

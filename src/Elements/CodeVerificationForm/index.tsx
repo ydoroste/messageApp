@@ -79,7 +79,8 @@ export default CodeVerificationForm;
 const style = StyleSheet.create({
     button: {
         marginTop: 60,
-        width: "90%"
+        width: "90%",
+        marginBottom: 36
     },
     errorMessage: {
         marginTop: 60

@@ -2,7 +2,7 @@ export interface IRegisterApiRequest {
   first_name: string;
   last_name: string;
   gender: string;
-  birth_date: string;
+  birth_date: Date;
   user_name: string;
   phone_number: string;
   password: string;

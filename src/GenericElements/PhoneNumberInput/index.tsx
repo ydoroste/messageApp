@@ -26,18 +26,18 @@ const PhoneNumberInput: React.FC<IPhoneNumberInputProps> = ({
         value={value}
         layout="first"
         defaultCode={country?.cca2 || "US"}
-       // withShadow
         textInputProps={{
           placeholderTextColor: colors.grey02,
           onFocus: () => setFocus(true),
           onBlur: () => setFocus(false),
+          caretHidden: false,
+          selectionColor: colors.white,
+
         }}
-        filterProps={{autoFocus: true}}
         onChangeCountry={onChangeCountry}
         onChangeText={onChangePhoneNumber}
         onChangeFormattedText={onChangeFormattedPhoneNumber}
         withDarkTheme
-        autoFocus
         placeholder={getTranslatedText("phoneNumber")}
         containerStyle={{
           ...styles.container,

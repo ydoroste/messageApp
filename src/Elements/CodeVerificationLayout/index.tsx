@@ -18,10 +18,11 @@ import {err} from "react-native-svg/lib/typescript/xml";
 
 const CodeVerificationLayout: React.FC<ICodeVerificationLayoutProps> = ({children, userName, hashedCodeVerificationValue}) => {
     const [showResend, setShowResend] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
 
     const resendVerificationCodeRequest: IResendVerificationCodeRequest = {
         user_name: userName
-    }
+    };
     const {refetch, error, isLoading, isError} = useResendVerificationCode(resendVerificationCodeRequest);
 
     const onTimerFinish = () => {
@@ -29,9 +30,10 @@ const CodeVerificationLayout: React.FC<ICodeVerificationLayoutProps> = ({childre
     };
     const resendCode = async () => {
         await refetch();
+        setErrorMessage(isError ? error?.response?.data?.message : "");
         setShowResend(false);
     };
-    console.log("error", error?.response?.data?.message, isError);
+
     return (
         <>
             <View style={{alignSelf: "flex-start"}}>
@@ -47,8 +49,8 @@ const CodeVerificationLayout: React.FC<ICodeVerificationLayoutProps> = ({childre
                 }
             </View>
             {children}
-            {!isLoading && error?.response?.data?.message &&
-            <Typography textAlign="center" color="error" type="smallRegularBody">{error?.response?.data?.message}</Typography>}
+            {!isLoading && errorMessage &&
+            <Typography textAlign="center" color="error" type="smallRegularBody">{errorMessage}</Typography>}
         </>
     )
 };

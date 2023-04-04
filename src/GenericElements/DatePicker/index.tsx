@@ -45,7 +45,6 @@ const DatePicker: React.FC<IDatePickerProps> = ({ error, date, onSelect, title, 
           </Typography>
         )}
 
-        <DownArrow width={17} height={10} color={colors.grey02}/>
       </TouchableOpacity>
       <DateTimePickerModal
         isVisible={isDatePickerVisible}

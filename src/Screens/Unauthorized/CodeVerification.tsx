@@ -25,8 +25,6 @@ const CodeVerification: React.FC = () => {
     };
     const {refetch} = useForgetPassword(request);
 
-  //  console.log("error", error);
-
     const hashedCodeVerificationValue = useMemo<string>(()=>
         encryptCodeVerificationValue(codeVerificationValue, verificationMethod),
         [codeVerificationValue, verificationMethod]);

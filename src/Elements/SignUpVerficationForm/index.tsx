@@ -148,5 +148,6 @@ const style = StyleSheet.create({
     },
     errorMessage: {
         marginTop: 10,
+        marginLeft: 10
     },
 });
