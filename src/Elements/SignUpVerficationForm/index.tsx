@@ -30,7 +30,7 @@ const SignUpVerificationForm =()=>{
     });
     const {code, terms_and_conditions} = watch();
     const userVerifyRequest: IVerifyUserApiRequest = {
-        user_name: userName,
+        user_name: phoneNumber,
         code,
         terms_and_conditions,
     };
@@ -137,7 +137,6 @@ const style = StyleSheet.create({
     },
     checkboxWrapper: {
         marginBottom: 100,
-        paddingLeft: 10,
     },
     code: {
         marginBottom: 40,

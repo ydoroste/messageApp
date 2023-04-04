@@ -85,7 +85,7 @@ const SignUpForm: React.FC = () => {
         }
         nav.navigate(UnauthorizedScreensEnum.singUpVerification,
             {
-                phoneNumber: values.phone_number,
+                phoneNumber: values.formattedPhoneNumber,
                 resetMethod: ResetMethod.Phone,
                 userName: values.user_name
             });
