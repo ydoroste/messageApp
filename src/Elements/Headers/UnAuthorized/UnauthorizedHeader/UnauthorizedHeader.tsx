@@ -4,7 +4,8 @@ import {NativeStackHeaderProps} from "@react-navigation/native-stack/lib/typescr
 import Typography from "@followBack/GenericElements/Typography";
 import useStylesWithTheme from "@followBack/Hooks/useStylesWithTheme";
 import useTheme from "@followBack/Hooks/useTheme";
-import IconButton from "@followBack/GenericElements/IconButton";
+import { Ionicons } from '@expo/vector-icons';
+import { IconButton } from "react-native-paper";
 
 interface UnauthorizedHeaderProps extends NativeStackHeaderProps{
     handleBackButtonPress?: ()=> void;
@@ -23,24 +24,38 @@ const UnauthorizedHeader: React.FC<UnauthorizedHeaderProps> = ({handleBackButton
     const {styles} = useStyles();
     const title = route.name;
     return(
+        <>
         <View style={styles.headerStyle}>
             <Typography type="mediumRegularTitle" color="secondary">{options.title}</Typography>
-            <IconButton name="close" width={18} height={17} color={colors.grey02} disabled={!canGoBack} onPress={onBackButtonPress} />
-
         </View>
+            <IconButton
+                style={styles.iconButton}
+                rippleColor={colors.grey02}
+                size={24}
+                disabled={!canGoBack}
+                onPress={onBackButtonPress}
+                icon={({size, color})=> <Ionicons name="ios-chevron-back" size={size} color={color}  />}
+            />
+
+        </>
     )
 };
 
 const useStyles = useStylesWithTheme((theme)=> ({
     headerStyle: {
-        height: 100,
+        height: 85,
         flexDirection: "row",
         backgroundColor: theme.colors.black,
-        justifyContent: "space-between",
+        justifyContent: "center",
         alignItems: "flex-end",
         paddingTop: 0,
         paddingHorizontal: 50
 
+    },
+    iconButton: {
+        margin: 0,
+        position: "absolute",
+        bottom: -10
     }
 }));
 export default UnauthorizedHeader;

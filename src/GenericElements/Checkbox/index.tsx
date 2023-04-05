@@ -10,6 +10,7 @@ const EmlsCheckbox: React.FC<ICheckboxPorps> = ({
   text,
   onValueChange,
   disabled,
+    error
 }) => {
   const { styles } = useStyles();
   const { colors } = useTheme();
@@ -21,7 +22,7 @@ const EmlsCheckbox: React.FC<ICheckboxPorps> = ({
         style={styles.checkbox}
         value={isChecked}
         onValueChange={onValueChange}
-        color={colors.grey02}
+        color={error ? colors.red : colors.grey02}
       />
 
       <Pressable onPress={() => onValueChange(!isChecked)}>

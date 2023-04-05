@@ -5,11 +5,10 @@ import {
   Platform, Keyboard, 
 } from "react-native";
 import React from "react";
-
-import SignUpForm from "@followBack/Elements/SignUpForm/SignUpForm";
+import SignUpForm from "@followBack/Elements/SignUpForm";
 
 export default function SignUp() {
-  return (
+    return (
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined}  keyboardVerticalOffset={50}
                             style={{flex: 1}}>
           <Pressable  style={styles.container} onPress={Keyboard.dismiss}>

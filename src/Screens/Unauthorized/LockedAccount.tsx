@@ -1,4 +1,4 @@
-import {Dimensions, StyleSheet, Text, View} from "react-native";
+import {Dimensions, Pressable, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import {StatusBar} from "expo-status-bar";
 import * as React from "react";
 import Lock from "@followBack/Theme/Icons/Lock";
@@ -44,8 +44,9 @@ const LockedAccount: React.FC = () => {
                             type="mediumRegularTitle">{getTranslatedText("yourAccountHasBeenLocked")}</Typography>
             </View>
             <View>
-                <Button disabled={isError || isLoading} onPress={onResetPress}
-                        type="secondary">{getTranslatedText("lockedAccountLink")}</Button>
+                <Typography color="secondary" textAlign="center"
+                            type="largeRegularBody" >a password reset link has been sent to the registered phone number, please  {<Button disabled={isError || isLoading} onPress={onResetPress}
+                                                                                                                                               type="secondary">press here</Button>} to reset your password.</Typography>
                 {isError &&
                 <Typography type="mediumRegularBody" color="error">{error?.response?.data?.message}</Typography>}
             </View>
@@ -62,5 +63,8 @@ const styles = StyleSheet.create({
         width: "100%",
         paddingHorizontal: 50,
         marginTop: screenHeight * 0.2
+    },
+    button: {
+        height: 300
     }
 });

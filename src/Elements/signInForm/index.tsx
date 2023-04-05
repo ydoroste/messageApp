@@ -1,4 +1,4 @@
-import { useForm, Controller } from "react-hook-form";
+import {useForm, Controller} from "react-hook-form";
 import {ISignInFormValues} from "@followBack/Elements/signInForm/types";
 import {View, StyleSheet, TextInput} from "react-native";
 import InputField from "@followBack/GenericElements/InputField";
@@ -7,18 +7,21 @@ import PasswordInput from "@followBack/GenericElements/PasswordInput";
 import Button from "@followBack/GenericElements/Button";
 import {getTranslatedText} from "@followBack/Localization";
 import Typography from "@followBack/GenericElements/Typography";
-import {useFocusEffect, useNavigation } from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {UnauthorizedStackNavigationProps} from "@followBack/Navigation/Unauthorized/types";
 import {UnauthorizedScreensEnum} from "@followBack/Navigation/Unauthorized/constants";
-import {useCallback, useEffect} from "react";
+import {useCallback, useEffect, useState} from "react";
 import {useLogin} from "@followBack/Hooks/Apis/Login";
 import {ILoginApiRequest, ILoginApiResponse, ILoginApiResponseData} from "@followBack/Apis/Login/types";
 import {setAccessToken} from "@followBack/Utils/accessToken";
 import {useUserDetails} from "@followBack/Hooks/useUserDetails";
+import {isError} from "react-query";
+import {IForgetPasswordApiRequest, IForgetPasswordData, ResetMethod} from "@followBack/Apis/ForgetPassword/types";
+import {useForgetPassword} from "@followBack/Hooks/Apis/ForgetPassword";
 
 const SignInForm: React.FC = () => {
     const nav = useNavigation<UnauthorizedStackNavigationProps['navigation']>();
-
+    const [showVerifyLink, setShowVerifyLink] = useState(false);
     const {control, handleSubmit, formState: {errors, isValid, isSubmitting}, reset, setFocus, watch, setError} = useForm<ISignInFormValues>({
         defaultValues: {
             userNameOrPhone: "",
@@ -30,19 +33,47 @@ const SignInForm: React.FC = () => {
         required: true
     };
     const values = watch();
-    const request: ILoginApiRequest ={
+
+
+    const resetRequest: IForgetPasswordApiRequest = {
+        user_name: values.userNameOrPhone,
+        is_email: ResetMethod.Phone
+    };
+    //generate verification code
+    const {refetch: refetchForgetPassword} = useForgetPassword(resetRequest);
+
+
+
+    const request: ILoginApiRequest = {
         user_name: values.userNameOrPhone,
         password: values.password
     };
-    const { refetch } = useLogin(request);
+    const {refetch} = useLogin(request);
     const {setIsAuthenticated} = useUserDetails();
-    const onForgetPasswordPress = () =>{
+    const onVerifyAccountClick = async ()=>{
+        const {data, isError, error} = await refetchForgetPassword();
+        if(isError){
+            setError("userNameOrPhone", {
+                message: error?.response?.data?.message
+            });
+            return
+        }
+        const resData = data?.data as IForgetPasswordData;
+        nav.navigate(UnauthorizedScreensEnum.singUpVerification,
+            {
+                phoneNumber: resData?.phone_number,
+                resetMethod: ResetMethod.Phone,
+                userName: resData.user_name
+            });
+
+    };
+    const onForgetPasswordPress = () => {
         nav.navigate(UnauthorizedScreensEnum.chooseAccount);
     };
 
-    const onSignUpPress =  () => {
+    const onSignUpPress = () => {
         nav.navigate(UnauthorizedScreensEnum.signUp);
-    }
+    };
 
     useFocusEffect(
         useCallback(() => {
@@ -53,21 +84,23 @@ const SignInForm: React.FC = () => {
         }, []));
 
     const onSubmit = async () => {
-       const {data, error, isError} =  await refetch();
-       if(isError){
-           if(error?.response?.data?.message === "your account has been locked"){
-               nav.navigate(UnauthorizedScreensEnum.lockedAccount, {userName: values.userNameOrPhone})
-           }
-           setError("userNameOrPhone", {
-               message: error?.response?.data?.message
-           });
-           return;
-       }
-       const signInData = data?.data as ILoginApiResponseData;
-       if(signInData.accessToken && signInData.accessToken !== ""){
-           await setAccessToken(signInData.accessToken);
-           setIsAuthenticated(true);
-       }
+        const {data, error, isError} = await refetch();
+        if (isError) {
+            setShowVerifyLink(error?.response?.data?.message === "User isn't verified");
+
+            if (error?.response?.data?.message === "your account has been locked") {
+                nav.navigate(UnauthorizedScreensEnum.lockedAccount, {userName: values.userNameOrPhone})
+            }
+            setError("userNameOrPhone", {
+                message: error?.response?.data?.message
+            });
+            return;
+        }
+        const signInData = data?.data as ILoginApiResponseData;
+        if (signInData.accessToken && signInData.accessToken !== "") {
+            await setAccessToken(signInData.accessToken);
+            setIsAuthenticated(true);
+        }
 
     };
 
@@ -79,18 +112,24 @@ const SignInForm: React.FC = () => {
                 rules={rules}
                 render={({field: {onChange, value, ref}}) => (
                     <View style={styles.textInput}>
-                    <InputField
-                        // @ts-ignore
-                        ref={ref}
-                        placeholder={getTranslatedText("userNameOrPhone")}
-                        onChangeText={onChange}
-                        value={value}
-                    />
-                </View>)}
+                        <InputField
+                            // @ts-ignore
+                            ref={ref}
+                            placeholder={getTranslatedText("userNameOrPhone")}
+                            onChangeText={onChange}
+                            value={value}
+                        />
+                    </View>)}
             />
             <Controller
                 control={control}
-                rules={rules}
+                rules={{
+                    required: true,
+                    minLength: {
+                        message: "you need at least 8 characters ",
+                        value: 8
+                    }
+                }}
                 render={({field: {onChange, value}}) => (
                     <View style={styles.passwordField}>
 
@@ -108,8 +147,11 @@ const SignInForm: React.FC = () => {
                         onPress={onForgetPasswordPress}>{getTranslatedText("forgetPasswordLink")}</Button>
             </View>
             <View style={styles.errorStyle}>
-                <Typography color="error" type="smallRegularBody">{errors?.userNameOrPhone?.message}</Typography>
+                <Typography color="error" type="smallRegularBody" textAlign="center">{errors?.userNameOrPhone?.message}
+                </Typography>
             </View>
+            {showVerifyLink && errors?.userNameOrPhone?.message && <Button type="secondary" onPress={onVerifyAccountClick}>press here to verify your account</Button> }
+
             <View style={styles.button}>
                 <Button type="primary" disabled={!isValid || isSubmitting} loading={isSubmitting}
                         onPress={handleSubmit(onSubmit)}>{getTranslatedText("signIn")}</Button>
@@ -117,7 +159,7 @@ const SignInForm: React.FC = () => {
 
             <View style={styles.createAccountLink}>
                 <Button type="secondary"
-                    onPress={onSignUpPress}>
+                        onPress={onSignUpPress}>
                     {getTranslatedText("createAccountLink")}</Button>
             </View>
         </>
@@ -147,6 +189,7 @@ const styles = StyleSheet.create({
         width: "90%"
     },
     errorStyle: {
-        marginTop: 45
+        marginTop: 45,
+        marginBottom: 15
     }
 });

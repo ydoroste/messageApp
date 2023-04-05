@@ -10,7 +10,8 @@ const Dropdown: React.FC<IDropdownProps> = ({
   items,
   defaultText,
   onSelect,
-  value
+  value,
+    error
 }) => {
   const { styles } = useStyles();
   const ref = useRef<SelectDropdown>(null);
@@ -57,8 +58,8 @@ const Dropdown: React.FC<IDropdownProps> = ({
       rowTextForSelection={(item, index) => {
         return item.name;
       }}
-      buttonStyle={styles.dropdownButton}
-      buttonTextStyle={{ ...styles.textStyle, ...styles.dropdownButtonText }}
+      buttonStyle={[styles.dropdownButton, error && styles.errorBorder]}
+      buttonTextStyle={[styles.textStyle, styles.dropdownButtonText, error && styles.errorText ]}
       renderDropdownIcon={(isOpened) => {
         return <DownArrow width={16} height={16} color={"none"} />;
       }}
@@ -94,13 +95,20 @@ const useStyles = useStylesWithTheme((theme) => ({
     borderRadius: 12,
     margin: 0,
     padding: 0,
+
   },
   dropdownButtonText: {
     justifyContent: "flex-start",
     marginLeft: 4,
     letterSpacing: 0,
   },
-
+  errorText: {
+    color: theme.colors.red,
+  },
+  errorBorder: {
+    borderWidth: 1,
+    borderColor: theme.colors.red
+  },
   textStyle: {
     color: theme.colors.grey02,
     fontSize: theme.fontSizes.medium,

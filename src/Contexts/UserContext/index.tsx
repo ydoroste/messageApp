@@ -1,7 +1,5 @@
 import { createContext, useEffect, useState } from "react";
-import { theme } from "@followBack/Theme/Theme";
 import * as React from "react";
-import { Theme } from "@followBack/Theme/Theme.types";
 import {
   IUserContext,
   IUserDetails,

@@ -36,6 +36,6 @@ export default {
     yourAccountHasBeenLocked: "your account has been locked.",
     hasBeen: "has been  ",
     created: "created!",
-    termsAndConditions: "by creating a followback account, i understand and agree to followback’s privacy notice & terms of use",
+    termsAndConditions: "by creating a un-send account, i understand and agree to un-send’s privacy notice & terms of use",
   }
 };
