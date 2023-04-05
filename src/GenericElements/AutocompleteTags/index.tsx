@@ -1,4 +1,4 @@
-import { Dimensions, View } from "react-native";
+import { Dimensions, NativeSyntheticEvent, TextInputFocusEventData, View } from "react-native";
 import CustomAutocompleteTags from "react-native-autocomplete-tags";
 import * as React from "react";
 import Tag from "./Tag";
@@ -17,16 +17,31 @@ const AutoCompleteTags: React.FC<IAutoCompleteTags> = ({
   typedValue,
   isLoading,
   isSuccess,
+  onFocus,
+  onBlur
 }) => {
   const labelExtractor = (tag: string) => tag;
   const { colors } = useTheme();
   const { styles } = useStyles();
   const parseChars = [",", " "];
+  const [isBlured, setIsBlured] = React.useState(false);
+
+  const onAutocompleteTextBlue = (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
+    onBlur && onBlur(e);
+    setIsBlured(true)
+  };
+
+  const onAutocompleteTextFocus = (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
+    onFocus && onFocus(e);
+    setIsBlured(false);
+  };
+
   return (
     <CustomAutocompleteTags
       allowCustomTags
       inputProps={{
         selectionColor: colors.white,
+        placeholderTextColor: colors.grey02,
         placeholder: tags && tags.length > 0 ? undefined : "add",
         onChangeText: (text) => {
           const lastCharIndex = text.length - 1;
@@ -42,6 +57,8 @@ const AutoCompleteTags: React.FC<IAutoCompleteTags> = ({
           }
         },
         value: typedValue,
+        onFocus: onAutocompleteTextFocus,
+        onBlur: onAutocompleteTextBlue
       }}
       tags={tags}
       inputStyle={styles.inputStyles}
@@ -56,16 +73,22 @@ const AutoCompleteTags: React.FC<IAutoCompleteTags> = ({
       }}
       labelExtractor={labelExtractor}
       renderSuggestion={(suggestion, onPress) => (
-        <Suggestion
+        <View style={{zIndex: 10000}}>
+          {!isBlured && <Suggestion 
           onPress={() => {
             onChangeText("");
             onChangeTags([...tags, suggestion.address]);
           }}
           suggestion={suggestion}
-        />
+        />}
+
+        </View>
+        
       )}
-      renderTag={(tag, onPress) => <Tag  onPress={onPress} tag={tag} />}
-      flatListStyle={styles.listStyle}
+      renderTag={(tag, onPress) => <Tag onPress={onPress} tag={tag} key={Math.random()} />}
+      tagContainerStyle={{flexDirection: "row", display: "flex", justifyContent: "flex-start"}}
+      flatListProps={{style:styles.listStyle}}
+      // flatListStyle={styles.listStyle}
     />
   );
 };
@@ -74,15 +97,17 @@ const useStyles = useStylesWithTheme((theme) => ({
     color: theme.colors.white,
   },
   containerStyles: {
-    paddingVertical: 10,
-    zIndex: 100,
+    zIndex: 10,
+    borderRadius: 15,
   },
   listStyle: {
-    backgroundColor: theme.colors.dark03,
+    backgroundColor: theme.colors.dark02,
     borderRadius: 15,
     marginTop: 10,
     width: screenWidth - 40,
     marginLeft: -23,
+    position: "absolute",
+    zIndex: 10,
   },
 }));
 export default AutoCompleteTags;

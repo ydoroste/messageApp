@@ -6,6 +6,7 @@ import useStylesWithTheme from "@followBack/Hooks/useStylesWithTheme";
 
 const Suggestion: React.FC<ISuggestionProps> = ({suggestion, onPress}) =>{
     const {styles} = useStyles();
+    
     return(
         <View style={styles.container}>
             <Typography onPress={onPress} color="secondary" textDecoration="underline" type="mediumRegularBody">{suggestion.name}  |  {suggestion.address}
@@ -21,6 +22,6 @@ const useStyles = useStylesWithTheme((theme => ({
         width: 400,
         paddingHorizontal: 16,
         marginVertical: 6,
-        backgroundColor:theme.colors.dark03
+        zIndex: 1000
     },
 })));

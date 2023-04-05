@@ -35,7 +35,7 @@ const ComposeStack = () => {
         options={{
           headerShown: false,
         }}
-        name="threadDetails"
+        name={AuthorizedScreensEnum.threadDetails}
         component={ThreadDetails}
       />
     </Stack.Navigator>

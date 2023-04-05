@@ -3,5 +3,6 @@ import {TextInput} from "react-native-paper";
 
 export type IInputFieldProps =  React.ComponentPropsWithoutRef<typeof TextInput> & {
     initialValue?: string,
-    hideBorder?: boolean
+    hideBorder?: boolean;
+    textColor?: string
 };

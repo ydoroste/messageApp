@@ -70,7 +70,6 @@ const StepTwo: React.FC<IStepTwoProps> = ({
     }, [])
   );
 
-  console.log("request", request);
   const { refetch } = useRegister(request);
 
   const onSubmit = async () => {
@@ -89,7 +88,6 @@ const StepTwo: React.FC<IStepTwoProps> = ({
     if (isError) {
       setSignUpSuccessStatus(false);
 
-      console.log("error", error.response);
       const errors = error?.response?.data?.errors;
 
       if (!errors || !wizard?.current)
@@ -129,7 +127,6 @@ const StepTwo: React.FC<IStepTwoProps> = ({
         render={({ field: { onChange, value, ref } }) => (
           <View style={styles.textInput}>
             <InputField
-              // @ts-ignore
               ref={ref}
               error={!!errors.user_name?.message}
               placeholder={getTranslatedText("username")}

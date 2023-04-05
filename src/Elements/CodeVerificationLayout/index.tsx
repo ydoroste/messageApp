@@ -22,7 +22,6 @@ const CodeVerificationLayout: React.FC<ICodeVerificationLayoutProps> = ({childre
         user_name: userName
     }
     const {refetch, error} = useResendVerificationCode(resendVerificationCodeRequest);
-    console.log("error", error);
 
     const onTimerFinish = () => {
         setShowResend(true);

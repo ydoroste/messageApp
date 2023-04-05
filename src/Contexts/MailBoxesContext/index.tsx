@@ -11,7 +11,7 @@ export const MailBoxesContext = createContext<IMailBoxesContext>({
   isSuccess: false,
   isLoading: false,
   inboxThread: null,
-} as IMailBoxesContext);
+});
 
 export const MailBoxesProvider: React.FC<IMailBoxesProviderProps> = ({
   children,
@@ -19,8 +19,10 @@ export const MailBoxesProvider: React.FC<IMailBoxesProviderProps> = ({
   const { data, isLoading, isError, isSuccess } = useFetchUserMailBoxes();
   const [inboxThread, setInboxThread] = useState<MailBox>();
   const [sentMailThread, setSentMailThread] = useState<MailBox>();
+  
   useEffect(() => {
     if (!data) return;
+    
     const inboxThread = data?.mailboxes.find(
       ({ path }) => path.toLowerCase() === "inbox"
     );

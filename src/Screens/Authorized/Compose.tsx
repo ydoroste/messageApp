@@ -1,12 +1,14 @@
 import IconButton from "@followBack/GenericElements/IconButton";
 import Typography from "@followBack/GenericElements/Typography";
-import React, { useCallback, useReducer } from "react";
+import React, { useCallback, useReducer, useState } from "react";
 import {
   Keyboard,
   KeyboardAvoidingView,
   Platform,
   Pressable,
   StyleSheet,
+  TouchableHighlight,
+  TouchableOpacity,
   View,
 } from "react-native";
 import useTheme from "@followBack/Hooks/useTheme";
@@ -21,6 +23,8 @@ import { isValidEmail } from "@followBack/Utils/validations";
 import { useFocusEffect } from "@react-navigation/native";
 import { useMailBoxes } from "@followBack/Hooks/useMailboxes";
 import MailSender from "@followBack/Elements/MailSender/MailSender";
+import { Ionicons } from '@expo/vector-icons';
+import { theme } from "@followBack/Theme/Theme";
 
 const SET_KEY_VALUE = "SET_KEY_VALUE";
 
@@ -55,7 +59,7 @@ const reducer = (state, { type, payload }) => {
 
 const Compose: React.FC = ({ navigation }) => {
   const { sentMailThread } = useMailBoxes();
-
+  const [toFieldIsFocused, setToFieldIsFocused] = useState(false);
   const [state, dispatch] = useReducer(reducer, initialState);
   const {
     toSearchValue,
@@ -81,6 +85,7 @@ const Compose: React.FC = ({ navigation }) => {
   const { colors } = useTheme();
 
   const formatTags = (tags) => tags.map((mail) => ({ address: mail.trim() }));
+
   const formattedToTags = formatTags(toTags);
   const formattedCcTags = formatTags(ccTags);
   const formattedBccTags = formatTags(bccTags);
@@ -115,15 +120,20 @@ const Compose: React.FC = ({ navigation }) => {
   const onPressCompose = async () => {
     if (!subject || toTags.length < 0) return;
     const { data } = await refetch();
-    navigation.navigate(AuthorizedScreensEnum.composeStack, {
-      screen: AuthorizedScreensEnum.threadDetails,
-      params: { id: data?.thread },
-    });
+    console.log("data", data.thread)
+    if (data?.["success"]) {
+      navigation.navigate(AuthorizedScreensEnum.composeStack, {
+        screen: AuthorizedScreensEnum.threadDetails,
+        params: { id: data?.thread },
+      });
+    }
   };
 
   const onChangeMailContent = ({ value }) => {
     setKeyValue({ key: "mail", value });
   };
+
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : undefined}
@@ -133,113 +143,87 @@ const Compose: React.FC = ({ navigation }) => {
       <Pressable onPress={Keyboard.dismiss} style={styles.container}>
         <View>
           <View style={styles.header}>
-            <View style={styles.flexCenter}>
-              <View style={styles.back}>
-                <IconButton
-                  name="back"
-                  onPress={() => {
-                    if (navigation.canGoBack()) return navigation.goBack();
-                    if (!sentMailThread) return;
+            <IconButton
+              name="back"
+              onPress={() => {
+                if (navigation.canGoBack()) return navigation.goBack();
+                if (!sentMailThread) return;
 
-                    navigation.navigate(
-                      AuthorizedScreensEnum.threadsListStack,
-                      {
-                        screen: AuthorizedScreensEnum.threadsList,
-                        params: { ...sentMailThread },
-                      }
-                    );
-                  }}
-                  color={colors.grey02}
-                  width={10}
-                  height={16}
-                />
-              </View>
+                navigation.navigate(
+                  AuthorizedScreensEnum.threadsListStack,
+                  {
+                    screen: AuthorizedScreensEnum.threadsList,
+                    params: { ...sentMailThread },
+                  }
+                );
+              }}
+              color={colors.grey02}
+              width={10}
+              height={16}
+            />
 
-              <View style={styles.flexCenter}>
-                <View style={styles.subject}>
-                  <Button
-                    onPress={() =>
-                      setKeyValue({ key: "showSubject", value: !showSubject })
-                    }
-                    type="mediumTernary"
-                  >
-                    subject
-                  </Button>
-                </View>
-                <View>
-                  <Button
-                    onPress={() =>
-                      setKeyValue({ key: "showCC", value: !showCC })
-                    }
-                    type="mediumTernary"
-                  >
-                    cc/
-                  </Button>
-                </View>
-                <View>
-                  <Button
-                    onPress={() =>
-                      setKeyValue({ key: "showBcc", value: !showBcc })
-                    }
-                    type="mediumTernary"
-                  >
-                    bcc
-                  </Button>
-                </View>
-              </View>
-            </View>
-
-            <Button onPress={reset} style={styles.delete} type="mediumTernary">
-              delete
-            </Button>
+            <TouchableHighlight activeOpacity={1} style={{ borderRadius: 12 }}
+              underlayColor={colors.grey01} onPress={() => reset()}>
+              <Ionicons name="ios-trash-sharp" size={24} color={colors.grey02} />
+            </TouchableHighlight>
           </View>
 
           <View style={styles.fieldsContainer}>
-            <Divider />
 
-            {showSubject && (
-              <View style={styles.flexCenter}>
+            <View style={styles.toFieldContainer}>
+              <View style={styles.fieldtitle}>
                 <Typography color="primary" type="largeRegularBody">
-                  subject:{" "}
+                  to:{" "}
                 </Typography>
-                <View style={styles.input}>
-                  <InputField
-                    hideBorder
-                    placeholder="add"
-                    value={subject}
-                    onChangeText={(text) =>
-                      setKeyValue({ key: "subject", value: text })
-                    }
-                  />
-                </View>
               </View>
-            )}
 
-            {showBcc && (
-              <View style={styles.flexCenter}>
-                <Typography color="primary" type="largeRegularBody">
-                  bcc:{" "}
-                </Typography>
-                <View style={styles.input}>
-                  <ComposeAutoComplete
-                    searchValue={bccSearchValue}
-                    setSearchValue={(text) =>
-                      setKeyValue({ key: "bccSearchValue", value: text })
-                    }
-                    tags={bccTags}
-                    setTags={(tags) =>
-                      setKeyValue({ key: "bccTags", value: tags })
-                    }
-                    type={"bcc"}
-                  />
-                </View>
+              <View style={{ width: "82%" }}>
+                <ComposeAutoComplete
+                  onFocus={() => {
+                    setToFieldIsFocused(true)
+                  }}
+                  onBlur={() => {
+                    setToFieldIsFocused(false)
+                  }}
+                  searchValue={toSearchValue}
+                  setSearchValue={(text) =>
+                    setKeyValue({ key: "toSearchValue", value: text })
+                  }
+                  tags={toTags}
+                  setTags={(tags) =>
+                    setKeyValue({ key: "toTags", value: tags })
+                  }
+                  type={"to"}
+                />
+
               </View>
-            )}
+              {toFieldIsFocused && <View style={styles.ccBcButtonsContainer}>
+                <Button
+                  onPress={() =>
+                    setKeyValue({ key: "showCC", value: !showCC })
+                  }
+                  type="mediumTernary"
+                >
+                  cc/
+                </Button>
+                <Button
+                  onPress={() =>
+                    setKeyValue({ key: "showBcc", value: !showBcc })
+                  }
+                  type="mediumTernary"
+                >
+                  bcc
+                </Button>
+              </View>}
+            </View>
+
             {showCC && (
               <View style={styles.flexCenter}>
-                <Typography color="primary" type="largeRegularBody">
-                  cc:{" "}
-                </Typography>
+                <View style={styles.fieldtitle}>
+                  <Typography color="primary" type="largeRegularBody">
+                    cc:{" "}
+                  </Typography>
+                </View>
                 <View style={styles.input}>
                   <ComposeAutoComplete
                     searchValue={ccSearchValue}
@@ -255,33 +239,55 @@ const Compose: React.FC = ({ navigation }) => {
                 </View>
               </View>
             )}
-            <View style={styles.flexCenter}>
+
+            {showBcc && (
+              <View style={styles.flexCenter}>
+                <View style={styles.fieldtitle}>
+                  <Typography color="primary" type="largeRegularBody">
+                    bcc:{" "}
+                  </Typography>
+                </View>
+                <View style={styles.input}>
+                  <ComposeAutoComplete
+                    searchValue={bccSearchValue}
+                    setSearchValue={(text) =>
+                      setKeyValue({ key: "bccSearchValue", value: text })
+                    }
+                    tags={bccTags}
+                    setTags={(tags) =>
+                      setKeyValue({ key: "bccTags", value: tags })
+                    }
+                    type={"bcc"}
+                  />
+                </View>
+              </View>
+            )}
+
+            <Divider />
+
+            <View style={styles.subjectFieldContainer}>
               <Typography color="primary" type="largeRegularBody">
-                to:{" "}
+                subject:{" "}
               </Typography>
               <View style={styles.input}>
-                <ComposeAutoComplete
-                  searchValue={toSearchValue}
-                  setSearchValue={(text) =>
-                    setKeyValue({ key: "toSearchValue", value: text })
+                <InputField
+                  hideBorder
+                  placeholder="add"
+                  value={subject}
+                  onChangeText={(text) =>
+                    setKeyValue({ key: "subject", value: text })
                   }
-                  tags={toTags}
-                  setTags={(tags) =>
-                    setKeyValue({ key: "toTags", value: tags })
-                  }
-                  type={"to"}
                 />
               </View>
             </View>
           </View>
-
-          
         </View>
+
         <MailSender
-            onPressCompose={onPressCompose}
-            onChangeMailContent={onChangeMailContent}
-            mail={mail}
-          />
+          onPressCompose={onPressCompose}
+          onChangeMailContent={onChangeMailContent}
+          mail={mail}
+        />
       </Pressable>
     </KeyboardAvoidingView>
   );
@@ -307,21 +313,36 @@ const styles = StyleSheet.create({
   },
 
   fieldsContainer: {
-    flexDirection: "column-reverse",
   },
 
   input: {
     flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    width: 200,
   },
   flexCenter: {
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-start",
+    zIndex: 2
   },
 
+  subjectFieldContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  toFieldContainer: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+  },
+  fieldtitle: {
+    paddingTop: 4
+  },
   subject: {
     marginRight: 16,
   },
-  back: {
-    marginRight: 20,
-  },
+  ccBcButtonsContainer: {
+    flexDirection: "row",
+    alignSelf: "flex-end"
+  }
 });

@@ -70,7 +70,6 @@ export const UserProvider: React.FC<IUserProviderProp> = ({ children }) => {
         );
         setUserDetails(data);
       } catch (e) {
-        console.log("userDetails-error", e);
         setIsAuthenticated(false);
 
       }

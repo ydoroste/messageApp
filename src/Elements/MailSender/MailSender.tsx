@@ -9,29 +9,34 @@ const MailSender = ({ onChangeMailContent, onPressCompose, mail }) => {
 
   return (
     <View style={styles.flexCenter}>
-      <IconButton
-        onPress={() => {}}
-        name="add"
-        width={17}
-        height={17}
-        color={colors.grey02}
-      />
+      <View style={styles.iconContainer}>
+        <IconButton
+          onPress={() => { }}
+          name="add"
+          width={17}
+          height={17}
+          color={colors.grey02}
+        />
+      </View>
       <View style={styles.input}>
         <InputField
           value={mail}
+          textColor={colors.white}
           onChangeText={(mail) => onChangeMailContent({ value: mail })}
           multiline
           mode="outlined"
           placeholder="write a message..."
         />
       </View>
-      <IconButton
-        onPress={onPressCompose}
-        name="send"
-        width={17}
-        height={17}
-        color={colors.grey01}
-      />
+      <View style={styles.iconContainer}>
+        <IconButton
+          onPress={onPressCompose}
+          name="send"
+          width={17}
+          height={17}
+          color={colors.grey01}
+        />
+      </View>
     </View>
   );
 };
@@ -42,8 +47,13 @@ const styles = StyleSheet.create({
   },
   flexCenter: {
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-end",
+    marginBottom: 20,
+    zIndex: 10000,
   },
+  iconContainer: {
+    marginBottom: 12
+  }
 });
 
 export default MailSender;
