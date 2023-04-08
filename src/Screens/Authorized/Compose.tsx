@@ -1,6 +1,6 @@
 import IconButton from "@followBack/GenericElements/IconButton";
 import Typography from "@followBack/GenericElements/Typography";
-import React, { useCallback, useReducer, useState } from "react";
+import React, { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import {
   Keyboard,
   KeyboardAvoidingView,
@@ -26,6 +26,7 @@ import { useMailBoxes } from "@followBack/Hooks/useMailboxes";
 import MailSender from "@followBack/Elements/MailSender/MailSender";
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from "@followBack/Theme/Theme";
+import { TextInput } from "react-native-gesture-handler";
 
 const SET_KEY_VALUE = "SET_KEY_VALUE";
 
@@ -73,6 +74,7 @@ const Compose: React.FC = ({ navigation }) => {
     showSubject,
     showCcBcc,
   } = state;
+  const toFieldRef = useRef<TextInput>(null);
 
   const setKeyValue = ({ key, value }: { key: string, value: any }) => {
     dispatch({
@@ -108,7 +110,11 @@ const Compose: React.FC = ({ navigation }) => {
   };
 
   useFocusEffect(
+
     useCallback(() => {
+      if (toFieldRef.current) {
+        setTimeout(() => toFieldRef?.current?.focus(), 500);
+      };
       return () => {
         reset();
       };
@@ -178,6 +184,8 @@ const Compose: React.FC = ({ navigation }) => {
 
               <View style={{ width: "82%" }}>
                 <ComposeAutoComplete
+                  //@ts-ignore
+                  ref={toFieldRef}
                   onFocus={() => {
                     setToFieldIsFocused(true)
                   }}

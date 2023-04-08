@@ -1,4 +1,4 @@
-import { Dimensions, NativeSyntheticEvent, TextInputFocusEventData, TextInputKeyPressEventData, View } from "react-native";
+import { Dimensions, NativeSyntheticEvent, TextInput, TextInputFocusEventData, TextInputKeyPressEventData, View } from "react-native";
 import CustomAutocompleteTags from "react-native-autocomplete-tags";
 import * as React from "react";
 import Tag from "./Tag";
@@ -9,7 +9,7 @@ import { IAutoCompleteTags } from "@followBack/GenericElements/AutocompleteTags/
 import { isValidEmail } from "@followBack/Utils/validations";
 const screenWidth = Dimensions.get("window").width;
 
-const AutoCompleteTags: React.FC<IAutoCompleteTags> = ({
+const AutoCompleteTags = React.forwardRef<TextInput, IAutoCompleteTags>(({
   onChangeTags,
   onChangeText,
   tags,
@@ -19,8 +19,8 @@ const AutoCompleteTags: React.FC<IAutoCompleteTags> = ({
   isSuccess,
   onFocus,
   onBlur,
-  onTagPress
-}) => {
+  onTagPress,
+}, forwardedRef) => {
   const labelExtractor = (tag: any) => {
     return tag.address;
   };
@@ -60,15 +60,17 @@ const AutoCompleteTags: React.FC<IAutoCompleteTags> = ({
         },
         onKeyPress: (e: NativeSyntheticEvent<TextInputKeyPressEventData>) => {
           //To handle removing the last tag when the input text is empty and user clicks backspace
-          if (e.nativeEvent.key === 'Backspace' && !typedValue ){
-             const subtractedTags = [...tags];
-             subtractedTags.pop();
-             onChangeTags(subtractedTags);
+          if (e.nativeEvent.key === 'Backspace' && !typedValue) {
+            const subtractedTags = [...tags];
+            subtractedTags.pop();
+            onChangeTags(subtractedTags);
           }
         },
+        //@ts-ignore
+        ref: forwardedRef,
         value: typedValue,
         onFocus: onAutocompleteTextFocus,
-        onBlur: onAutocompleteTextBlue
+        onBlur: onAutocompleteTextBlue,
       }}
       tags={tags}
       inputStyle={styles.inputStyles}
@@ -99,7 +101,7 @@ const AutoCompleteTags: React.FC<IAutoCompleteTags> = ({
       flatListProps={{ style: styles.flatListStyle }}
     />
   );
-};
+});
 
 const useStyles = useStylesWithTheme((theme) => ({
   //Applied to the TextInput directly

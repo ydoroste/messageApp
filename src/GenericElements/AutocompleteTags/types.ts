@@ -20,5 +20,5 @@ export interface IAutoCompleteTags {
   typedValue: string;
   onFocus?: ((e: NativeSyntheticEvent<TextInputFocusEventData>) => void);
   onBlur?: ((e: NativeSyntheticEvent<TextInputFocusEventData>) => void);
-  onTagPress: (tag: string) => void
+  onTagPress: (tag: string) => void;
 }
