@@ -1,40 +1,59 @@
 import * as React from "react";
 import Typography from "@followBack/GenericElements/Typography";
-import {StyleSheet, View} from "react-native";
+import { StyleSheet, View } from "react-native";
 import IconButton from "@followBack/GenericElements/IconButton";
 import useTheme from "@followBack/Hooks/useTheme";
-import {ITagProps} from "@followBack/GenericElements/AutocompleteTags/types";
+import { ITagProps } from "@followBack/GenericElements/AutocompleteTags/types";
 import useStylesWithTheme from "@followBack/Hooks/useStylesWithTheme";
 
-const Tag: React.FC<ITagProps> = ({tag, onPress}) => {
-    const {colors} = useTheme();
+const Tag: React.FC<ITagProps> = ({ tag, onPress }) => {
+    const { colors } = useTheme();
     const { styles } = useStyles();
-    
+
+    const tagParcer = (tag: string): string => {
+        const parceStartIndex = tag.indexOf("@");
+        const parcedTag = tag.slice(0, parceStartIndex);
+        return parcedTag
+    };
+
     return (
         <View style={styles.container}>
-            <Typography color="primary" textDecoration="underline" type="mediumRegularBody">
-                {tag}
+            <Typography color="primary" type="mediumRegularBody">
+                {tagParcer(tag)}
             </Typography>
-            <View style={styles.iconStyle}>
-            <IconButton onPress={onPress} name="close" width={10} height={11} color={colors.white}/>
+            <View style={styles.iconContainer}>
+                <IconButton onPress={() => onPress(tag)} name="close" width={7} height={7} color={colors.white} />
             </View>
-
         </View>
     )
 };
 export default Tag;
 
-const useStyles = useStylesWithTheme((theme) =>({
+const useStyles = useStylesWithTheme((theme) => ({
     container: {
         paddingHorizontal: 5,
         justifyContent: "center",
         alignItems: "center",
         flexDirection: "row",
         alignSelf: "flex-start",
-        backgroundColor: theme.colors.gray02
+        backgroundColor: "gray",
+        borderRadius: 5,
+        position: "relative",
+        height: 25,
+        marginHorizontal: 3,
+        marginVertical: 4
     },
-    iconStyle: {
-        marginTop: 2,
-        marginLeft: 2
+    iconContainer: {
+        position: "absolute",
+        backgroundColor: theme.colors.black,
+        top: -10,
+        height: 14,
+        width: 14,
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        borderRadius: 7,
+        right: -8
+
     }
 }));

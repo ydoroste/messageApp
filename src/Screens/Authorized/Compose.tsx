@@ -10,13 +10,14 @@ import {
   TouchableHighlight,
   TouchableOpacity,
   View,
+  ScrollView
 } from "react-native";
 import useTheme from "@followBack/Hooks/useTheme";
 import Button from "@followBack/GenericElements/Button";
 import InputField from "@followBack/GenericElements/InputField";
 import Divider from "@followBack/GenericElements/Divider";
 import { AuthorizedScreensEnum } from "@followBack/Navigation/Authorized/constants";
-import { ComposeAutoComplete } from "@followBack/Elements/ComposeAutoComplete";
+import ComposeAutoComplete from "@followBack/Elements/ComposeAutoComplete/composeAutoComplete.index";
 import { useCompose } from "@followBack/Hooks/Apis/Compose";
 import { IComposeApiRequest } from "@followBack/Apis/Compose/types";
 import { isValidEmail } from "@followBack/Utils/validations";
@@ -40,8 +41,7 @@ const initialState = {
   subject: "",
   mail: "",
   showSubject: true,
-  showCC: false,
-  showBcc: false,
+  showCcBcc: false,
 };
 
 const reducer = (state, { type, payload }) => {
@@ -71,11 +71,10 @@ const Compose: React.FC = ({ navigation }) => {
     mail,
     subject,
     showSubject,
-    showCC,
-    showBcc,
+    showCcBcc,
   } = state;
 
-  const setKeyValue = ({ key, value }) => {
+  const setKeyValue = ({ key, value }: { key: string, value: any }) => {
     dispatch({
       type: SET_KEY_VALUE,
       payload: { key, value },
@@ -84,7 +83,7 @@ const Compose: React.FC = ({ navigation }) => {
 
   const { colors } = useTheme();
 
-  const formatTags = (tags) => tags.map((mail) => ({ address: mail.trim() }));
+  const formatTags = (tags: string[]) => tags.map((mail) => ({ address: mail.trim() }));
 
   const formattedToTags = formatTags(toTags);
   const formattedCcTags = formatTags(ccTags);
@@ -120,16 +119,16 @@ const Compose: React.FC = ({ navigation }) => {
   const onPressCompose = async () => {
     if (!subject || toTags.length < 0) return;
     const { data } = await refetch();
-    console.log("data", data.thread)
+    console.log("data", data)
     if (data?.["success"]) {
-      navigation.navigate(AuthorizedScreensEnum.composeStack, {
-        screen: AuthorizedScreensEnum.threadDetails,
-        params: { id: data?.thread },
+      navigation.navigate(AuthorizedScreensEnum.threadsListStack, {
+        screen: AuthorizedScreensEnum.threadsList,
+        params: { id: data.thread },
       });
     }
   };
 
-  const onChangeMailContent = ({ value }) => {
+  const onChangeMailContent = ({ value }: { value: any }) => {
     setKeyValue({ key: "mail", value });
   };
 
@@ -141,7 +140,7 @@ const Compose: React.FC = ({ navigation }) => {
       style={{ flex: 1, backgroundColor: colors.black }}
     >
       <Pressable onPress={Keyboard.dismiss} style={styles.container}>
-        <View>
+        <View >
           <View style={styles.header}>
             <IconButton
               name="back"
@@ -195,72 +194,57 @@ const Compose: React.FC = ({ navigation }) => {
                   }
                   type={"to"}
                 />
-
               </View>
               {toFieldIsFocused && <View style={styles.ccBcButtonsContainer}>
                 <Button
                   onPress={() =>
-                    setKeyValue({ key: "showCC", value: !showCC })
+                    setKeyValue({ key: "showCcBcc", value: !showCcBcc })
                   }
                   type="mediumTernary"
                 >
-                  cc/
-                </Button>
-                <Button
-                  onPress={() =>
-                    setKeyValue({ key: "showBcc", value: !showBcc })
-                  }
-                  type="mediumTernary"
-                >
-                  bcc
+                  cc/bcc
                 </Button>
               </View>}
             </View>
 
-            {showCC && (
-              <View style={styles.flexCenter}>
-                <View style={styles.fieldtitle}>
-                  <Typography color="primary" type="largeRegularBody">
-                    cc:{" "}
-                  </Typography>
+            {showCcBcc && (
+              <>
+                <View style={styles.ccFieldContainer}>
+                  <View style={styles.fieldtitle}>
+                    <Typography color="primary" type="largeRegularBody">
+                      cc:{" "}
+                    </Typography>
+                  </View>
+                  <View style={styles.input}>
+                    <ComposeAutoComplete
+                      searchValue={ccSearchValue}
+                      setSearchValue={(text) => setKeyValue({ key: "ccSearchValue", value: text })}
+                      tags={ccTags}
+                      setTags={(tags) => setKeyValue({ key: "ccTags", value: tags })}
+                      type={"cc"} />
+                  </View>
                 </View>
-                <View style={styles.input}>
-                  <ComposeAutoComplete
-                    searchValue={ccSearchValue}
-                    setSearchValue={(text) =>
-                      setKeyValue({ key: "ccSearchValue", value: text })
-                    }
-                    tags={ccTags}
-                    setTags={(tags) =>
-                      setKeyValue({ key: "ccTags", value: tags })
-                    }
-                    type={"cc"}
-                  />
+                <View style={styles.bcFieldContainer}>
+                  <View style={styles.fieldtitle}>
+                    <Typography color="primary" type="largeRegularBody">
+                      bcc:{" "}
+                    </Typography>
+                  </View>
+                  <View style={styles.input}>
+                    <ComposeAutoComplete
+                      searchValue={bccSearchValue}
+                      setSearchValue={(text) =>
+                        setKeyValue({ key: "bccSearchValue", value: text })
+                      }
+                      tags={bccTags}
+                      setTags={(tags) =>
+                        setKeyValue({ key: "bccTags", value: tags })
+                      }
+                      type={"bcc"}
+                    />
+                  </View>
                 </View>
-              </View>
-            )}
-
-            {showBcc && (
-              <View style={styles.flexCenter}>
-                <View style={styles.fieldtitle}>
-                  <Typography color="primary" type="largeRegularBody">
-                    bcc:{" "}
-                  </Typography>
-                </View>
-                <View style={styles.input}>
-                  <ComposeAutoComplete
-                    searchValue={bccSearchValue}
-                    setSearchValue={(text) =>
-                      setKeyValue({ key: "bccSearchValue", value: text })
-                    }
-                    tags={bccTags}
-                    setTags={(tags) =>
-                      setKeyValue({ key: "bccTags", value: tags })
-                    }
-                    type={"bcc"}
-                  />
-                </View>
-              </View>
+              </>
             )}
 
             <Divider />
@@ -299,6 +283,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 20,
     justifyContent: "space-between",
+    position: "relative"
   },
   header: {
     display: "flex",
@@ -311,22 +296,25 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "flex-end",
   },
-
   fieldsContainer: {
   },
-
   input: {
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
     width: 200,
   },
-  flexCenter: {
+  ccFieldContainer: {
     flexDirection: "row",
     alignItems: "flex-start",
-    zIndex: 2
+    zIndex: 9,
+    marginBottom: 2
   },
-
+  bcFieldContainer: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    zIndex: 8
+  },
   subjectFieldContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -334,6 +322,8 @@ const styles = StyleSheet.create({
   toFieldContainer: {
     flexDirection: "row",
     alignItems: "flex-start",
+    zIndex: 10,
+    marginBottom: 2
   },
   fieldtitle: {
     paddingTop: 4

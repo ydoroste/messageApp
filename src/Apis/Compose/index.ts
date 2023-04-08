@@ -11,6 +11,7 @@ export const snatizeComposeApi = (request: IComposeApiRequest) => {
   const toBeSnatizedKeys = ["cc", "bcc"];
   return Object.keys(request).reduce((acc, key) => {
     if (toBeSnatizedKeys.includes(key) && request?.[key].length === 0) return acc;
+    //@ts-ignore
     acc[key] = request[key];
     return acc;
   }, {}) as IComposeApiRequest;
@@ -27,9 +28,5 @@ export const composeApi = async (request: IComposeApiRequest) => {
       },
     }
   )
-    .then((res) => {
-      return res.data;
-    })
-    .catch((e) => {
-    });
+    .then((res) =>  res.data)
 };

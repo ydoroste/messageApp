@@ -1,4 +1,4 @@
-import { Dimensions, NativeSyntheticEvent, TextInputFocusEventData, View } from "react-native";
+import { Dimensions, NativeSyntheticEvent, TextInputFocusEventData, TextInputKeyPressEventData, View } from "react-native";
 import CustomAutocompleteTags from "react-native-autocomplete-tags";
 import * as React from "react";
 import Tag from "./Tag";
@@ -6,9 +6,9 @@ import Suggestion from "@followBack/GenericElements/AutocompleteTags/Suggestion"
 import useTheme from "@followBack/Hooks/useTheme";
 import useStylesWithTheme from "@followBack/Hooks/useStylesWithTheme";
 import { IAutoCompleteTags } from "@followBack/GenericElements/AutocompleteTags/types";
-import { Value } from "react-native-reanimated";
 import { isValidEmail } from "@followBack/Utils/validations";
 const screenWidth = Dimensions.get("window").width;
+
 const AutoCompleteTags: React.FC<IAutoCompleteTags> = ({
   onChangeTags,
   onChangeText,
@@ -18,13 +18,16 @@ const AutoCompleteTags: React.FC<IAutoCompleteTags> = ({
   isLoading,
   isSuccess,
   onFocus,
-  onBlur
+  onBlur,
+  onTagPress
 }) => {
-  const labelExtractor = (tag: string) => tag;
+  const labelExtractor = (tag: any) => {
+    return tag.address;
+  };
   const { colors } = useTheme();
   const { styles } = useStyles();
   const parseChars = [",", " "];
-  const [isBlured, setIsBlured] = React.useState(false);
+  const [isBlured, setIsBlured] = React.useState(true);
 
   const onAutocompleteTextBlue = (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
     onBlur && onBlur(e);
@@ -49,11 +52,18 @@ const AutoCompleteTags: React.FC<IAutoCompleteTags> = ({
           if (parseChars.includes(lastChar)) {
             const mail = text.slice(0, lastCharIndex);
             if (!isValidEmail(mail)) return;
-
             onChangeTags([...tags, text]);
             onChangeText("");
           } else {
             onChangeText(text);
+          }
+        },
+        onKeyPress: (e: NativeSyntheticEvent<TextInputKeyPressEventData>) => {
+          //To handle removing the last tag when the input text is empty and user clicks backspace
+          if (e.nativeEvent.key === 'Backspace' && !typedValue ){
+             const subtractedTags = [...tags];
+             subtractedTags.pop();
+             onChangeTags(subtractedTags);
           }
         },
         value: typedValue,
@@ -69,45 +79,52 @@ const AutoCompleteTags: React.FC<IAutoCompleteTags> = ({
       containerStyle={styles.containerStyles}
       suggestions={suggestions}
       onChangeTags={(tags) => {
-        onChangeTags(tags);
       }}
       labelExtractor={labelExtractor}
       renderSuggestion={(suggestion, onPress) => (
-        <View style={{zIndex: 10000}}>
-          {!isBlured && <Suggestion 
-          onPress={() => {
-            onChangeText("");
-            onChangeTags([...tags, suggestion.address]);
-          }}
-          suggestion={suggestion}
-        />}
-
+        <View key={suggestion.address}
+          style={{ zIndex: 10000 }}>
+          {!isBlured && <Suggestion key={suggestion.name}
+            onPress={() => {
+              onChangeText("");
+              onChangeTags([...tags, suggestion.address]);
+            }}
+            suggestion={suggestion}
+          />}
         </View>
-        
+
       )}
-      renderTag={(tag, onPress) => <Tag onPress={onPress} tag={tag} key={Math.random()} />}
-      tagContainerStyle={{flexDirection: "row", display: "flex", justifyContent: "flex-start"}}
-      flatListProps={{style:styles.listStyle}}
-      // flatListStyle={styles.listStyle}
+      renderTag={(tag) => <Tag onPress={onTagPress} tag={tag} key={tag} />}
+      tagContainerStyle={{ flexDirection: "row", display: "flex", justifyContent: "flex-start" }}
+      flatListProps={{ style: styles.flatListStyle }}
     />
   );
 };
+
 const useStyles = useStylesWithTheme((theme) => ({
+  //Applied to the TextInput directly
   inputStyles: {
     color: theme.colors.white,
+    fontSize: theme.fontSizes.medium,
+    lineHeight: theme.lineHeights.medium,
+    minHeight: 27
   },
+  //style for the outer-most View that houses both the tagContainer and suggestion list
   containerStyles: {
     zIndex: 10,
     borderRadius: 15,
   },
-  listStyle: {
+  //Applied to the FlatList which renders suggestions
+  flatListStyle: {
     backgroundColor: theme.colors.dark02,
     borderRadius: 15,
-    marginTop: 10,
+    marginTop: 5,
     width: screenWidth - 40,
     marginLeft: -23,
     position: "absolute",
-    zIndex: 10,
+    zIndex: 1000,
+    maxHeight: 150,
   },
 }));
+
 export default AutoCompleteTags;

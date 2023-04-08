@@ -14,5 +14,16 @@ export interface IComposeApiRequest {
 
 export interface IComposeApiResponse {
   success: boolean;
+  data: IComposeResponseData
   message?: string;
+}
+
+export interface IComposeResponseData {
+  message: string;
+  modseq: number;
+  msgid: string;
+  success: string;
+  thread: string;
+  uid: string;
+  unseen: boolean;
 }

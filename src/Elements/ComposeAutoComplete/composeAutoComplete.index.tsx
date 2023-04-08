@@ -1,7 +1,10 @@
 import React, { useState } from "react";
 import AutoCompleteTags from "@followBack/GenericElements/AutocompleteTags";
 import { useFecthContactsList } from "@followBack/Hooks/Apis/ContactsList";
-export const ComposeAutoComplete = ({searchValue, setSearchValue, tags, setTags, type, onFocus, onBlur }) => {
+import { IComposeAutoComplete } from "./composeAutoComplete.types";
+
+
+const ComposeAutoComplete: React.FC<IComposeAutoComplete> = ({searchValue, setSearchValue, tags, setTags, type, onFocus, onBlur }) => {
   const { isSuccess, isError, isLoading, data } = useFecthContactsList({
     type,
     searchValue,
@@ -11,8 +14,12 @@ export const ComposeAutoComplete = ({searchValue, setSearchValue, tags, setTags,
     setSearchValue(searchValue);
   };
 
-  const suggestions = data?.filter(({ address }) => !tags.includes(address));
-  const hasSuggestions = suggestions?.length > 0;
+  const suggestions = data?.filter(({ address }) => !tags.includes(address)) || [];
+
+  const onTagPress = (pressedTag: string) => {
+     const subtractedTags = tags.filter(tag => tag !== pressedTag);
+     setTags(subtractedTags);
+  };
 
   return (
     <AutoCompleteTags
@@ -22,11 +29,14 @@ export const ComposeAutoComplete = ({searchValue, setSearchValue, tags, setTags,
       tags={tags}
       onBlur={onBlur}
       onFocus={onFocus}
-      suggestions={hasSuggestions ? suggestions : []}
+      suggestions={suggestions}
       onChangeTags={(tags) => {
         setTags(tags);
       }}
       onChangeText={onChangeText}
+      onTagPress={onTagPress}
     />
   );
 };
+
+export default ComposeAutoComplete;
