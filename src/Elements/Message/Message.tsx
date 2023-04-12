@@ -50,9 +50,12 @@ const Message = ({ item }) => {
 };
 
 const useStyles = useStylesWithTheme((theme) => ({
-  container: {},
+  container: {
+    // paddingVertical: 5
+    marginBottom: 16
+  },
   date: {
-    marginBottom: 30,
+    marginBottom: 12,
     flexDirection: "row",
     justifyContent: "center",
     textAlign: "center",

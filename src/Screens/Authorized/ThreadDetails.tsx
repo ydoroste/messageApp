@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { View, KeyboardAvoidingView, Platform, StyleSheet } from "react-native";
+import { View, KeyboardAvoidingView, Platform, StyleSheet, TouchableHighlight, Pressable, Keyboard } from "react-native";
 import useTheme from "@followBack/Hooks/useTheme";
 import { SafeAreaView } from "react-native-safe-area-context";
-import ThreadDetailsHeader from "@followBack/Elements/Headers/Authorized/ThreadDetailsHeader/ThreadDetailsHeader";
 import { useFetchThreadMessages } from "@followBack/Hooks/Apis/ThreadMessages";
 import { FlatList } from "react-native-bidirectional-infinite-scroll";
 import Message from "@followBack/Elements/Message/Message";
 import Typography from "@followBack/GenericElements/Typography";
 import MailSender from "@followBack/Elements/MailSender/MailSender";
+import { useMailBoxes } from "@followBack/Hooks/useMailboxes";
+import ThreadDetailsHeader from "@followBack/Elements/Headers/Authorized/ThreadDetailsHeader/threadDetailsHeader.index";
 
 const Compose: React.FC = ({ navigation, options, route }) => {
   const { id } = route.params;
@@ -16,6 +17,7 @@ const Compose: React.FC = ({ navigation, options, route }) => {
 
   const [mail, setMail] = useState("");
   const onChangeMailContent = ({ value }) => setMail(value);
+  const { sentMailThread } = useMailBoxes();
   const { data, isLoading, isError, isSuccess, hasNextPage, fetchNextPage } =
     useFetchThreadMessages({ id });
 
@@ -24,7 +26,7 @@ const Compose: React.FC = ({ navigation, options, route }) => {
       fetchNextPage();
     }
   };
-
+console.log("data from thread details", data)
   useEffect(() => {
     if (!data) return;
     const flattenData = !!data?.pages
@@ -53,7 +55,8 @@ const Compose: React.FC = ({ navigation, options, route }) => {
       keyboardVerticalOffset={100}
       style={{ flex: 1, backgroundColor: colors.black }}
     >
-      <SafeAreaView style={styles.container}>
+      <View style={styles.container}>
+
         {hasData && (
           <ThreadDetailsHeader
             chatUsers={chatUsers}
@@ -79,13 +82,14 @@ const Compose: React.FC = ({ navigation, options, route }) => {
             />
           )}
         </View>
-      </SafeAreaView>
+        <MailSender
+          mail={mail}
+          onChangeMailContent={onChangeMailContent}
+          onPressCompose={() => console.log("send")}
+        />
+      </View>
 
-      <MailSender
-        mail={mail}
-        onChangeMailContent={onChangeMailContent}
-        onPressCompose={() => console.log("send")}
-      />
+
     </KeyboardAvoidingView>
   );
 };
@@ -96,9 +100,12 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 20,
   },
+  titleText: {
+    height: 25,
 
+  },
   chatWrapper: {
     flex: 1,
-    marginTop: 45,
+    // marginTop: 20,
   },
 });
