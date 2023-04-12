@@ -50,7 +50,7 @@ const ThreadsListStack = () => {
       <Stack.Screen
         name="threadsList"
         component={ThreadsList}
-        options={{ header: (props) => <MailBoxHeader {...props} /> }}
+        options={{ header: (props) => <MailBoxHeader hideSearch {...props} /> }}
       />
 
       <Stack.Screen
@@ -68,7 +68,7 @@ const Authorized = () => {
   const { colors } = useTheme();
   const { data, isSuccess } = useMailBoxes();
   return (
-    <View style={{ flex: 1, paddingTop: 70, backgroundColor: colors.black }}>
+    <View style={{ flex: 1, paddingTop: 40, backgroundColor: colors.black }}>
       <SearchProvider>
         <Drawer.Navigator
           initialRouteName={AuthorizedScreensEnum.threadDetails}

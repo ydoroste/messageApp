@@ -1,42 +1,57 @@
 import Typography from "@followBack/GenericElements/Typography";
-import React, { useCallback, useEffect } from "react";
-import { KeyboardAvoidingView, Platform, StyleSheet, View } from "react-native";
-import { useFocusEffect } from "@react-navigation/native";
+import React, {memo, useCallback, useEffect, useState} from "react";
+import { KeyboardAvoidingView, Platform, Pressable, StyleSheet, View } from "react-native";
 
 import useTheme from "@followBack/Hooks/useTheme";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { FlashList } from "@shopify/flash-list";
 import ThreadCard from "@followBack/Elements/ThreadCard";
 import { useFetchthreadsList } from "@followBack/Hooks/Apis/ThreadsList";
 import { useSearch } from "@followBack/Hooks/useSearch";
-import { TouchableOpacity } from "react-native-gesture-handler";
 import { AuthorizedScreensEnum } from "@followBack/Navigation/Authorized/constants";
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import {
+  authorizedStackNavigationProps} from "@followBack/Navigation/Authorized/types";
+import {useMailBoxes} from "@followBack/Hooks/useMailboxes";
 
-const Compose: React.FC = ({ navigation, route }) => {
-  const { id, path } = route.params;
+let timer;
+const ThreadList: React.FC = () => {
+  const nav = useNavigation<authorizedStackNavigationProps['navigation']>();
+   //route = useRoute<authorizedStackNavigationProps['route']>();
+  const {data: mail} = useMailBoxes();
+  const {id, path} = mail?.mailboxes?.find(t => t.path === "INBOX");
+ // const { id, path } = route.params as IThreadListState;
   const { colors } = useTheme();
   const { searchValue } = useSearch();
   const [isIitialLoading, setIsInitialLoading] = React.useState(true);
   const [threadsList, setthreadsList] = React.useState([]);
+  const [refetchData, setRefetchData] = useState(false);
   const { data, isLoading, isError, isSuccess, hasNextPage, fetchNextPage } =
-    useFetchthreadsList({ id, searchValue });
-
+    useFetchthreadsList({ id, searchValue, refetchData });
   const loadNextPageData = () => {
     if (hasNextPage) {
       fetchNextPage();
     }
   };
-
   React.useEffect(() => {
     if (!isIitialLoading) return;
     setIsInitialLoading(isLoading);
   }, [isLoading]);
 
+  useFocusEffect(
+
+      useCallback(() => {
+        setRefetchData(true);
+        return () => {
+          setRefetchData(false);
+        };
+      }, [])
+  );
+
   React.useEffect(() => {
     if (typeof data === typeof undefined) return;
 
     const flattenData = !!data?.pages
-      ? data.pages.flatMap((page) => page.data)
+      ? data.pages.flatMap((page) => page?.data)
       : [];
 
     setthreadsList(flattenData);
@@ -45,13 +60,21 @@ const Compose: React.FC = ({ navigation, route }) => {
 
   if (isError)
     return (
-      <Typography color="secondary" type="smallBoldBody">
+        <View style={styles.emptyOrErrorMessageContainer}>
+      <Typography color="secondary" type="largeRegularBody">
         An error occurred while fetching data
       </Typography>
+        </View>
     );
 
   const isEmptyList = threadsList.length === 0;
-
+  if(isEmptyList){
+   return <View style={styles.emptyOrErrorMessageContainer}>
+    <Typography color="secondary" type="largeRegularBody">
+      no results
+    </Typography>
+    </View>
+  }
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : undefined}
@@ -71,7 +94,7 @@ const Compose: React.FC = ({ navigation, route }) => {
             : styles.searchCountWrapper
         }
       >
-        {isSuccess && (
+      {isSuccess && !!searchValue && (
           <Typography type="largeRegularBody" color="secondary">
             {threadsList.length} search results{" "}
           </Typography>
@@ -79,37 +102,44 @@ const Compose: React.FC = ({ navigation, route }) => {
       </View>
 
       {isSuccess && !!threadsList && !isEmptyList && (
-        <SafeAreaView style={styles.container}>
+        <View style={styles.container}>
           <FlashList
+              contentContainerStyle={{paddingRight: 10}}
             keyExtractor={(item) => item.threadId}
-            data={threadsList}
+              scrollIndicatorInsets={{right:1}}
+              data={threadsList}
             renderItem={({ item }) => (
-              <TouchableOpacity
+              <Pressable
+                  style={({pressed})=>({
+                    opacity: pressed ? 0.7 : 1,
+                    marginVertical: 10
+                  })}
                 onPress={() => {
-                  navigation.navigate(AuthorizedScreensEnum.threadsListStack, {
+                  nav.navigate(AuthorizedScreensEnum.threadsListStack, {
                     screen: AuthorizedScreensEnum.threadDetails,
                     params: { id: item.threadId },
                   });
                 }}
               >
                 <ThreadCard threadItem={item} />
-              </TouchableOpacity>
+              </Pressable>
             )}
             estimatedItemSize={100}
             onEndReached={loadNextPageData}
             onEndReachedThreshold={0.2}
           />
-        </SafeAreaView>
+        </View>
       )}
     </KeyboardAvoidingView>
   );
 };
-export default Compose;
+export default memo(ThreadList);
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 20,
+    backgroundColor: "black"
   },
   searchCountWrapper: {
     alignSelf: "center",
@@ -117,4 +147,11 @@ const styles = StyleSheet.create({
   moveSearchCounter: {
     marginTop: 50,
   },
+  emptyOrErrorMessageContainer: {
+    alignItems: "center",
+    flex: 1,
+    height: "100%",
+    backgroundColor: "black",
+    paddingTop: 50
+  }
 });

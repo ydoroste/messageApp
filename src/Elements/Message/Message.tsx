@@ -31,7 +31,7 @@ const Message = ({ item }) => {
     <View style={styles.container}>
       <View style={styles.date}>
         <Typography type="smallRegularBody" color="secondary">
-          {formatMessageDate(new Date(messageDateTime)).toLocaleLowerCase()}
+          {formatMessageDate(messageDateTime)}
         </Typography>
       </View>
 

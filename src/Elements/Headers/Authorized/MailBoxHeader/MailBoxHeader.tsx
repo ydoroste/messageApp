@@ -66,7 +66,6 @@ const AuthorizedHeader: React.FC<IAuthorizedHeaderProps> = ({
 const useStyles = useStylesWithTheme((theme) => ({
   headerStyle: {
     paddingHorizontal: 10,
-    paddingBottom: 16,
     backgroundColor: theme.colors.black,
   },
 
