@@ -258,9 +258,11 @@ const Compose: React.FC = ({ navigation }) => {
             <Divider />
 
             <View style={styles.subjectFieldContainer}>
+              <View style={{paddingVertical:8}}>
               <Typography color="primary" type="largeRegularBody">
                 subject:{" "}
               </Typography>
+              </View>
               <View style={styles.input}>
                 <InputField
                   hideBorder
@@ -298,6 +300,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     marginBottom: 10,
+    marginTop: Platform.OS === "ios" ? 20 : 0,
   },
   actionButtons: {
     display: "flex",

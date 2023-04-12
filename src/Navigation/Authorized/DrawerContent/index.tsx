@@ -24,7 +24,6 @@ const CustomDrawerContent = (props) => {
     deleteAccessToken();
     setIsAuthenticated(false);
   };
-
   return (
     <DrawerContentScrollView
       {...props}
@@ -47,25 +46,17 @@ const CustomDrawerContent = (props) => {
           })
         }
       />
-
-      {!!mailboxes &&
-        mailboxes.length > 0 &&
-        mailboxes.map(({ id, path, subscribed }) => {
-          return (
-            <DrawerItem
-              key={id}
-              label={path}
-              labelStyle={{ color: "#ffffff" }}
-              onPress={() =>
+        <DrawerItem
+            label={"Inbox"}
+            labelStyle={{ color: "#ffffff" }}
+            onPress={() =>
                 goToScreen({
-                  stackName: AuthorizedScreensEnum.threadsListStack,
-                  screenName: AuthorizedScreensEnum.threadsList,
-                  params: { id, path, subscribed },
+                    stackName: AuthorizedScreensEnum.threadsListStack,
+                    screenName: AuthorizedScreensEnum.threadsList,
+                  //  params: { id, path, subscribed },
                 })
-              }
-            />
-          );
-        })}
+            }
+        />
 
       <DrawerItem
         label="Logout"

@@ -40,9 +40,10 @@ console.log("data from thread details", data)
 
   if (!hasData)
     return (
-      <Typography type="smallRegularBody" color="secondary">
-        Loading
-      </Typography>
+        <View style={styles.emptyOrErrorMessageContainer}>
+          <Typography color="secondary" type="largeRegularBody">
+            Loading          </Typography>
+        </View>
     );
 
   const firstMessage = flattenData[0];
@@ -108,4 +109,12 @@ const styles = StyleSheet.create({
     flex: 1,
     // marginTop: 20,
   },
+  emptyOrErrorMessageContainer: {
+    alignItems: "center",
+    flex: 1,
+    height: "100%",
+    backgroundColor: "black",
+    paddingTop: 50
+  }
+
 });

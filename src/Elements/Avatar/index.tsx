@@ -30,7 +30,7 @@ const AvatarItem: React.FC<IAvatarProps> = ({ users }) => {
           ? [styles.center, styles.firstUserAvatarPosiion]
           : [styles.center, styles.othersAvatarPosition];
 
-        const avatarSize = hasTwoUsers ? 25 : 55;
+        const avatarSize = hasTwoUsers ? 34 : 55;
 
         return (
           <View key={index} style={currentContainerStyles}>
@@ -48,7 +48,7 @@ const AvatarItem: React.FC<IAvatarProps> = ({ users }) => {
 
             {isOthers && (
               <Text style={userInitialsStyles}>
-                {hasTwoUsers ? firstChar : users.length - 1}
+                {hasTwoUsers ? firstChar : `+${users.length - 1}`}
               </Text>
             )}
           </View>
@@ -75,9 +75,9 @@ const useStyles = useStylesWithTheme((theme) => ({
   },
 
   multiUsersContainer: {
-    borderRadius: 40 / 2,
-    width: 40,
-    height: 40,
+    borderRadius: 34 / 2,
+    width: 34,
+    height: 34,
     backgroundColor: theme.colors.grey01,
     position: "relative",
   },
@@ -91,12 +91,14 @@ const useStyles = useStylesWithTheme((theme) => ({
 
   othersAvatarPosition: {
     position: "absolute",
-    top: 40 / 2,
+    top: 34 / 2,
     backgroundColor: theme.colors.grey01,
-    left: 40/ 2,
-    borderRadius: 25 / 2,
-    width: 25,
-    height: 25,
+    left: 34/ 2,
+    borderRadius: 34 / 2,
+    width: 34,
+    height: 34,
+    borderColor: theme.colors.black,
+    borderWidth: 1
   },
 
 
