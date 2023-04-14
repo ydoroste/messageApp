@@ -19,11 +19,12 @@ const ThreadDetailsHeader: React.FC<ThreadDetailsHeaderProps> = ({
 }) => {
   const { isLoading, userDetails } = useUserDetails();
   const { sentMailThread } = useMailBoxes();
+ 
   const onBackButtonPress = () => {
-    if (navigation.canGoBack()) return navigation.goBack();
+    if (navigation?.canGoBack()) return navigation?.goBack();
             if (!sentMailThread) return;
 
-            navigation.navigate(
+            navigation?.navigate(
               AuthorizedScreensEnum.threadsListStack,
               {
                 screen: AuthorizedScreensEnum.threadsList,
@@ -47,13 +48,13 @@ const ThreadDetailsHeader: React.FC<ThreadDetailsHeaderProps> = ({
         />
         <View style={styles.headerTitleContainer}>
           <View style={styles.textContainer}>
-            <Typography type="mediumBoldTitle" color={"primary"}>{receiver}</Typography>
+            <Typography type="mediumBoldTitle" textAlign="center" color={"primary"}>{receiver}</Typography>
           </View>
           <View style={styles.textContainer}>
-            <Typography type="largeBoldBody" color={"secondary"} >{subject}</Typography>
+            <Typography type="largeBoldBody" textAlign="center" color={"secondary"} >{subject}</Typography>
           </View>
 
-          <Typography  type="smallRegularBody" color={"secondary"} >{firtMessageDate}</Typography>
+          <Typography  type="smallRegularBody" textAlign="center" color={"secondary"} >{firtMessageDate}</Typography>
         </View>
 
         <TouchableHighlight activeOpacity={1} style={{ borderRadius: 12 }}
@@ -77,7 +78,7 @@ const useStyles = useStylesWithTheme((theme) => ({
     alignItems: "center"
   },
   textContainer: {
-    marginBottom: 10
+    marginBottom: 10,
   },
 }));
 

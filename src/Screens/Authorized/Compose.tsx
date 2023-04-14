@@ -86,7 +86,6 @@ const Compose: React.FC = ({ navigation }) => {
   const { colors } = useTheme();
 
   const formatTags = (tags: string[]) => tags.map((mail) => ({ address: mail.trim() }));
-
   const formattedToTags = formatTags(toTags);
   const formattedCcTags = formatTags(ccTags);
   const formattedBccTags = formatTags(bccTags);
@@ -125,8 +124,9 @@ const Compose: React.FC = ({ navigation }) => {
   const onPressCompose = async () => {
     if (!subject || toTags.length < 0) return;
     const { data } = await refetch();
-    console.log("data", data)
+    
     if (data?.["success"]) {
+      console.log("data", data)
       navigation.navigate(AuthorizedScreensEnum.composeStack, {
         screen: AuthorizedScreensEnum.threadDetails,
         params: { id: data.thread },

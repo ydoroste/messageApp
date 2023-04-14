@@ -5,21 +5,16 @@ import IconButton from "@followBack/GenericElements/IconButton";
 import useTheme from "@followBack/Hooks/useTheme";
 import { ITagProps } from "@followBack/GenericElements/AutocompleteTags/types";
 import useStylesWithTheme from "@followBack/Hooks/useStylesWithTheme";
+import { emailNameParcer } from "@followBack/Utils/email";
 
 const Tag: React.FC<ITagProps> = ({ tag, onPress }) => {
     const { colors } = useTheme();
     const { styles } = useStyles();
 
-    const tagParcer = (tag: string): string => {
-        const parceStartIndex = tag.indexOf("@");
-        const parcedTag = tag.slice(0, parceStartIndex);
-        return parcedTag
-    };
-
     return (
         <View style={styles.container}>
             <Typography color="primary" type="mediumRegularBody">
-                {tagParcer(tag)}
+                {emailNameParcer(tag)}
             </Typography>
             <View style={styles.iconContainer}>
                 <IconButton onPress={() => onPress(tag)} name="close" width={7} height={7} color={colors.white} />

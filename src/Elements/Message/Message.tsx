@@ -5,11 +5,15 @@ import { formatMessageDate } from "@followBack/Utils/date";
 import useStylesWithTheme from "@followBack/Hooks/useStylesWithTheme";
 import { useUserDetails } from "@followBack/Hooks/useUserDetails";
 import { excludeUser } from "@followBack/Utils/messages";
+import { emailNameParcer } from "@followBack/Utils/email";
+
 
 const Message = ({ item }) => {
   const { styles } = useStyles();
   const { text, to, from, messageDateTime } = item;
   const { userDetails } = useUserDetails();
+  const isOwnMessage = userDetails.user_name === emailNameParcer(item?.from?.address);
+  console.log("isOwnMessage", isOwnMessage)
   const chatUsers = [...to, from];
 
   const others = excludeUser({
@@ -27,7 +31,7 @@ const Message = ({ item }) => {
     : [styles.contentContainer, styles.groupContentContainer];
 
   return (
-    <View style={styles.container}>
+    <View style={{...styles.container,...(isOwnMessage ?{ marginLeft: "auto"} : {marginRight: "auto"})}}>
       <View style={styles.date}>
         <Typography type="smallRegularBody" color="secondary">
           {formatMessageDate(messageDateTime)}
@@ -51,7 +55,7 @@ const Message = ({ item }) => {
 const useStyles = useStylesWithTheme((theme) => ({
   container: {
     // paddingVertical: 5
-    marginBottom: 16
+    marginBottom: 16,
   },
   date: {
     marginBottom: 12,
