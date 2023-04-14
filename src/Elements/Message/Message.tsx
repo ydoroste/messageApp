@@ -10,7 +10,6 @@ const Message = ({ item }) => {
   const { styles } = useStyles();
   const { text, to, from, messageDateTime } = item;
   const { userDetails } = useUserDetails();
-
   const chatUsers = [...to, from];
 
   const others = excludeUser({

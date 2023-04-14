@@ -9,6 +9,10 @@ import Typography from "@followBack/GenericElements/Typography";
 import MailSender from "@followBack/Elements/MailSender/MailSender";
 import { useMailBoxes } from "@followBack/Hooks/useMailboxes";
 import ThreadDetailsHeader from "@followBack/Elements/Headers/Authorized/ThreadDetailsHeader/threadDetailsHeader.index";
+import { excludeUser } from "@followBack/Utils/messages";
+import { useUserDetails } from "@followBack/Hooks/useUserDetails";
+import { getThreadParticipantsUserName } from "@followBack/Utils/stringUtils";
+import { formatMessageDate } from "@followBack/Utils/date";
 
 const Compose: React.FC = ({ navigation, options, route }) => {
   const { id } = route.params;
@@ -16,9 +20,10 @@ const Compose: React.FC = ({ navigation, options, route }) => {
   const { colors } = useTheme();
 
   const [mail, setMail] = useState("");
+  const { userDetails } = useUserDetails();
   const onChangeMailContent = ({ value }) => setMail(value);
   const { sentMailThread } = useMailBoxes();
-  const { data, isLoading, isError, isSuccess, hasNextPage, fetchNextPage } =
+  const { data, isLoading, isError, isSuccess, hasNextPage, fetchNextPage, refetch } =
     useFetchThreadMessages({ id });
 
   const loadNextPageData = async () => {
@@ -26,29 +31,38 @@ const Compose: React.FC = ({ navigation, options, route }) => {
       fetchNextPage();
     }
   };
-console.log("data from thread details", data)
+
   useEffect(() => {
-    if (!data) return;
+    if (!data) {
+      refetch();
+      return;
+    };
     const flattenData = !!data?.pages
       ? data.pages.flatMap((page) => page.data)
       : [];
-
-    setFlattenData(flattenData);
+    setFlattenData(flattenData.reverse());
   }, [data]);
 
+
   const hasData = flattenData.length > 0;
-
-  if (!hasData)
-    return (
-        <View style={styles.emptyOrErrorMessageContainer}>
-          <Typography color="secondary" type="largeRegularBody">
-            Loading          </Typography>
-        </View>
-    );
-
   const firstMessage = flattenData[0];
-  const chatUsers = [...firstMessage.to, firstMessage.from];
-  const { subject } = firstMessage;
+  const others = hasData ? excludeUser({
+    users: [firstMessage?.from, ...firstMessage?.to],
+    userAddress: userDetails.email,
+  }) : "";
+  const receiver = hasData ? getThreadParticipantsUserName(others) : "";
+  const subject = hasData ? firstMessage?.subject : "";
+  const firstMessageDate = hasData ? formatMessageDate(firstMessage?.messageDateTime) : "";
+
+
+  if (!hasData) {
+    return (
+      <View style={styles.emptyOrErrorMessageContainer}>
+        <Typography color="secondary" type="largeRegularBody">
+          Loading          </Typography>
+      </View>
+    );
+  }
 
   return (
     <KeyboardAvoidingView
@@ -60,11 +74,10 @@ console.log("data from thread details", data)
 
         {hasData && (
           <ThreadDetailsHeader
-            chatUsers={chatUsers}
+            receiver={receiver}
             subject={subject}
+            firtMessageDate={firstMessageDate}
             navigation={navigation}
-            route={route}
-            options={options}
           />
         )}
 
@@ -73,7 +86,7 @@ console.log("data from thread details", data)
             <FlatList
               data={flattenData}
               renderItem={({ item }) => <Message item={item} />}
-              keyExtractor={(item) => item.toString()}
+              keyExtractor={(item) => item?.messageId}
               onStartReached={loadNextPageData}
               showDefaultLoadingIndicators={true}
               onStartReachedThreshold={10}

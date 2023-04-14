@@ -14,7 +14,8 @@ import { ThreadDetailsHeaderProps } from "./threadDetailsHeader.types";
 const ThreadDetailsHeader: React.FC<ThreadDetailsHeaderProps> = ({
   navigation,
   subject,
-  chatUsers,
+  receiver,
+  firtMessageDate
 }) => {
   const { isLoading, userDetails } = useUserDetails();
   const { sentMailThread } = useMailBoxes();
@@ -33,8 +34,6 @@ const ThreadDetailsHeader: React.FC<ThreadDetailsHeaderProps> = ({
   const { colors } = useTheme();
   const { styles } = useStyles();
 
-  // const isMultiChat = chatUsers.length > 1;
-  console.log("chatUsers", chatUsers)
 
   return (
     <View >
@@ -48,12 +47,13 @@ const ThreadDetailsHeader: React.FC<ThreadDetailsHeaderProps> = ({
         />
         <View style={styles.headerTitleContainer}>
           <View style={styles.textContainer}>
-            <Typography type="mediumBoldTitle" color={"primary"}>Received User</Typography>
+            <Typography type="mediumBoldTitle" color={"primary"}>{receiver}</Typography>
           </View>
           <View style={styles.textContainer}>
             <Typography type="largeBoldBody" color={"secondary"} >{subject}</Typography>
           </View>
-          <Typography type="smallRegularBody" color={"secondary"} >Jan 7</Typography>
+
+          <Typography  type="smallRegularBody" color={"secondary"} >{firtMessageDate}</Typography>
         </View>
 
         <TouchableHighlight activeOpacity={1} style={{ borderRadius: 12 }}
