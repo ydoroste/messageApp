@@ -58,6 +58,16 @@ const ThreadList: React.FC = () => {
   }, [data]);
 
 
+  if (isLoading){
+    return (
+        <View style={styles.emptyOrErrorMessageContainer}>
+          <Typography color="secondary" type="largeRegularBody">
+            loading
+          </Typography>
+        </View>
+    );
+
+  }
   if (isError)
     return (
         <View style={styles.emptyOrErrorMessageContainer}>
