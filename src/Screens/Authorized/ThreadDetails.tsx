@@ -19,21 +19,21 @@ import { isValidEmail } from "@followBack/Utils/validations";
 import { useCompose } from "@followBack/Hooks/Apis/Compose";
 import { FlashList } from "@shopify/flash-list";
 
-const Compose: React.FC = ({ navigation, options, route }) => {
+const ThreadDetails: React.FC = ({ navigation, options, route }) => {
   const { id } = route.params;
+  console.log("id", id)
   const [allMessages, setAllMessages] = useState([]);
   const { colors } = useTheme();
 
   const [mail, setMail] = useState("");
   const { userDetails } = useUserDetails();
   const onChangeMailContent = ({ value }) => setMail(value);
-  const [refetchData, setRefetchData] = useState(true);
+  const [refetchData, setRefetchData] = useState(false);
   const [lastMessageData, setLastMessageData] = useState({})
   const { sentMailThread } = useMailBoxes();
   const { data, isLoading, isError, isSuccess, hasNextPage, fetchNextPage } =
     useFetchThreadMessages({ id, refetchData });
-  // console.log("isLoading", isLoading)
-  // console.log("data from thread details", data)
+
   const hasData = allMessages?.length > 0;
   const firstMessage = allMessages?.[0];
   const others = hasData ? excludeUser({
@@ -52,11 +52,10 @@ const Compose: React.FC = ({ navigation, options, route }) => {
   };
 
   useEffect(() => {
-    if (!data) {
-
+    if (!data || !!data?.pages && data?.pages?.[0] !== undefined) {
       return;
     };
-    const flattenData = !!data?.pages
+    const flattenData = !!data?.pages && data?.pages?.[0] !== undefined
       ? data?.pages.flatMap((page) => page?.data)
       : [];
     setAllMessages(flattenData.reverse());
@@ -64,7 +63,7 @@ const Compose: React.FC = ({ navigation, options, route }) => {
 
   }, [data]);
 
-  console.log("flattenData from thread details", allMessages)
+  
   console.log("lastMessageData", lastMessageData)
 
   useFocusEffect(
@@ -86,7 +85,6 @@ const Compose: React.FC = ({ navigation, options, route }) => {
     bcc: formatEndPoints(lastMessageData?.bcc || []),
     uid: lastMessageData?.uid
   };
-  // console.log("composeRequest", composeRequest)
 
   const { refetch: recallComposeApi } = useCompose(composeRequest);
   const onPressCompose = async () => {
@@ -98,14 +96,13 @@ const Compose: React.FC = ({ navigation, options, route }) => {
   };
 
 
-  if (!hasData) {
+  if (!hasData || isError) {
     return (
       <View style={styles.emptyOrErrorMessageContainer}>
-        <Typography color="secondary" type="largeRegularBody">
-          Loading          </Typography>
+        <Typography color="secondary" type="largeRegularBody">{isError ? "Something Wrong" : "Loading"}</Typography>
       </View>
     );
-  }
+  };
 
   return (
     <KeyboardAvoidingView
@@ -151,7 +148,8 @@ const Compose: React.FC = ({ navigation, options, route }) => {
     </KeyboardAvoidingView>
   );
 };
-export default Compose;
+
+export default ThreadDetails;
 
 const styles = StyleSheet.create({
   container: {
