@@ -7,7 +7,7 @@ export const getThreadListApi = async ({ id, searchValue, pageParam }) => {
   return GetApi(
     `${CORE_SERVICE_URL}${Apis.threadList}?mailboxId=${id}&pageNum=${Number(
       pageParam || 1
-    )}&pageSize=10&searchText=${searchValue}`,
+    )}&pageSize=100&searchText=${searchValue}`,
     undefined,
     {
       headers: {

@@ -125,7 +125,6 @@ const Compose: React.FC = ({ navigation }) => {
   const onPressCompose = async () => {
     if (!subject || toTags.length < 0) return;
     const { data } = await refetch();
-    console.log("data", data)
     if (data?.["success"]) {
       navigation.navigate(AuthorizedScreensEnum.composeStack, {
         screen: AuthorizedScreensEnum.threadDetails,

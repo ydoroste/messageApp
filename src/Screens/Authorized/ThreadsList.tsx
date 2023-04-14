@@ -114,7 +114,6 @@ const ThreadList: React.FC = () => {
       {isSuccess && !!threadsList && !isEmptyList && (
         <View style={styles.container}>
           <FlashList
-              contentContainerStyle={{paddingRight: 10}}
             keyExtractor={(item) => item.threadId}
               scrollIndicatorInsets={{right:1}}
               data={threadsList}

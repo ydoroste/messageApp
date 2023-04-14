@@ -13,8 +13,9 @@ import { excludeUser } from "@followBack/Utils/messages";
 import { useUserDetails } from "@followBack/Hooks/useUserDetails";
 import { getThreadParticipantsUserName } from "@followBack/Utils/stringUtils";
 import { formatMessageDate } from "@followBack/Utils/date";
+import {HoldItem} from "react-native-hold-menu";
 
-const Compose: React.FC = ({ navigation, options, route }) => {
+const ThreadDetails: React.FC = ({ navigation, options, route }) => {
   const { id } = route.params;
   const [flattenData, setFlattenData] = useState([]);
   const { colors } = useTheme();
@@ -31,6 +32,10 @@ const Compose: React.FC = ({ navigation, options, route }) => {
       fetchNextPage();
     }
   };
+  const MenuItems = [
+    { text: 'unsend', onPress: () => {} },
+    { text: 'edit', onPress: () => {} },
+  ];
 
   useEffect(() => {
     if (!data) {
@@ -67,7 +72,7 @@ const Compose: React.FC = ({ navigation, options, route }) => {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : undefined}
-      keyboardVerticalOffset={100}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 100}
       style={{ flex: 1, backgroundColor: colors.black }}
     >
       <View style={styles.container}>
@@ -83,9 +88,14 @@ const Compose: React.FC = ({ navigation, options, route }) => {
 
         <View style={styles.chatWrapper}>
           {hasData && (
+              <>
             <FlatList
               data={flattenData}
-              renderItem={({ item }) => <Message item={item} />}
+              ItemSeparatorComponent={() => <View style={{height: 16}} />}
+
+              renderItem={({ item }) => <HoldItem  items={MenuItems}>
+                <Message item={item} />
+              </HoldItem>}
               keyExtractor={(item) => item?.messageId}
               onStartReached={loadNextPageData}
               showDefaultLoadingIndicators={true}
@@ -94,7 +104,10 @@ const Compose: React.FC = ({ navigation, options, route }) => {
               activityIndicatorColor={"black"}
               enableAutoscrollToTop={false}
             />
+                <View style={{height: 16}} />
+            </>
           )}
+
         </View>
         <MailSender
           mail={mail}
@@ -107,12 +120,13 @@ const Compose: React.FC = ({ navigation, options, route }) => {
     </KeyboardAvoidingView>
   );
 };
-export default Compose;
+export default ThreadDetails;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 20,
+    marginTop: Platform.OS === "ios" ? 20 : 0
   },
   titleText: {
     height: 25,
@@ -120,7 +134,7 @@ const styles = StyleSheet.create({
   },
   chatWrapper: {
     flex: 1,
-    // marginTop: 20,
+     marginTop: 20,
   },
   emptyOrErrorMessageContainer: {
     alignItems: "center",
