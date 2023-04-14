@@ -142,7 +142,7 @@ const Compose: React.FC = ({ navigation }) => {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : undefined}
-      keyboardVerticalOffset={100}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 100}
       style={{ flex: 1, backgroundColor: colors.black }}
     >
       <Pressable onPress={Keyboard.dismiss} style={styles.container}>
