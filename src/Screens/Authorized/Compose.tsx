@@ -86,7 +86,6 @@ const Compose: React.FC = ({ navigation }) => {
   const { colors } = useTheme();
 
   const formatTags = (tags: string[]) => tags.map((mail) => ({ address: mail.trim() }));
-
   const formattedToTags = formatTags(toTags);
   const formattedCcTags = formatTags(ccTags);
   const formattedBccTags = formatTags(bccTags);
@@ -151,13 +150,10 @@ const Compose: React.FC = ({ navigation }) => {
               name="back"
               onPress={() => {
                 if (navigation.canGoBack()) return navigation.goBack();
-                if (!sentMailThread) return;
-
                 navigation.navigate(
                   AuthorizedScreensEnum.threadsListStack,
                   {
                     screen: AuthorizedScreensEnum.threadsList,
-                    params: { ...sentMailThread },
                   }
                 );
               }}

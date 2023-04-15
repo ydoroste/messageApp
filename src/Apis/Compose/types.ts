@@ -4,12 +4,13 @@ interface Receiver {
   address: string;
 }
 export interface IComposeApiRequest {
-  [key: string]: string | Receiver[] 
+  [key: string]: string | Receiver[] | undefined 
   subject: string;
   text: string;
   to: Receiver[];
   cc: Receiver[];
   bcc: Receiver[];
+  uid?: string;
 }
 
 export interface IComposeApiResponse {
