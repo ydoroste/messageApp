@@ -126,7 +126,6 @@ const Compose: React.FC = ({ navigation }) => {
     const { data } = await refetch();
     
     if (data?.["success"]) {
-      console.log("data", data)
       navigation.navigate(AuthorizedScreensEnum.composeStack, {
         screen: AuthorizedScreensEnum.threadDetails,
         params: { id: data.thread },

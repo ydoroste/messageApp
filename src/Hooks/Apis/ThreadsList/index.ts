@@ -9,12 +9,12 @@ export const useFetchthreadsList = ({id, searchValue, refetchData }: {id: string
     ({ pageParam }) => getThreadListApi({id,  searchValue, pageParam }),
     {
       getNextPageParam: (lastPage) => {
-        if (lastPage?.data?.length < 10) return undefined;
+        if (lastPage?.data?.length < 100) return undefined;
         return lastPage?.nextPage;
       },
         keepPreviousData: true,
         enabled: refetchData,
-        refetchInterval: 4000,
+        refetchInterval: 2000,
         refetchOnWindowFocus: true,
         refetchOnReconnect: true,
         refetchOnMount: true

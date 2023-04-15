@@ -1,9 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { View, KeyboardAvoidingView, Platform, StyleSheet, TouchableHighlight, Pressable, Keyboard } from "react-native";
 import useTheme from "@followBack/Hooks/useTheme";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { useFetchThreadMessages } from "@followBack/Hooks/Apis/ThreadMessages";
-import { FlatList } from "react-native-bidirectional-infinite-scroll";
 import Message from "@followBack/Elements/Message/Message";
 import Typography from "@followBack/GenericElements/Typography";
 import MailSender from "@followBack/Elements/MailSender/MailSender";
@@ -15,9 +13,9 @@ import { getThreadParticipantsUserName } from "@followBack/Utils/stringUtils";
 import { formatMessageDate } from "@followBack/Utils/date";
 import { useFocusEffect } from "@react-navigation/native";
 import { IComposeApiRequest } from "@followBack/Apis/Compose/types";
-import { isValidEmail } from "@followBack/Utils/validations";
 import { useCompose } from "@followBack/Hooks/Apis/Compose";
 import { FlashList } from "@shopify/flash-list";
+import {HoldItem} from "react-native-hold-menu";
 
 const ThreadDetails: React.FC = ({ navigation, options, route }) => {
   const { id } = route.params;
@@ -45,11 +43,17 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
   const firstMessageDate = hasData ? formatMessageDate(firstMessage?.messageDateTime) : "";
 
 
+
   const loadNextPageData = async () => {
     if (hasNextPage) {
       fetchNextPage();
     }
   };
+  const MenuItems = [
+    { text: 'unsend', onPress: () => {} },
+    { text: 'edit', onPress: () => {} },
+  ];
+  console.log("data", data);
 
   useEffect(() => {
     if (!data || !data?.pages || data?.pages?.[0] === undefined) {
@@ -63,8 +67,6 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
 
   }, [data]);
 
-  
-  console.log("lastMessageData", lastMessageData)
 
   useFocusEffect(
     useCallback(() => {
@@ -107,7 +109,7 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : undefined}
-      keyboardVerticalOffset={100}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 100}
       style={{ flex: 1, backgroundColor: colors.black }}
     >
       <View style={styles.container}>
@@ -123,9 +125,14 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
 
         <View style={styles.chatWrapper}>
           {hasData && (
+              <>
             <FlashList
               data={allMessages}
-              renderItem={({ item }) => <Message item={item} />}
+              ItemSeparatorComponent={() => <View style={{height: 16}} />}
+
+              renderItem={({ item }) => <HoldItem  items={MenuItems}>
+                  <Message item={item} />
+              </HoldItem>}
               keyExtractor={(item) => item?.messageId}
               onStartReached={loadNextPageData}
               showDefaultLoadingIndicators={true}
@@ -135,7 +142,10 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
               activityIndicatorColor={"black"}
               enableAutoscrollToTop={false}
             />
+                <View style={{height: 16}} />
+            </>
           )}
+
         </View>
         <MailSender
           mail={mail}
@@ -148,13 +158,13 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
     </KeyboardAvoidingView>
   );
 };
-
 export default ThreadDetails;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 20,
+    marginTop: Platform.OS === "ios" ? 20 : 0
   },
   titleText: {
     height: 25,
@@ -162,7 +172,8 @@ const styles = StyleSheet.create({
   },
   chatWrapper: {
     flex: 1,
-    paddingBottom: 48
+    paddingBottom: 48,
+     marginTop: 20,
   },
   emptyOrErrorMessageContainer: {
     alignItems: "center",

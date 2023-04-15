@@ -71,17 +71,11 @@ const Authorized = () => {
     <View style={{ flex: 1, paddingTop: 40, backgroundColor: colors.black }}>
       <SearchProvider>
         <Drawer.Navigator
-          initialRouteName={AuthorizedScreensEnum.threadDetails}
+          initialRouteName={AuthorizedScreensEnum.threadsList}
           drawerContent={(props) => (
             <CustomDrawerContent {...props} mailboxes={data?.mailboxes} />
           )}
         >
-          <Drawer.Screen
-            options={{ headerShown: false }}
-            name={AuthorizedScreensEnum.composeStack}
-            component={ComposeStack}
-          />
-
           {isSuccess && (
             <Drawer.Screen
               options={{ headerShown: false }}
@@ -90,6 +84,12 @@ const Authorized = () => {
               {(props) => <ThreadsListStack {...props} />}
             </Drawer.Screen>
           )}
+          <Drawer.Screen
+            options={{ headerShown: false }}
+            name={AuthorizedScreensEnum.composeStack}
+            component={ComposeStack}
+          />
+
         </Drawer.Navigator>
       </SearchProvider>
     </View>

@@ -36,7 +36,19 @@ const CustomDrawerContent = (props) => {
       }}
       labelStyle={{ color: "#ffffff" }}
     >
-      <DrawerItem
+        <DrawerItem
+            label={"Inbox"}
+            labelStyle={{ color: "#ffffff" }}
+            onPress={() =>
+                goToScreen({
+                    stackName: AuthorizedScreensEnum.threadsListStack,
+                    screenName: AuthorizedScreensEnum.threadsList,
+                    //  params: { id, path, subscribed },
+                })
+            }
+        />
+
+        <DrawerItem
         label="Compose"
         labelStyle={{ color: "#ffffff" }}
         onPress={() =>
@@ -46,17 +58,6 @@ const CustomDrawerContent = (props) => {
           })
         }
       />
-        <DrawerItem
-            label={"Inbox"}
-            labelStyle={{ color: "#ffffff" }}
-            onPress={() =>
-                goToScreen({
-                    stackName: AuthorizedScreensEnum.threadsListStack,
-                    screenName: AuthorizedScreensEnum.threadsList,
-                  //  params: { id, path, subscribed },
-                })
-            }
-        />
 
       <DrawerItem
         label="Logout"

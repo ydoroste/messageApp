@@ -43,12 +43,12 @@ const AvatarItem: React.FC<IAvatarProps> = ({ users }) => {
             )}
 
             {!imageURL && isFirstUser && (
-              <Text style={userInitialsStyles}>{firstChar}</Text>
+              <Text style={userInitialsStyles}>{firstChar?.toUpperCase()}</Text>
             )}
 
             {isOthers && (
               <Text style={userInitialsStyles}>
-                {hasTwoUsers ? firstChar : `+${users.length - 1}`}
+                {hasTwoUsers ? firstChar.toUpperCase() : `+${users.length - 1}`}
               </Text>
             )}
           </View>
