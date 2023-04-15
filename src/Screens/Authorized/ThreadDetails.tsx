@@ -52,7 +52,7 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
   };
 
   useEffect(() => {
-    if (!data || !!data?.pages && data?.pages?.[0] !== undefined) {
+    if (!data || !data?.pages || data?.pages?.[0] === undefined) {
       return;
     };
     const flattenData = !!data?.pages && data?.pages?.[0] !== undefined
@@ -68,7 +68,7 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
 
   useFocusEffect(
     useCallback(() => {
-      hasData && setRefetchData(true);
+      setRefetchData(true);
       return () => {
         setRefetchData(false);
       };
