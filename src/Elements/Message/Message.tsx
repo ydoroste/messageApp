@@ -12,7 +12,6 @@ const Message = ({ item }) => {
   const { text, to, from, messageDateTime } = item;
   const { userDetails } = useUserDetails();
   const isOwnMessage = userDetails.user_name === emailNameParcer(item?.from?.address);
-  console.log("isOwnMessage", isOwnMessage)
   const chatUsers = [...to, from];
     const itemPosition = useRef<number>(0);
     const [showDate, setShowDate] = useState(false);
@@ -90,4 +89,7 @@ const useStyles = useStylesWithTheme((theme) => ({
     },
 }));
 
-export default Message;
+export default React.memo(
+  Message,
+  (prevProps, nextProps) => JSON.stringify(prevProps) === JSON.stringify(nextProps)
+);

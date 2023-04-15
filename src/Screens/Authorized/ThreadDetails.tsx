@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { View, KeyboardAvoidingView, Platform, StyleSheet, TouchableHighlight, Pressable, Keyboard } from "react-native";
+import { View, KeyboardAvoidingView, Platform, StyleSheet, TouchableHighlight, Pressable, Keyboard, FlatList } from "react-native";
 import useTheme from "@followBack/Hooks/useTheme";
 import { useFetchThreadMessages } from "@followBack/Hooks/Apis/ThreadMessages";
 import Message from "@followBack/Elements/Message/Message";
@@ -15,11 +15,10 @@ import { useFocusEffect } from "@react-navigation/native";
 import { IComposeApiRequest } from "@followBack/Apis/Compose/types";
 import { useCompose } from "@followBack/Hooks/Apis/Compose";
 import { FlashList } from "@shopify/flash-list";
-import {HoldItem} from "react-native-hold-menu";
+import { HoldItem } from "react-native-hold-menu";
 
 const ThreadDetails: React.FC = ({ navigation, options, route }) => {
   const { id } = route.params;
-  console.log("id", id)
   const [allMessages, setAllMessages] = useState([]);
   const { colors } = useTheme();
 
@@ -28,7 +27,6 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
   const onChangeMailContent = ({ value }) => setMail(value);
   const [refetchData, setRefetchData] = useState(false);
   const [lastMessageData, setLastMessageData] = useState({})
-  const { sentMailThread } = useMailBoxes();
   const { data, isLoading, isError, isSuccess, hasNextPage, fetchNextPage } =
     useFetchThreadMessages({ id, refetchData });
 
@@ -43,17 +41,15 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
   const firstMessageDate = hasData ? formatMessageDate(firstMessage?.messageDateTime) : "";
 
 
-
   const loadNextPageData = async () => {
     if (hasNextPage) {
       fetchNextPage();
     }
   };
   const MenuItems = [
-    { text: 'unsend', onPress: () => {} },
-    { text: 'edit', onPress: () => {} },
+    { text: 'unsend', onPress: () => { } },
+    { text: 'edit', onPress: () => { } },
   ];
-  console.log("data", data);
 
   useEffect(() => {
     if (!data || !data?.pages || data?.pages?.[0] === undefined) {
@@ -77,18 +73,28 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
     }, [])
   );
 
-  const formatEndPoints = (endPoint: { address: string, name: string }[]): { address: string }[] => endPoint?.map((obj) => ({ address: obj?.address?.trim() }));
+  const formatEndPoints = (endPoint: { address: string, name: string }[]): { address: string }[] => endPoint?.map((obj) => ({ address: obj?.address?.trim() }))
+  .filter(({address}) => address !==  userDetails.email);
 
-  const composeRequest: IComposeApiRequest = {
-    subject: lastMessageData?.subject,
-    text: mail,
-    to: formatEndPoints(lastMessageData?.to || []),
-    cc: formatEndPoints(lastMessageData?.cc || []),
-    bcc: formatEndPoints(lastMessageData?.bcc || []),
-    uid: lastMessageData?.uid
-  };
+  const createComposeRequest = (): IComposeApiRequest => {
+    const lastFromEndPoint = lastMessageData?.from?.address || "";
+    const toEndPoints = formatEndPoints(lastMessageData?.to)?.filter(({address})=> address !== lastFromEndPoint);
+    if(lastFromEndPoint !== userDetails.email){
+      toEndPoints?.push({address: lastFromEndPoint})
+    }
+    const composeRequest: IComposeApiRequest = {
+      subject: lastMessageData?.subject,
+      text: mail,
+      to: toEndPoints,
+      cc: formatEndPoints(lastMessageData?.cc || []),
+      bcc: formatEndPoints(lastMessageData?.bcc || []),
+      uid: lastMessageData?.uid
+    };
 
-  const { refetch: recallComposeApi } = useCompose(composeRequest);
+    return composeRequest
+  }
+
+  const { refetch: recallComposeApi } = useCompose(createComposeRequest());
   const onPressCompose = async () => {
     const { data } = await recallComposeApi();
     console.log("data", data)
@@ -96,7 +102,6 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
       setMail("")
     }
   };
-
 
   if (!hasData || isError) {
     return (
@@ -126,7 +131,7 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
         <View style={styles.chatWrapper}>
           {hasData && (
               <>
-            <FlashList
+            <FlatList
               data={allMessages}
               ItemSeparatorComponent={() => <View style={{height: 16}} />}
 
@@ -154,7 +159,6 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
         />
       </View>
 
-
     </KeyboardAvoidingView>
   );
 };
@@ -172,8 +176,7 @@ const styles = StyleSheet.create({
   },
   chatWrapper: {
     flex: 1,
-    paddingBottom: 48,
-     marginTop: 20,
+    marginBottom: 48
   },
   emptyOrErrorMessageContainer: {
     alignItems: "center",

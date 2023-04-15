@@ -17,18 +17,14 @@ const ThreadDetailsHeader: React.FC<ThreadDetailsHeaderProps> = ({
   receiver,
   firtMessageDate
 }) => {
-  const { isLoading, userDetails } = useUserDetails();
-  const { sentMailThread } = useMailBoxes();
  
   const onBackButtonPress = () => {
     if (navigation?.canGoBack()) return navigation?.goBack();
-            if (!sentMailThread) return;
 
             navigation?.navigate(
               AuthorizedScreensEnum.threadsListStack,
               {
                 screen: AuthorizedScreensEnum.threadsList,
-                params: { ...sentMailThread },
               }
             );
   };
@@ -72,10 +68,11 @@ const useStyles = useStylesWithTheme((theme) => ({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    marginBottom: 18
+    marginBottom: 18,
   },
   headerTitleContainer: {
-    alignItems: "center"
+    alignItems: "center",
+    maxWidth: "80%"
   },
   textContainer: {
     marginBottom: 10,

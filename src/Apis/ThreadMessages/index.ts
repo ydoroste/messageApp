@@ -21,5 +21,5 @@ export const getThreadMessagesApi = async ({ id, pageParam }) => {
         nextPage: pageParam + 1,
       };
     })
-    .catch((e) => console.log("error", e.response.data));
+    .catch((e) => console.log("error from fetchThreadMsgs", e.response.data));
 };

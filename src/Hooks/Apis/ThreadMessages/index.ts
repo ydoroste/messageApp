@@ -14,7 +14,7 @@ export const useFetchThreadMessages = ({ id, refetchData }: { id: string, refetc
       },
       keepPreviousData: true,
       enabled: refetchData,
-      refetchInterval: 10000,
+      refetchInterval: 3000,
       refetchOnWindowFocus: true,
       refetchOnReconnect: true,
       refetchOnMount: true

@@ -151,13 +151,10 @@ const Compose: React.FC = ({ navigation }) => {
               name="back"
               onPress={() => {
                 if (navigation.canGoBack()) return navigation.goBack();
-                if (!sentMailThread) return;
-
                 navigation.navigate(
                   AuthorizedScreensEnum.threadsListStack,
                   {
                     screen: AuthorizedScreensEnum.threadsList,
-                    params: { ...sentMailThread },
                   }
                 );
               }}
