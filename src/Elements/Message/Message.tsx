@@ -1,18 +1,19 @@
 import Typography from "@followBack/GenericElements/Typography";
 import React, {useRef, useState} from "react";
-import {View, StyleSheet, Pressable} from "react-native";
+import {View, StyleSheet, Pressable, ViewStyle} from "react-native";
 import {formatMessageDate} from "@followBack/Utils/date";
 import useStylesWithTheme from "@followBack/Hooks/useStylesWithTheme";
 import { useUserDetails } from "@followBack/Hooks/useUserDetails";
 import { excludeUser } from "@followBack/Utils/messages";
 import { emailNameParcer } from "@followBack/Utils/email";
+import {Gesture, GestureDetector} from "react-native-gesture-handler";
 
 const Message = ({ item }) => {
   const { styles } = useStyles();
   const { text, to, from, messageDateTime } = item;
   const { userDetails } = useUserDetails();
   const isOwnMessage = userDetails.user_name === emailNameParcer(item?.from?.address);
-  console.log("isOwnMessage", isOwnMessage)
+
   const chatUsers = [...to, from];
     const itemPosition = useRef<number>(0);
     const [showDate, setShowDate] = useState(false);
@@ -30,12 +31,12 @@ const Message = ({ item }) => {
     const contentContainerStyles = isGroupChat
         ? [styles.contentContainer]
         : [styles.contentContainer, styles.groupContentContainer];
-
     return (
         <>
+
             <View onLayout={(event) => {
                 const {height} = event.nativeEvent.layout;
-                itemPosition.current = (height / 2) - 6;
+                itemPosition.current = (height / 2) - 4;
             }} style={{...styles.container,...(isOwnMessage ?{ marginLeft: "auto"} : {marginRight: "auto"})}}>
                 <Pressable onPress={() => {
                     setShowDate(prevState => !prevState)
@@ -51,7 +52,7 @@ const Message = ({ item }) => {
 
                 </Pressable>
             </View>
-            {showDate && <View style={[styles.date, {top: itemPosition.current}]}>
+            {showDate && <View style={[styles.date, {top: itemPosition.current,  left: isOwnMessage ? 0 : undefined, right: !isOwnMessage ? 0 : undefined}]}>
                 <Typography type="smallRegularBody" color="secondary">
                     {formatMessageDate(messageDateTime)}
                 </Typography>
@@ -73,8 +74,6 @@ const useStyles = useStylesWithTheme((theme) => ({
         justifyContent: "center",
         textAlign: "center",
         position: "absolute",
-//    bottom: 0,
-        right: 0
     },
     contentContainer: {
         paddingVertical: 10,
@@ -87,7 +86,7 @@ const useStyles = useStylesWithTheme((theme) => ({
     groupContentContainer: {
         flexDirection: "row",
         alignItems: "center",
-    },
+    }
 }));
 
 export default Message;
