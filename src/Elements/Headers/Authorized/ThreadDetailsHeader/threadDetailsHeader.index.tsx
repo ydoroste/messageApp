@@ -17,16 +17,15 @@ const ThreadDetailsHeader: React.FC<ThreadDetailsHeaderProps> = ({
   receiver,
   firtMessageDate
 }) => {
- 
-  const onBackButtonPress = () => {
-    if (navigation?.canGoBack()) return navigation?.goBack();
 
-            navigation?.navigate(
-              AuthorizedScreensEnum.threadsListStack,
-              {
-                screen: AuthorizedScreensEnum.threadsList,
-              }
-            );
+  const onBackButtonPress = () => {
+
+    navigation?.navigate(
+      AuthorizedScreensEnum.threadsListStack,
+      {
+        screen: AuthorizedScreensEnum.threadsList,
+      }
+    );
   };
   const { colors } = useTheme();
   const { styles } = useStyles();
@@ -50,7 +49,7 @@ const ThreadDetailsHeader: React.FC<ThreadDetailsHeaderProps> = ({
             <Typography type="largeBoldBody" textAlign="center" color={"secondary"} >{subject}</Typography>
           </View>
 
-          <Typography  type="smallRegularBody" textAlign="center" color={"secondary"} >{firtMessageDate}</Typography>
+          <Typography type="smallRegularBody" textAlign="center" color={"secondary"} >{firtMessageDate}</Typography>
         </View>
 
         <TouchableHighlight activeOpacity={1} style={{ borderRadius: 12 }}

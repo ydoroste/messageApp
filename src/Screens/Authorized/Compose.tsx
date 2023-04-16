@@ -125,7 +125,7 @@ const Compose: React.FC = ({ navigation }) => {
     if (!subject || toTags.length < 0) return;
     const { data } = await refetch();
     if (data?.["success"]) {
-      navigation.navigate(AuthorizedScreensEnum.composeStack, {
+      navigation.navigate(AuthorizedScreensEnum.threadsListStack, {
         screen: AuthorizedScreensEnum.threadDetails,
         params: { id: data.thread },
       });

@@ -16,6 +16,7 @@ import { IComposeApiRequest } from "@followBack/Apis/Compose/types";
 import { useCompose } from "@followBack/Hooks/Apis/Compose";
 import { FlashList } from "@shopify/flash-list";
 import { HoldItem } from "react-native-hold-menu";
+import LoadingScreen from "@followBack/Elements/LoadingScreen/LoadingScreen.index";
 
 const ThreadDetails: React.FC = ({ navigation, options, route }) => {
   const { id } = route.params;
@@ -104,11 +105,9 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
   };
 
   if (!hasData || isError) {
-    return (
-      <View style={styles.emptyOrErrorMessageContainer}>
-        <Typography color="secondary" type="largeRegularBody">{isError ? "Something Wrong" : "Loading"}</Typography>
-      </View>
-    );
+    return(
+      <LoadingScreen loadingText={isError ? "Something Wrong" : "Loading"} loadingIndecatorSize={20}/>
+    )
   };
 
   return (

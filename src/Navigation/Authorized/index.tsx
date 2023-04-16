@@ -1,4 +1,4 @@
-import { View } from "react-native";
+import { ActivityIndicator, View } from "react-native";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import React, { useEffect } from "react";
 import Compose from "@followBack/Screens/Authorized/Compose";
@@ -13,6 +13,9 @@ import useTheme from "@followBack/Hooks/useTheme";
 import { SearchProvider } from "@followBack/Contexts/SearchContext";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { useMailBoxes } from "@followBack/Hooks/useMailboxes";
+import { TextInput } from "react-native-paper";
+import Typography from "@followBack/GenericElements/Typography";
+import LoadingScreen from "@followBack/Elements/LoadingScreen/LoadingScreen.index";
 
 
 const Drawer = createDrawerNavigator<AuthorizedParams>();
@@ -31,13 +34,6 @@ const ComposeStack = () => {
         }}
       />
 
-      <Stack.Screen
-        options={{
-          headerShown: false,
-        }}
-        name={AuthorizedScreensEnum.threadDetails}
-        component={ThreadDetails}
-      />
     </Stack.Navigator>
   );
 };
@@ -68,31 +64,32 @@ const Authorized = () => {
   const { colors } = useTheme();
   const { data, isSuccess } = useMailBoxes();
   return (
-    <View style={{ flex: 1, paddingTop: 40, backgroundColor: colors.black }}>
-      <SearchProvider>
-        <Drawer.Navigator
-          initialRouteName={AuthorizedScreensEnum.threadsList}
-          drawerContent={(props) => (
-            <CustomDrawerContent {...props} mailboxes={data?.mailboxes} />
-          )}
-        >
-          {isSuccess && (
+    <>
+      {isSuccess ? <View style={{ flex: 1, paddingTop: 40, backgroundColor: colors.black }}>
+        <SearchProvider>
+          <Drawer.Navigator
+            initialRouteName={AuthorizedScreensEnum.threadsListStack}
+            drawerContent={(props) => (
+              <CustomDrawerContent {...props} mailboxes={data?.mailboxes} />
+            )}
+          >
             <Drawer.Screen
               options={{ headerShown: false }}
               name={AuthorizedScreensEnum.threadsListStack}
             >
               {(props) => <ThreadsListStack {...props} />}
             </Drawer.Screen>
-          )}
-          <Drawer.Screen
-            options={{ headerShown: false }}
-            name={AuthorizedScreensEnum.composeStack}
-            component={ComposeStack}
-          />
-
-        </Drawer.Navigator>
-      </SearchProvider>
-    </View>
+            <Drawer.Screen
+              options={{ headerShown: false }}
+              name={AuthorizedScreensEnum.composeStack}
+              component={ComposeStack}
+            />
+          </Drawer.Navigator>
+        </SearchProvider>
+      </View> :
+        <LoadingScreen loadingText={"Loading"} loadingIndecatorSize={20}/>
+        }
+    </>
   );
 };
 

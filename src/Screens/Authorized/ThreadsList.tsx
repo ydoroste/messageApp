@@ -12,6 +12,7 @@ import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {
   authorizedStackNavigationProps} from "@followBack/Navigation/Authorized/types";
 import {useMailBoxes} from "@followBack/Hooks/useMailboxes";
+import LoadingScreen from "@followBack/Elements/LoadingScreen/LoadingScreen.index";
 
 let timer;
 const ThreadList: React.FC = () => {
@@ -60,13 +61,8 @@ const ThreadList: React.FC = () => {
 
   if (isLoading){
     return (
-        <View style={styles.emptyOrErrorMessageContainer}>
-          <Typography color="secondary" type="largeRegularBody">
-            loading
-          </Typography>
-        </View>
+      <LoadingScreen loadingText={"Loading"} loadingIndecatorSize={20}/>
     );
-
   }
   if (isError)
     return (
