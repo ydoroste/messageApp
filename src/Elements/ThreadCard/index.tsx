@@ -21,9 +21,10 @@ const ThreadCard: React.FC<IthreadCardProps> = ({threadItem}) => {
     const {userDetails} = useUserDetails();
 
     const others = excludeUser({
-        users: [threadItem.lastMessage.from, ...threadItem.lastMessage.to],
+        users: [threadItem.lastMessage.from, ...threadItem.lastMessage.to, ...threadItem.lastMessage.cc, ...threadItem.lastMessage.bcc ],
         userAddress: userDetails.email,
     });
+
     const isMessageSeen = !threadItem.lastMessage.unseen;
     const textColor = isMessageSeen ? "secondary" : "chat";
     return (

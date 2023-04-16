@@ -34,7 +34,7 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
   const hasData = allMessages?.length > 0;
   const firstMessage = allMessages?.[0];
   const others = hasData ? excludeUser({
-    users: [firstMessage?.from, ...firstMessage?.to],
+    users: [firstMessage?.from, ...firstMessage?.to, ...firstMessage?.cc, ...firstMessage?.bcc],
     userAddress: userDetails.email,
   }) : "";
   const receiver = hasData ? getThreadParticipantsUserName(others) : "";
@@ -59,7 +59,7 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
     const flattenData = !!data?.pages && data?.pages?.[0] !== undefined
       ? data?.pages.flatMap((page) => page?.data)
       : [];
-    setAllMessages(flattenData.reverse());
+    setAllMessages(flattenData);
     setLastMessageData(flattenData[flattenData?.length - 1]);
 
   }, [data]);
@@ -94,7 +94,6 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
 
     return composeRequest
   }
-
   const { refetch: recallComposeApi } = useCompose(createComposeRequest());
   const onPressCompose = async () => {
     const { data } = await recallComposeApi();
@@ -145,8 +144,9 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
               onEndReachedThreshold={10}
               activityIndicatorColor={"black"}
               enableAutoscrollToTop={false}
+              inverted={true}
             />
-                <View style={{height: 16}} />
+                <View style={{height: 30}} />
             </>
           )}
 
