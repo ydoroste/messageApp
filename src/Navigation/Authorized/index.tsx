@@ -52,6 +52,7 @@ const ThreadsListStack = () => {
       <Stack.Screen
         options={{
           headerShown: false,
+          animation: "slide_from_right"
         }}
         name="threadDetails"
         component={ThreadDetails}
