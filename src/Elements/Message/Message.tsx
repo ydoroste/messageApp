@@ -10,11 +10,12 @@ import {Gesture, GestureDetector} from "react-native-gesture-handler";
 
 const Message = ({ item }) => {
   const { styles } = useStyles();
-  const { text, to, from, messageDateTime } = item;
+  const { text, to, from, cc, bcc, messageDateTime } = item;
   const { userDetails } = useUserDetails();
-  const isOwnMessage = userDetails.user_name === emailNameParcer(item?.from?.address);
+  console.log("console",!item?.from?.address ? true : userDetails.user_name === emailNameParcer(item?.from?.address))
+  const isOwnMessage =  !item?.from?.address ? true : userDetails.user_name === emailNameParcer(item?.from?.address);
 
-  const chatUsers = [...to, from];
+  const chatUsers = [...to, ...cc, ...bcc, from];
     const itemPosition = useRef<number>(0);
     const [showDate, setShowDate] = useState(false);
 
