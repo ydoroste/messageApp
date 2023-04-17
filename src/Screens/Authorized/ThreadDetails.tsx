@@ -33,8 +33,8 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
 
   const hasData = allMessages?.length > 0;
   const firstMessage = allMessages?.[0];
-  const others = hasData && lastMessageData ? excludeUser({
-    users: [lastMessageData?.from, ...lastMessageData?.to, ...lastMessageData?.cc, ...lastMessageData?.bcc],
+  const others = hasData && firstMessage ? excludeUser({
+    users: [firstMessage?.from, ...firstMessage?.to, ...firstMessage?.cc, ...firstMessage?.bcc],
     userAddress: userDetails.email,
   }) : [];
   const receiver = hasData ? getThreadParticipantsUserName(others) : "";
@@ -91,12 +91,12 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
       to: toEndPoints,
       cc: formatEndPoints(lastMessageData?.cc || []),
       bcc: formatEndPoints(lastMessageData?.bcc || []),
-      from: userDetails.email,
+      from: userDetails?.email,
       uid: lastMessageData?.uid
     };
 
     return composeRequest
-  }
+  };
   const { refetch: recallComposeApi } = useCompose(createComposeRequest());
   const onPressCompose = async () => {
     const { data } = await recallComposeApi();
