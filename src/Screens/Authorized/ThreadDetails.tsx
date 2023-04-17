@@ -33,10 +33,10 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
 
   const hasData = allMessages?.length > 0;
   const firstMessage = allMessages?.[0];
-  const others = hasData ? excludeUser({
-    users: [firstMessage?.from, ...firstMessage?.to, ...firstMessage?.cc, ...firstMessage?.bcc],
+  const others = hasData && lastMessageData ? excludeUser({
+    users: [lastMessageData?.from, ...lastMessageData?.to, ...lastMessageData?.cc, ...lastMessageData?.bcc],
     userAddress: userDetails.email,
-  }) : "";
+  }) : [];
   const receiver = hasData ? getThreadParticipantsUserName(others) : "";
   const subject = hasData ? firstMessage?.subject : "";
   const firstMessageDate = hasData ? formatMessageDate(firstMessage?.messageDateTime) : "";
@@ -60,6 +60,8 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
       ? data?.pages.flatMap((page) => page?.data)
       : [];
     setAllMessages(flattenData);
+    console.log("others", others);
+    console.log("others", flattenData);
     setLastMessageData(flattenData[flattenData?.length - 1]);
 
   }, [data]);
@@ -89,6 +91,7 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
       to: toEndPoints,
       cc: formatEndPoints(lastMessageData?.cc || []),
       bcc: formatEndPoints(lastMessageData?.bcc || []),
+      from: userDetails.email,
       uid: lastMessageData?.uid
     };
 
