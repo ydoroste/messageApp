@@ -49,13 +49,13 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
   const hasData = allMessages?.length > 0;
   const firstMessage = allMessages?.[0];
   const sender = firstMessage?.from ?? {
-    name: "t m",
+    name: userDetails.user_name,
     address: userDetails.email,
   };
   const to = firstMessage?.to ?? [];
   const cc = firstMessage?.cc ?? [];
   const bcc = firstMessage?.bcc ?? [];
-  console.log(sender);
+
   const others =
     hasData && firstMessage
       ? excludeUser({
@@ -88,8 +88,7 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
         ? data?.pages.flatMap((page) => page?.data)
         : [];
     setAllMessages(flattenData);
-    console.log("others", others);
-    console.log("others", flattenData);
+
     setLastMessageData(flattenData[flattenData?.length - 1]);
   }, [data]);
 
@@ -132,7 +131,6 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
   const { refetch: recallComposeApi } = useCompose(createComposeRequest());
   const onPressCompose = async () => {
     const { data } = await recallComposeApi();
-    console.log("data", data);
     if (data?.["success"]) {
       setMail("");
     }

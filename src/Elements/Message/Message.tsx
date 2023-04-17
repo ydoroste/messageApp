@@ -12,25 +12,19 @@ const Message = ({ item }) => {
   const { styles } = useStyles();
   const { text, to, from, cc, bcc, messageDateTime } = item;
   const { userDetails } = useUserDetails();
-  console.log(
-    "console",
-    !item?.from?.address
-      ? true
-      : userDetails.user_name === emailNameParcer(item?.from?.address)
-  );
   const isOwnMessage = !item?.from?.address
     ? true
     : userDetails.user_name === emailNameParcer(item?.from?.address);
 
   const sender = from ?? {
-    name: "t m",
+    name: userDetails.user_name,
     address: userDetails.email,
   };
-  const to_list = to ?? [];
-  const cc_list = cc ?? [];
-  const bcc_list = bcc ?? [];
+  const toList = to ?? [];
+  const ccList = cc ?? [];
+  const bccList = bcc ?? [];
 
-  const chatUsers = [...to_list, ...cc_list, ...bcc_list, sender];
+  const chatUsers = [...toList, ...ccList, ...bccList, sender];
   const itemPosition = useRef<number>(0);
   const [showDate, setShowDate] = useState(false);
 
