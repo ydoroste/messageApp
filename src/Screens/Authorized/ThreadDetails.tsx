@@ -30,10 +30,23 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
 
   const hasData = allMessages?.length > 0;
   const firstMessage = allMessages?.[0];
-  const others = hasData && firstMessage ? excludeUser({
-    users: [firstMessage?.from, ...firstMessage?.to, ...firstMessage?.cc, ...firstMessage?.bcc],
-    userAddress: userDetails.email,
-  }) : [];
+  const sender = firstMessage?.from ?? {
+    name: userDetails.user_name,
+    address: userDetails.email,
+  };
+
+  const to = firstMessage?.to ?? [];
+  const cc = firstMessage?.cc ?? [];
+  const bcc = firstMessage?.bcc ?? [];
+
+  const others =
+      hasData
+          ? excludeUser({
+            users: [sender, ...to, ...cc, ...bcc],
+            userAddress: userDetails.email,
+          })
+          : [];
+
   const receiver = hasData ? getThreadParticipantsUserName(others) : "";
   const subject = hasData ? firstMessage?.subject : "";
   const firstMessageDate = hasData ? conversationDateTime(firstMessage?.messageDateTime) : "";
