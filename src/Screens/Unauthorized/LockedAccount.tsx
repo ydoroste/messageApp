@@ -23,10 +23,14 @@ const LockedAccount: React.FC = () => {
         user_name: userName,
         is_email: ResetMethod.Phone
     };
-    const {data, error, isError, isLoading} = useForgetPassword(request);
+    const {data, error, isError, isLoading, refetch} = useForgetPassword(request);
 
-    const onResetPress = () => {
-        const resData = data?.data as IForgetPasswordData;
+    const onResetPress = async () => {
+        await refetch();
+        if(isError)
+            return ;
+
+        const resData = data?.data;
         nav.navigate(UnauthorizedScreensEnum.codeVerification,
             {
                 phoneNumber: resData?.phone_number as string,

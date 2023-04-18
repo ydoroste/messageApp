@@ -6,6 +6,6 @@ export const isValidEmail = (email: string) => {
 };
 
 export const isValidPhoneNumber = (phoneNumber: string)=>{
-  const phoneRegexExp = new RegExp(/^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$/);
+  const phoneRegexExp = new RegExp(/^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{4}[-\s.]?[0-9]{4,6}$/);
   return phoneRegexExp.test(phoneNumber)
 }
