@@ -68,7 +68,7 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
 
   useEffect(() => {
     if (failedMessagesData[id]) {
-      setFailedMessages(failedMessagesData[id])
+      setFailedMessages(failedMessagesData[id].reverse())
     };
 
     if (!data || !data?.pages || data?.pages?.[0] === undefined) {
@@ -117,31 +117,35 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
   const { refetch: recallComposeApi } = useCompose(createComposeRequest(mail));
 
   const onPressCompose = async () => {
-    if (!mail) return;
-    setMail("");
-    const allMessagesCopy = [...allMessages];
-    const newMessage = { text: mail, messageId: (new Date()).getTime(), notConfirmedNewMessage: true };
-    allMessagesCopy.unshift(newMessage);
-
-    setAllMessages(allMessagesCopy);
-    const { data } = await recallComposeApi();
-    const newMessageIndex = allMessagesCopy.findIndex((message) => message.messageId === newMessage.messageId);
-
-    if (data?.["success"]) {
-      allMessagesCopy.splice(newMessageIndex, 1, { ...allMessagesCopy[newMessageIndex], notConfirmedNewMessage: false });
+    try {
+      if (!mail) return;
+      setMail("");
+      const allMessagesCopy = [...allMessages];
+      const newMessage = { text: mail, messageId: (new Date()).getTime(), notConfirmedNewMessage: true };
+      allMessagesCopy.unshift(newMessage);
+  
       setAllMessages(allMessagesCopy);
-    } else {
-      const allMessagesWithoutTheFailed = allMessagesCopy.filter(item => !item?.notConfirmedNewMessage);
-      setAllMessages(allMessagesWithoutTheFailed)
-      const failedMeessage = { ...newMessage, failedToSend: true };
-      setFailedMessages((prev) => {
-        const faildMessagesCopy = [...failedMessages]
-        faildMessagesCopy.unshift(failedMeessage);
-        return faildMessagesCopy
-      });
-      const newFailedMEssagesObj = { ...failedMessagesData, [id]: [...(failedMessagesData?.[id] ? failedMessagesData?.[id] : []), failedMeessage] }
-      setFailedMessagesData && setFailedMessagesData(newFailedMEssagesObj)
+      const { data } = await recallComposeApi();
+      const newMessageIndex = allMessagesCopy.findIndex((message) => message.messageId === newMessage.messageId);
+  
+      if (data?.["success"]) {
+        allMessagesCopy.splice(newMessageIndex, 1, { ...allMessagesCopy[newMessageIndex], notConfirmedNewMessage: false });
+        setAllMessages(allMessagesCopy);
+      } else {
+        const allMessagesWithoutTheFailed = allMessagesCopy.filter(item => !item?.notConfirmedNewMessage);
+        setAllMessages(allMessagesWithoutTheFailed)
+        const failedMeessage = { ...newMessage, failedToSend: true };
+        setFailedMessages((prev) => {
+          const faildMessagesCopy = [...failedMessages]
+          faildMessagesCopy.unshift(failedMeessage);
+          return faildMessagesCopy
+        });
+        const newFailedMEssagesObj = { ...failedMessagesData, [id]: [...(failedMessagesData?.[id] ? failedMessagesData?.[id] : []), failedMeessage] }
+        setFailedMessagesData && setFailedMessagesData(newFailedMEssagesObj)
+      }
+    } catch {
     }
+    
   };
 
   const moveFromFailedToSuccess = (messageTempId) => {

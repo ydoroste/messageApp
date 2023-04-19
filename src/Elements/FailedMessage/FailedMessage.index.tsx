@@ -16,13 +16,17 @@ const FailedMessage = ({ item, moveFromFailedToSuccess, createComposeRequest }) 
     const [isLoading, setIsLoading] = useState(false);
 
     const onMessageClick = async () => {
-        setIsLoading(true);
-        const composeRequest = createComposeRequest(item.text);
-        const data = await composeApi(composeRequest);
-        if (data.success) {
-            moveFromFailedToSuccess(item.messageId);
-        };
-        setIsLoading(false);
+        try {
+            setIsLoading(true);
+            const composeRequest = createComposeRequest(item.text);
+            const data = await composeApi(composeRequest);
+            if (data.success) {
+                moveFromFailedToSuccess(item.messageId);
+            };
+            setIsLoading(false);
+        } catch {
+            setIsLoading(false);
+        }
     }
 
     return (
