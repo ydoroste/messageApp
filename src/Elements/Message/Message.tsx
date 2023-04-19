@@ -59,16 +59,18 @@ const Message = ({ item }) => {
           }}
           style={contentContainerStyles}
         >
-          {isGroupChat && (
-            <Typography type="largeBoldBody" color="chat">
-              {messageSenderLabel + " "}
-            </Typography>
-          )}
           <Typography type="largeRegularBody" color="chat">
+            {isGroupChat && (
+                <Typography type="largeBoldBody" color="chat">
+                  {messageSenderLabel + ": "}
+                </Typography>
+            )}
+
             {text}
           </Typography>
         </Pressable>
       </View>
+
       {showDate && (
         <View
           style={[

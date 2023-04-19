@@ -14,6 +14,7 @@ import { IComposeApiRequest } from "@followBack/Apis/Compose/types";
 import { useCompose } from "@followBack/Hooks/Apis/Compose";
 import { HoldItem } from "react-native-hold-menu";
 import LoadingScreen from "@followBack/Elements/LoadingScreen/LoadingScreen.index";
+import {FlashList} from "@shopify/flash-list";
 
 const ThreadDetails: React.FC = ({ navigation, options, route }) => {
   const { id } = route.params;
@@ -29,7 +30,7 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
     useFetchThreadMessages({ id, refetchData });
 
   const hasData = allMessages?.length > 0;
-  const firstMessage = allMessages?.[0];
+  const firstMessage = allMessages?.[allMessages.length - 1];
   const sender = firstMessage?.from ?? {
     name: userDetails.user_name,
     address: userDetails.email,
@@ -66,11 +67,12 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
     if (!data || !data?.pages || data?.pages?.[0] === undefined) {
       return;
     };
+
     const flattenData = !!data?.pages && data?.pages?.[0] !== undefined
       ? data?.pages.flatMap((page) => page?.data)
       : [];
     setAllMessages(flattenData);
-    setLastMessageData(flattenData[flattenData?.length - 1]);
+    setLastMessageData(flattenData[flattenData[0]]);
 
   }, [data]);
 
@@ -140,24 +142,26 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
         <View style={styles.chatWrapper}>
           {hasData && (
               <>
-            <FlatList
-              data={allMessages}
-              ItemSeparatorComponent={() => <View style={{height: 16}} />}
 
-              renderItem={({ item }) => <HoldItem  items={MenuItems}>
+            <FlashList
+              data={allMessages}
+              renderItem={({ item }) =>
+                  <HoldItem items={MenuItems}>
+                    <View style={{marginVertical: 8}}>
                   <Message item={item} />
-              </HoldItem>}
+                    </View>
+                  </HoldItem>
+                }
               keyExtractor={(item) => item?.messageId}
-              onStartReached={loadNextPageData}
-              showDefaultLoadingIndicators={true}
-              estimatedItemSize={20}
-              onStartReachedThreshold={10}
-              onEndReachedThreshold={10}
-              activityIndicatorColor={"black"}
-              enableAutoscrollToTop={false}
+              onEndReachedThreshold={0.2}
+              estimatedItemSize={100}
+              scrollIndicatorInsets={{right:1}}
               inverted={true}
+              onEndReached={async ()=> {
+               await loadNextPageData()
+              }}
             />
-                <View style={{height: 30}} />
+                <View style={{height: 20}} />
             </>
           )}
 

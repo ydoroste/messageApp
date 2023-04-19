@@ -4,10 +4,11 @@ import { getAccessToken } from "@followBack/Utils/accessToken";
 import { Apis } from "@followBack/Apis";
 
 export const getThreadMessagesApi = async ({ id, pageParam }) => {
+
   return GetApi(
     `${CORE_SERVICE_URL}${Apis.threadMessages}?threadId=${id}&pageNum=${
       pageParam || 1
-    }&pageSize=10`,
+    }&pageSize=100`,
     undefined,
     {
       headers: {
@@ -18,7 +19,7 @@ export const getThreadMessagesApi = async ({ id, pageParam }) => {
     .then((res) => {
       return {
         data: res.data?.data?.mappedMessages,
-        nextPage: pageParam + 1,
+        nextPage: Number(pageParam || 1) + 1,
       };
     })
     .catch((e) => console.log("error from fetchThreadMsgs", e.response.data));

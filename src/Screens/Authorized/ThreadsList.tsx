@@ -20,7 +20,7 @@ const ThreadList: React.FC = () => {
    //route = useRoute<authorizedStackNavigationProps['route']>();
   const {data: mail} = useMailBoxes();
   const {id, path} = mail?.mailboxes?.find(t => t.path === "INBOX");
- // const { id, path } = route.params as IThreadListState;
+
   const { colors } = useTheme();
   const { searchValue } = useSearch();
   const [isIitialLoading, setIsInitialLoading] = React.useState(true);
@@ -57,7 +57,6 @@ const ThreadList: React.FC = () => {
 
     setthreadsList(flattenData);
   }, [data]);
-
 
   if (isLoading){
     return (

@@ -22,7 +22,8 @@ const AvatarItem: React.FC<IAvatarProps> = ({ users }) => {
   return (
     <View style={containerStyles}>
       {users.map(({ imageURL, name, address }, index) => {
-        const firstChar = name.length > 0 ? name[0] : address[0];
+        const userName = name.trim();
+        const firstChar = userName.length > 0 ? userName[0] : address[0];
 
         const isFirstUser = index === 0;
         const isOthers = !isFirstUser && isGroup;
