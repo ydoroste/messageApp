@@ -16,6 +16,7 @@ import { useMailBoxes } from "@followBack/Hooks/useMailboxes";
 import { TextInput } from "react-native-paper";
 import Typography from "@followBack/GenericElements/Typography";
 import LoadingScreen from "@followBack/Elements/LoadingScreen/LoadingScreen.index";
+import { FailedMessagesContextProvider } from "@followBack/Contexts/FailedMessagesContext";
 
 
 const Drawer = createDrawerNavigator<AuthorizedParams>();
@@ -67,29 +68,31 @@ const Authorized = () => {
   return (
     <>
       {isSuccess ? <View style={{ flex: 1, paddingTop: 40, backgroundColor: colors.black }}>
-        <SearchProvider>
-          <Drawer.Navigator
-            initialRouteName={AuthorizedScreensEnum.threadsListStack}
-            drawerContent={(props) => (
-              <CustomDrawerContent {...props} mailboxes={data?.mailboxes} />
-            )}
-          >
-            <Drawer.Screen
-              options={{ headerShown: false }}
-              name={AuthorizedScreensEnum.threadsListStack}
+        <FailedMessagesContextProvider>
+          <SearchProvider>
+            <Drawer.Navigator
+              initialRouteName={AuthorizedScreensEnum.threadsListStack}
+              drawerContent={(props) => (
+                <CustomDrawerContent {...props} mailboxes={data?.mailboxes} />
+              )}
             >
-              {(props) => <ThreadsListStack {...props} />}
-            </Drawer.Screen>
-            <Drawer.Screen
-              options={{ headerShown: false }}
-              name={AuthorizedScreensEnum.composeStack}
-              component={ComposeStack}
-            />
-          </Drawer.Navigator>
-        </SearchProvider>
+              <Drawer.Screen
+                options={{ headerShown: false }}
+                name={AuthorizedScreensEnum.threadsListStack}
+              >
+                {(props) => <ThreadsListStack {...props} />}
+              </Drawer.Screen>
+              <Drawer.Screen
+                options={{ headerShown: false }}
+                name={AuthorizedScreensEnum.composeStack}
+                component={ComposeStack}
+              />
+            </Drawer.Navigator>
+          </SearchProvider>
+        </FailedMessagesContextProvider>
       </View> :
-        <LoadingScreen loadingText={"Loading"} loadingIndecatorSize={20}/>
-        }
+        <LoadingScreen loadingText={"Loading"} loadingIndecatorSize={20} />
+      }
     </>
   );
 };

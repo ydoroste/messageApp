@@ -1,15 +1,18 @@
 interface UserDetails {
-    email: string;
+    address: string;
     name: string;
 }
 
 export const getThreadParticipantsUserName = (users: UserDetails[]) =>{
     if(!users || users?.length === 0)
         return "";
+    const firstUserName = users[0]?.name ?? users[0]?.address;
     if(users.length === 1)
-        return users[0].name;
+        return firstUserName;
+    const secondUserName = users[1]?.name ?? users[1]?.address;
+
     if(users.length === 2){
-        return `${users[0].name} & ${users[1].name}`;
+        return `${firstUserName} & ${secondUserName}`;
     }
-    return `${users[0].name} & ${users.length - 1} others`;
+    return `${firstUserName} & ${users.length - 1} others`;
 }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { View, KeyboardAvoidingView, Platform, StyleSheet, TouchableHighlight, Pressable, Keyboard, FlatList } from "react-native";
+import { View, KeyboardAvoidingView, Platform, StyleSheet, TouchableHighlight, Pressable, Keyboard, FlatList, TextInput } from "react-native";
 import useTheme from "@followBack/Hooks/useTheme";
 import { useFetchThreadMessages } from "@followBack/Hooks/Apis/ThreadMessages";
 import Message from "@followBack/Elements/Message/Message";
@@ -8,21 +8,25 @@ import ThreadDetailsHeader from "@followBack/Elements/Headers/Authorized/ThreadD
 import { excludeUser } from "@followBack/Utils/messages";
 import { useUserDetails } from "@followBack/Hooks/useUserDetails";
 import { getThreadParticipantsUserName } from "@followBack/Utils/stringUtils";
-import {conversationDateTime} from "@followBack/Utils/date";
+import { conversationDateTime } from "@followBack/Utils/date";
 import { useFocusEffect } from "@react-navigation/native";
 import { IComposeApiRequest } from "@followBack/Apis/Compose/types";
 import { useCompose } from "@followBack/Hooks/Apis/Compose";
 import { HoldItem } from "react-native-hold-menu";
 import LoadingScreen from "@followBack/Elements/LoadingScreen/LoadingScreen.index";
-import {FlashList} from "@shopify/flash-list";
+import { FlashList } from "@shopify/flash-list";
+import { useFailedMessages } from "@followBack/Hooks/useFailedMessages";
+import FailedMessage from "@followBack/Elements/FailedMessage/FailedMessage.index";
 
 const ThreadDetails: React.FC = ({ navigation, options, route }) => {
   const { id } = route.params;
   const [allMessages, setAllMessages] = useState([]);
+  const [failedMessages, setFailedMessages] = useState([]);
   const { colors } = useTheme();
 
   const [mail, setMail] = useState("");
   const { userDetails } = useUserDetails();
+  const { failedMessagesData, setFailedMessagesData } = useFailedMessages();
   const onChangeMailContent = ({ value }) => setMail(value);
   const [refetchData, setRefetchData] = useState(false);
   const [lastMessageData, setLastMessageData] = useState({});
@@ -35,18 +39,17 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
     name: userDetails.user_name,
     address: userDetails.email,
   };
-
   const to = firstMessage?.to ?? [];
   const cc = firstMessage?.cc ?? [];
   const bcc = firstMessage?.bcc ?? [];
 
   const others =
-      hasData
-          ? excludeUser({
-            users: [sender, ...to, ...cc, ...bcc],
-            userAddress: userDetails.email,
-          })
-          : [];
+    hasData
+      ? excludeUser({
+        users: [sender, ...to, ...cc, ...bcc],
+        userAddress: userDetails.email,
+      })
+      : [];
 
   const receiver = hasData ? getThreadParticipantsUserName(others) : "";
   const subject = hasData ? firstMessage?.subject : "";
@@ -64,6 +67,10 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
   ];
 
   useEffect(() => {
+    if (failedMessagesData[id]) {
+      setFailedMessages(failedMessagesData[id].reverse())
+    };
+
     if (!data || !data?.pages || data?.pages?.[0] === undefined) {
       return;
     };
@@ -72,10 +79,9 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
       ? data?.pages.flatMap((page) => page?.data)
       : [];
     setAllMessages(flattenData);
-    setLastMessageData(flattenData[flattenData[0]]);
+    setLastMessageData(flattenData[0]);
 
   }, [data]);
-
 
   useFocusEffect(
     useCallback(() => {
@@ -87,17 +93,17 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
   );
 
   const formatEndPoints = (endPoint: { address: string, name: string }[]): { address: string }[] => endPoint?.map((obj) => ({ address: obj?.address?.trim() }))
-  .filter(({address}) => address !==  userDetails.email);
+    .filter(({ address }) => address !== userDetails.email);
 
-  const createComposeRequest = (): IComposeApiRequest => {
+  const createComposeRequest = (messageText: string): IComposeApiRequest => {
     const lastFromEndPoint = lastMessageData?.from?.address || "";
-    const toEndPoints = formatEndPoints(lastMessageData?.to)?.filter(({address})=> address !== lastFromEndPoint);
-    if(lastFromEndPoint !== userDetails.email){
-      toEndPoints?.push({address: lastFromEndPoint})
+    const toEndPoints = formatEndPoints(lastMessageData?.to)?.filter(({ address }) => address !== lastFromEndPoint);
+    if (lastFromEndPoint !== userDetails.email) {
+      toEndPoints?.push({ address: lastFromEndPoint })
     }
     const composeRequest: IComposeApiRequest = {
       subject: lastMessageData?.subject,
-      text: mail,
+      text: messageText,
       to: toEndPoints,
       cc: formatEndPoints(lastMessageData?.cc || []),
       bcc: formatEndPoints(lastMessageData?.bcc || []),
@@ -107,18 +113,57 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
 
     return composeRequest
   };
-  const { refetch: recallComposeApi } = useCompose(createComposeRequest());
-  const onPressCompose = async () => {
-    const { data } = await recallComposeApi();
 
-    if (data?.["success"]) {
-      setMail("")
+  const { refetch: recallComposeApi } = useCompose(createComposeRequest(mail));
+
+  const onPressCompose = async () => {
+    try {
+      if (!mail) return;
+      setMail("");
+      const allMessagesCopy = [...allMessages];
+      const newMessage = { text: mail, messageId: (new Date()).getTime(), notConfirmedNewMessage: true };
+      allMessagesCopy.unshift(newMessage);
+  
+      setAllMessages(allMessagesCopy);
+      const { data } = await recallComposeApi();
+      const newMessageIndex = allMessagesCopy.findIndex((message) => message.messageId === newMessage.messageId);
+  
+      if (data?.["success"]) {
+        allMessagesCopy.splice(newMessageIndex, 1, { ...allMessagesCopy[newMessageIndex], notConfirmedNewMessage: false });
+        setAllMessages(allMessagesCopy);
+      } else {
+        const allMessagesWithoutTheFailed = allMessagesCopy.filter(item => !item?.notConfirmedNewMessage);
+        setAllMessages(allMessagesWithoutTheFailed)
+        const failedMeessage = { ...newMessage, failedToSend: true };
+        setFailedMessages((prev) => {
+          const faildMessagesCopy = [...failedMessages]
+          faildMessagesCopy.unshift(failedMeessage);
+          return faildMessagesCopy
+        });
+        const newFailedMEssagesObj = { ...failedMessagesData, [id]: [...(failedMessagesData?.[id] ? failedMessagesData?.[id] : []), failedMeessage] }
+        setFailedMessagesData && setFailedMessagesData(newFailedMEssagesObj)
+      }
+    } catch {
     }
+    
+  };
+
+  const moveFromFailedToSuccess = (messageTempId) => {
+    const clickedFailedMessage = failedMessages.find(message => message.messageId === messageTempId);
+    const allFailedMessagesWithoutClicked = failedMessages.filter(message => message.messageId !== messageTempId);
+    setFailedMessages(allFailedMessagesWithoutClicked);
+    const allsuccessMessagesCopy = [...allMessages];
+    allsuccessMessagesCopy.unshift({ ...clickedFailedMessage, failedToSend: false, notConfirmedNewMessage: true });
+    setAllMessages(allsuccessMessagesCopy)
+    // remove data from the failed messages context
+    const failedMessagesFromContext = failedMessagesData[id].filter(message => message.messageId !== messageTempId);
+    // set the failed context with the new data
+    setFailedMessagesData && setFailedMessagesData({ ...failedMessagesData, [id]: failedMessagesFromContext })
   };
 
   if (!hasData || isError) {
-    return(
-      <LoadingScreen loadingText={isError ? "Something Wrong" : "Loading"} loadingIndecatorSize={20}/>
+    return (
+      <LoadingScreen loadingText={isError ? "Something Wrong" : "Loading"} loadingIndecatorSize={20} />
     )
   };
 
@@ -141,27 +186,29 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
 
         <View style={styles.chatWrapper}>
           {hasData && (
-              <>
-
-            <FlashList
-              data={allMessages}
-              renderItem={({ item }) =>
+            <>
+              <FlashList
+                data={[...failedMessages, ...allMessages]}
+                renderItem={({ item }) =>
                   <HoldItem items={MenuItems}>
-                    <View style={{marginVertical: 8}}>
-                  <Message item={item} />
+                    <View style={{ marginVertical: 8 }}>
+                      {item?.failedToSend ? <FailedMessage item={item}
+                        createComposeRequest={createComposeRequest}
+                        moveFromFailedToSuccess={moveFromFailedToSuccess}
+                      /> : <Message item={item} />}
                     </View>
                   </HoldItem>
                 }
-              keyExtractor={(item) => item?.messageId}
-              onEndReachedThreshold={0.2}
-              estimatedItemSize={100}
-              scrollIndicatorInsets={{right:1}}
-              inverted={true}
-              onEndReached={async ()=> {
-               await loadNextPageData()
-              }}
-            />
-                <View style={{height: 20}} />
+                keyExtractor={(item) => item?.messageId}
+                onEndReachedThreshold={0.2}
+                estimatedItemSize={100}
+                scrollIndicatorInsets={{ right: 1 }}
+                inverted={true}
+                onEndReached={async () => {
+                  await loadNextPageData()
+                }}
+              />
+              <View style={{ height: 20 }} />
             </>
           )}
 
@@ -190,7 +237,7 @@ const styles = StyleSheet.create({
   },
   chatWrapper: {
     flex: 1,
-    marginBottom: 48
+    marginBottom: 48,
   },
   emptyOrErrorMessageContainer: {
     alignItems: "center",

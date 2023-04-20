@@ -7,11 +7,16 @@ import { useUserDetails } from "@followBack/Hooks/useUserDetails";
 import { excludeUser } from "@followBack/Utils/messages";
 import { emailNameParcer } from "@followBack/Utils/email";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import useTheme from "@followBack/Hooks/useTheme";
+import {
+  UIActivityIndicator,
+} from 'react-native-indicators';
 
 const Message = ({ item }) => {
   const { styles } = useStyles();
-  const { text, to, from, cc, bcc, messageDateTime } = item;
+  const { text, to, from, cc, bcc, messageDateTime, notConfirmedNewMessage } = item;
   const { userDetails } = useUserDetails();
+  const { colors } = useTheme();
   const isOwnMessage = !item?.from?.address
     ? true
     : userDetails.user_name === emailNameParcer(item?.from?.address);
@@ -51,6 +56,7 @@ const Message = ({ item }) => {
         style={{
           ...styles.container,
           ...(isOwnMessage ? { marginLeft: "auto" } : { marginRight: "auto" }),
+          opacity: notConfirmedNewMessage ? 0.6 : 1
         }}
       >
         <Pressable
@@ -69,6 +75,9 @@ const Message = ({ item }) => {
             {text}
           </Typography>
         </Pressable>
+        {notConfirmedNewMessage && <View style={styles.activityIndicatorContainer}>
+          <UIActivityIndicator color={colors.grey02} size={15} />
+        </View>}
       </View>
 
       {showDate && (
@@ -93,8 +102,6 @@ const Message = ({ item }) => {
 
 const useStyles = useStylesWithTheme((theme) => ({
   container: {
-    // paddingVertical: 5
-    //marginBottom: 16
     position: "relative",
   },
   date: {
@@ -111,10 +118,14 @@ const useStyles = useStylesWithTheme((theme) => ({
     borderRadius: 20,
     backgroundColor: theme.colors.dark02,
   },
-
   groupContentContainer: {
     flexDirection: "row",
     alignItems: "center",
+  },
+  activityIndicatorContainer: {
+   position: "absolute",
+   left: -20,
+   top: "30%",
   },
 }));
 
