@@ -18,6 +18,7 @@ import { FlashList } from "@shopify/flash-list";
 import { useFailedMessages } from "@followBack/Hooks/useFailedMessages";
 import FailedMessage from "@followBack/Elements/FailedMessage/FailedMessage.index";
 import {getAccessToken} from "@followBack/Utils/accessToken";
+import { composeApi } from "@followBack/Apis/Compose";
 
 const ThreadDetails: React.FC = ({ navigation, options, route }) => {
   const { id } = route.params;
@@ -120,7 +121,6 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
     return composeRequest
   };
 
-  const { refetch: recallComposeApi } = useCompose(createComposeRequest(mail));
 
   const onPressCompose = async () => {
     try {
@@ -131,9 +131,8 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
       allMessagesCopy.unshift(newMessage);
   
       setAllMessages(allMessagesCopy);
-      const { data } = await recallComposeApi();
+      const data = await composeApi(createComposeRequest(mail));
       const newMessageIndex = allMessagesCopy.findIndex((message) => message.messageId === newMessage.messageId);
-  
       if (data?.["success"]) {
         allMessagesCopy.splice(newMessageIndex, 1, { ...allMessagesCopy[newMessageIndex], notConfirmedNewMessage: false });
         setAllMessages(allMessagesCopy);
@@ -149,7 +148,8 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
         const newFailedMEssagesObj = { ...failedMessagesData, [id]: [...(failedMessagesData?.[id] ? failedMessagesData?.[id] : []), failedMeessage] }
         setFailedMessagesData && setFailedMessagesData(newFailedMEssagesObj)
       }
-    } catch {
+    } catch (error){
+      console.log("error", error)
     }
     
   };

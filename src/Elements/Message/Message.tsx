@@ -56,7 +56,7 @@ const Message = ({ item }) => {
         style={{
           ...styles.container,
           ...(isOwnMessage ? { marginLeft: "auto" } : { marginRight: "auto" }),
-          opacity: notConfirmedNewMessage ? 0.6 : 1
+          // opacity: notConfirmedNewMessage ? 0.6 : 1
         }}
       >
         <Pressable
@@ -75,7 +75,10 @@ const Message = ({ item }) => {
             {text}
           </Typography>
         </Pressable>
-        {notConfirmedNewMessage && <View style={styles.activityIndicatorContainer}>
+        {
+        // notConfirmedNewMessage 
+        false
+        && <View style={styles.activityIndicatorContainer}>
           <UIActivityIndicator color={colors.grey02} size={15} />
         </View>}
       </View>
