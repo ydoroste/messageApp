@@ -86,11 +86,8 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
       ? data?.pages.flatMap((page) => page?.data)
       : [];
       
-    // setAllMessages(flattenData);
+    setAllMessages(flattenData);
     setLastMessageData(flattenData[0]);
-    if(allMessages.length === 0 || flattenData.length > allMessages.length || flattenData.length === allMessages.length){
-      setAllMessages(flattenData);
-    } 
 
   }, [data]);
 
