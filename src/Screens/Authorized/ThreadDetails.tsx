@@ -17,9 +17,11 @@ import LoadingScreen from "@followBack/Elements/LoadingScreen/LoadingScreen.inde
 import { FlashList } from "@shopify/flash-list";
 import { useFailedMessages } from "@followBack/Hooks/useFailedMessages";
 import FailedMessage from "@followBack/Elements/FailedMessage/FailedMessage.index";
+import {getAccessToken} from "@followBack/Utils/accessToken";
 
 const ThreadDetails: React.FC = ({ navigation, options, route }) => {
   const { id } = route.params;
+  const params = route.params;
   const [allMessages, setAllMessages] = useState([]);
   const [failedMessages, setFailedMessages] = useState([]);
   const { colors } = useTheme();
@@ -35,13 +37,17 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
 
   const hasData = allMessages?.length > 0;
   const firstMessage = allMessages?.[allMessages.length - 1];
-  const sender = firstMessage?.from ?? {
+  const sender = lastMessageData?.from ?? {
     name: userDetails.user_name,
     address: userDetails.email,
   };
-  const to = firstMessage?.to ?? [];
-  const cc = firstMessage?.cc ?? [];
-  const bcc = firstMessage?.bcc ?? [];
+  const composeTo = params.to ?? [];
+  const composeCc = params.cc ?? [];
+  const composeBcc = params.bcc ?? [];
+
+  const to = lastMessageData?.to  ??  composeTo;
+  const cc = lastMessageData?.cc ?? composeCc;
+  const bcc = lastMessageData?.bcc ?? composeBcc;
 
   const others =
     hasData

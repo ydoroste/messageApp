@@ -123,11 +123,13 @@ const Compose: React.FC = ({ navigation }) => {
   const { refetch } = useCompose(composeRequest);
   const onPressCompose = async () => {
     if (!subject || toTags.length < 0) return;
+    console.log("request", composeRequest);
     const { data } = await refetch();
+    console.log("data", data);
     if (data?.["success"]) {
       navigation.navigate(AuthorizedScreensEnum.threadsListStack, {
         screen: AuthorizedScreensEnum.threadDetails,
-        params: { id: data.thread },
+        params: { id: data.thread, to: composeRequest.to, cc: composeRequest.cc, bcc: composeRequest.bcc },
       });
     }
   };

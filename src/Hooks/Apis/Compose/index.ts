@@ -4,10 +4,14 @@ import {IComposeApiRequest, IComposeApiResponse} from "@followBack/Apis/Compose/
 import {AxiosError} from "axios";
 
 export const useCompose = (request: IComposeApiRequest) => {
-    return useQuery<IComposeApiResponse, AxiosError<IComposeApiResponse>>("compose", () => composeApi(request),
+    return useQuery<IComposeApiResponse, AxiosError<IComposeApiResponse>>(["compose",
+            JSON.stringify(request)
+        ],
+        () => composeApi(request),
         {
             enabled: false,
-            retry: 0
+            retry: 0,
+            cacheTime: 0
         })
 };
 
