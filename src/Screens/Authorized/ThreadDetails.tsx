@@ -17,7 +17,7 @@ import LoadingScreen from "@followBack/Elements/LoadingScreen/LoadingScreen.inde
 import { FlashList } from "@shopify/flash-list";
 import { useFailedMessages } from "@followBack/Hooks/useFailedMessages";
 import FailedMessage from "@followBack/Elements/FailedMessage/FailedMessage.index";
-import {getAccessToken} from "@followBack/Utils/accessToken";
+import { getAccessToken } from "@followBack/Utils/accessToken";
 import { composeApi } from "@followBack/Apis/Compose";
 
 const ThreadDetails: React.FC = ({ navigation, options, route }) => {
@@ -46,7 +46,7 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
   const composeCc = params.cc ?? [];
   const composeBcc = params.bcc ?? [];
 
-  const to = lastMessageData?.to  ??  composeTo;
+  const to = lastMessageData?.to ?? composeTo;
   const cc = lastMessageData?.cc ?? composeCc;
   const bcc = lastMessageData?.bcc ?? composeBcc;
 
@@ -85,11 +85,22 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
     const flattenData = !!data?.pages && data?.pages?.[0] !== undefined
       ? data?.pages.flatMap((page) => page?.data)
       : [];
-      
+
     setAllMessages(flattenData);
     setLastMessageData(flattenData[0]);
 
   }, [data]);
+
+  // Test temp solution
+  useEffect(() => {
+    setRefetchData(false);
+    const stopFetchingTimer = setTimeout(() => {
+      setRefetchData(true);
+    }, 5000);
+    return () => {
+      clearTimeout(stopFetchingTimer)
+    }
+  }, [mail]);
 
   useFocusEffect(
     useCallback(() => {
@@ -130,7 +141,7 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
       const allMessagesCopy = [...allMessages];
       const newMessage = { text: mail, messageId: (new Date()).getTime(), notConfirmedNewMessage: true };
       allMessagesCopy.unshift(newMessage);
-  
+
       setAllMessages(allMessagesCopy);
       const data = await composeApi(createComposeRequest(mail));
       const newMessageIndex = allMessagesCopy.findIndex((message) => message.messageId === newMessage.messageId);
@@ -149,10 +160,10 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
         const newFailedMEssagesObj = { ...failedMessagesData, [id]: [...(failedMessagesData?.[id] ? failedMessagesData?.[id] : []), failedMeessage] }
         setFailedMessagesData && setFailedMessagesData(newFailedMEssagesObj)
       }
-    } catch (error){
+    } catch (error) {
       console.log("error", error)
     }
-    
+
   };
 
   const moveFromFailedToSuccess = (messageTempId) => {
