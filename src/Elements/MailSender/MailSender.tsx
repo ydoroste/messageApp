@@ -4,14 +4,15 @@ import { StyleSheet, View } from "react-native";
 import InputField from "@followBack/GenericElements/InputField";
 import useTheme from "@followBack/Hooks/useTheme";
 import useKeyboardOpenListner from "@followBack/Hooks/useKeyboardOpenListner";
+import { UIActivityIndicator } from "react-native-indicators";
 
 
-const MailSender = ({ onChangeMailContent, onPressCompose, mail }) => {
+const MailSender = ({ onChangeMailContent, onPressCompose, mail, isLoading = false }) => {
   const { colors } = useTheme();
   const [focused, setFocused] = React.useState(false);
   const isKeyboardOpen = useKeyboardOpenListner();
   const inputMaxHeight = focused ? 300 : (isKeyboardOpen ? 100 : 200);
-  
+
   const onFocus = () => {
     setFocused(true);
   };
@@ -46,13 +47,17 @@ const MailSender = ({ onChangeMailContent, onPressCompose, mail }) => {
         />
       </View>
       <View style={styles.iconContainer}>
-        <IconButton
-          onPress={onPressCompose}
-          name="send"
-          width={17}
-          height={17}
-          color={colors.grey01}
-        />
+        {isLoading ?
+          <View style={styles.loadingIconContainer}>
+            <UIActivityIndicator color={colors.grey02} size={22} />
+          </View> :
+          <IconButton
+            onPress={onPressCompose}
+            name="send"
+            width={17}
+            height={17}
+            color={colors.grey01}
+          />}
       </View>
     </View>
   );
@@ -76,6 +81,12 @@ const styles = StyleSheet.create({
   },
   iconContainer: {
     marginBottom: 4
+  },
+  loadingIconContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+    height: 30, width: 33,
+    marginBottom: 2
   }
 });
 

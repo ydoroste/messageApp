@@ -62,6 +62,7 @@ const Compose: React.FC = ({ navigation }) => {
   const { sentMailThread } = useMailBoxes();
   const [toFieldIsFocused, setToFieldIsFocused] = useState(false);
   const [state, dispatch] = useReducer(reducer, initialState);
+  const [isSentMessageLoading, setIsSentMessageLoading] = useState(false);
   const {
     toSearchValue,
     ccSearchValue,
@@ -122,16 +123,24 @@ const Compose: React.FC = ({ navigation }) => {
 
   const { refetch } = useCompose(composeRequest);
   const onPressCompose = async () => {
-    if (!subject || toTags.length < 0) return;
-    console.log("request", composeRequest);
-    const { data } = await refetch();
-    console.log("data", data);
-    if (data?.["success"]) {
-      navigation.navigate(AuthorizedScreensEnum.threadsListStack, {
-        screen: AuthorizedScreensEnum.threadDetails,
-        params: { id: data.thread, to: composeRequest.to, cc: composeRequest.cc, bcc: composeRequest.bcc },
-      });
+    try {
+      setIsSentMessageLoading(true);
+      Keyboard.dismiss()
+      if (!subject || toTags.length < 0) return;
+      console.log("request", composeRequest);
+      const { data } = await refetch();
+      console.log("data", data);
+      if (data?.["success"]) {
+        setIsSentMessageLoading(false);
+        navigation.navigate(AuthorizedScreensEnum.threadsListStack, {
+          screen: AuthorizedScreensEnum.threadDetails,
+          params: { id: data.thread, to: composeRequest.to, cc: composeRequest.cc, bcc: composeRequest.bcc },
+        });
+      }
+    } catch {
+
     }
+   
   };
 
   const onChangeMailContent = ({ value }: { value: any }) => {
@@ -278,6 +287,7 @@ const Compose: React.FC = ({ navigation }) => {
           onPressCompose={onPressCompose}
           onChangeMailContent={onChangeMailContent}
           mail={mail}
+          isLoading={isSentMessageLoading}
         />
       </Pressable>
     </KeyboardAvoidingView>
