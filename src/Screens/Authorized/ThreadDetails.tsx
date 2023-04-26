@@ -96,7 +96,7 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
     setRefetchData(false);
     const stopFetchingTimer = setTimeout(() => {
       setRefetchData(true);
-    }, 5000);
+    }, 2000);
     return () => {
       clearTimeout(stopFetchingTimer)
     }
