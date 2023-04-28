@@ -9,21 +9,25 @@ import useTheme from "@followBack/Hooks/useTheme";
 import { deleteAccessToken } from "@followBack/Utils/accessToken";
 import { useUserDetails } from "@followBack/Hooks/useUserDetails";
 import { AuthorizedScreensEnum } from "../constants";
+import { useQueryClient } from "react-query";
 
 const CustomDrawerContent = (props) => {
   const { navigation, mailboxes } = props;
   const { colors } = useTheme();
   const { setIsAuthenticated } = useUserDetails();
-
+  const queryClient = useQueryClient();
+  
   const goToScreen = ({ stackName, screenName, params = {} }) => {
     navigation.toggleDrawer();
     navigation.navigate(stackName, { screen: screenName, params });
   };
 
-  const logOut = () => {
+  const logOut = async () => {
+    await queryClient.removeQueries();
     deleteAccessToken();
     setIsAuthenticated(false);
   };
+  
   return (
     <DrawerContentScrollView
       {...props}

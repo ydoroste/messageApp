@@ -133,17 +133,16 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
     return composeRequest
   };
 
-
   const onPressCompose = async () => {
     try {
       if (!mail) return;
       setMail("");
       const allMessagesCopy = [...allMessages];
-      const newMessage = { text: mail, messageId: (new Date()).getTime(), notConfirmedNewMessage: true };
+      const newMessage = { text: mail?.trim(), messageId: (new Date()).getTime(), notConfirmedNewMessage: true };
       allMessagesCopy.unshift(newMessage);
 
       setAllMessages(allMessagesCopy);
-      const data = await composeApi(createComposeRequest(mail));
+      const data = await composeApi(createComposeRequest(mail?.trim()));
       const newMessageIndex = allMessagesCopy.findIndex((message) => message.messageId === newMessage.messageId);
       if (data?.["success"]) {
         allMessagesCopy.splice(newMessageIndex, 1, { ...allMessagesCopy[newMessageIndex], notConfirmedNewMessage: false });
