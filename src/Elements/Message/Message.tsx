@@ -66,9 +66,9 @@ const Message = ({ item }) => {
           style={contentContainerStyles}
         >
           <Typography type="largeRegularBody" color="chat">
-            {isGroupChat && (
+            {isGroupChat && !isOwnMessage && (
                 <Typography type="largeBoldBody" color="chat">
-                  {messageSenderLabel + ": "}
+                  {messageSenderLabel + " "}
                 </Typography>
             )}
 
