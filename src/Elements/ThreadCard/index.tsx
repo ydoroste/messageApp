@@ -33,7 +33,7 @@ const ThreadCard: React.FC<IthreadCardProps> = ({threadItem}) => {
             </View>
 
             <View style={styles.content}>
-                <View style={{flex: 0.7}}>
+                <View >
                     <Typography
                         type={isMessageSeen ? "mediumRegularTitle" : "mediumBoldTitle"}
                         color={textColor}
@@ -95,11 +95,11 @@ const styles = StyleSheet.create({
     content: {
         gap: 3,
         flex: 1,
-        width: "100%"
+        width: "100%",
     },
     date: {
         alignSelf: "flex-end",
-        paddingBottom: 8,
+        paddingBottom: 12,
         marginLeft: 10
         //flex: 1
         // position: "absolute",
