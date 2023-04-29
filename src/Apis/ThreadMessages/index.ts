@@ -19,6 +19,7 @@ export const getThreadMessagesApi = async ({ id, pageParam }) => {
     .then((res) => {
       return {
         data: res.data?.data?.mappedMessages,
+        initiator: res?.data?.data?.initiator,
         nextPage: Number(pageParam || 1) + 1,
       };
     })

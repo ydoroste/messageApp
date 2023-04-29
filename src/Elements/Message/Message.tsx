@@ -40,6 +40,8 @@ const Message = ({ item }) => {
 
   const isGroupChat = others.length > 1;
   const messageSender = sender;
+  const userFirstName = messageSender.name.length > 0 ?
+      messageSender.name.split(' ')?.[0] : messageSender.address;
   const messageSenderLabel =
     messageSender.name.length > 0 ? messageSender.name : messageSender.address;
 
@@ -68,7 +70,7 @@ const Message = ({ item }) => {
           <Typography type="largeRegularBody" color="chat">
             {isGroupChat && !isOwnMessage && (
                 <Typography type="largeBoldBody" color="chat">
-                  {messageSenderLabel + " "}
+                  {userFirstName + " "}
                 </Typography>
             )}
 

@@ -42,10 +42,10 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
     name: userDetails.user_name,
     address: userDetails.email,
   };
+  const initiator = data?.pages?.[0]?.initiator;
   const composeTo = params.to ?? [];
   const composeCc = params.cc ?? [];
   const composeBcc = params.bcc ?? [];
-
   const to = lastMessageData?.to ?? composeTo;
   const cc = lastMessageData?.cc ?? composeCc;
   const bcc = lastMessageData?.bcc ?? composeBcc;
@@ -58,7 +58,7 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
       })
       : [];
 
-  const receiver = hasData ? getThreadParticipantsUserName(others) : "";
+  const receiver = hasData ? getThreadParticipantsUserName(others, initiator) : "";
   const subject = hasData ? firstMessage?.subject : "";
   const firstMessageDate = hasData ? conversationDateTime(firstMessage?.messageDateTime) : "";
 

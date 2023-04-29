@@ -127,9 +127,7 @@ const Compose: React.FC = ({ navigation }) => {
       setIsSentMessageLoading(true);
       Keyboard.dismiss()
       if (!subject || toTags.length < 0) return;
-      console.log("request", composeRequest);
       const { data } = await refetch();
-      console.log("data", data);
       if (data?.["success"]) {
         setIsSentMessageLoading(false);
         navigation.navigate(AuthorizedScreensEnum.threadsListStack, {
