@@ -45,6 +45,8 @@ const Message = ({ item }) => {
   const messageSenderLabel =
     messageSender.name.length > 0 ? messageSender.name : messageSender.address;
 
+  const messageStyle = isOwnMessage ? styles.ownMessageStyle : styles.otherMessagesStyle;
+
   return (
     <>
       <View
@@ -62,7 +64,7 @@ const Message = ({ item }) => {
           onPress={() => {
             setShowDate((prevState) => !prevState);
           }}
-          style={[styles.contentContainer, {backgroundColor: isOwnMessage ? colors.dark02 : colors.dark04}]}
+          style={[styles.contentContainer, messageStyle]}
         >
           <Typography type="largeRegularBody" color="chat">
             {isGroupChat && !isOwnMessage && (
@@ -125,6 +127,14 @@ const useStyles = useStylesWithTheme((theme) => ({
    left: -20,
    top: "30%",
   },
+  ownMessageStyle: {
+   backgroundColor: theme.colors.dark02
+  },
+  otherMessagesStyle: {
+    backgroundColor: theme.colors.dark04,
+    borderColor: theme.colors.dark02,
+    borderWidth: 1
+  }
 }));
 
 export default React.memo(
