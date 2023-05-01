@@ -29,8 +29,7 @@ const ThreadDetailsHeader: React.FC<ThreadDetailsHeaderProps> = ({
   };
   const { colors } = useTheme();
   const { styles } = useStyles();
-
-
+  const parsedSubject = subject?.trim() && subject?.trim() !== "" ? subject?.trim() : "<no subject>";
   return (
     <View >
       <View style={styles.headerContainer}>
@@ -46,7 +45,7 @@ const ThreadDetailsHeader: React.FC<ThreadDetailsHeaderProps> = ({
             <Typography type="mediumBoldTitle" textAlign="center" color={"primary"}>{receiver}</Typography>
           </View>
           <View style={styles.textContainer}>
-            <Typography type="largeBoldBody" textAlign="center" color={"secondary"} >{subject}</Typography>
+            <Typography type="largeBoldBody" textAlign="center" color={"secondary"} >{parsedSubject}</Typography>
           </View>
 
           <Typography type="smallRegularBody" textAlign="center" color={"secondary"} >{firtMessageDate}</Typography>
