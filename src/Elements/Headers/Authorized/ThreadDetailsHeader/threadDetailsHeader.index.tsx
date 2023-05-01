@@ -29,7 +29,7 @@ const ThreadDetailsHeader: React.FC<ThreadDetailsHeaderProps> = ({
   };
   const { colors } = useTheme();
   const { styles } = useStyles();
-  const parsedSubject = subject && subject !== "" ? subject : "<no subject>";
+  const parsedSubject = subject?.trim() && subject?.trim() !== "" ? subject?.trim() : "<no subject>";
   return (
     <View >
       <View style={styles.headerContainer}>

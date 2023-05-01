@@ -26,8 +26,8 @@ const ThreadCard: React.FC<IthreadCardProps> = ({threadItem}) => {
     });
 
     others = others.length === 0  &&  threadItem?.lastMessage?.from?.address === userDetails.email ?  [threadItem.lastMessage.from]  : others;
-    const message = threadItem.lastMessage.text && threadItem.lastMessage.text !== "" ? threadItem.lastMessage.text : "\<no message\>";
-    const subject = threadItem.lastMessage.subject && threadItem.lastMessage.subject !== "" ? threadItem.lastMessage.subject : "\<no subject\>";
+    const message = threadItem.lastMessage.text?.trim() && threadItem.lastMessage.text?.trim() !== "" ? threadItem.lastMessage.text?.trim() : "\<no message\>";
+    const subject = threadItem.lastMessage.subject?.trim() && threadItem.lastMessage.subject?.trim() !== "" ? threadItem.lastMessage.subject?.trim() : "\<no subject\>";
     const isMessageSeen = !threadItem.lastMessage.unseen;
     const textColor = isMessageSeen ? "secondary" : "chat";
     return (
