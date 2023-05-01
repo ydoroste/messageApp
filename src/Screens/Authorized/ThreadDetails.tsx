@@ -58,7 +58,7 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
       })
       : [];
   others = others.length === 0  &&  sender.address === userDetails.email ?  [sender]  : others;
-  console.log("sender", sender, others);
+
   const receiver = hasData ? getThreadParticipantsUserName(others, initiator) : "";
   const subject = hasData ? firstMessage?.subject : "";
   const firstMessageDate = hasData ? conversationDateTime(firstMessage?.messageDateTime) : "";
