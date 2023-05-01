@@ -93,7 +93,7 @@ const Compose: React.FC = ({ navigation }) => {
 
   const composeRequest: IComposeApiRequest = {
     subject,
-    text: mail,
+    text: mail || " ",
     to: isValidEmail(toSearchValue)
       ? [...formattedToTags, { address: toSearchValue }]
       : formattedToTags,
@@ -117,6 +117,7 @@ const Compose: React.FC = ({ navigation }) => {
       };
       return () => {
         reset();
+        setIsSentMessageLoading(false);
       };
     }, [])
   );
@@ -124,7 +125,7 @@ const Compose: React.FC = ({ navigation }) => {
   const { refetch } = useCompose(composeRequest);
   const onPressCompose = async () => {
     try {
-      if (toTags.length < 0) return;
+      if (toTags.length < 0 || (!subject && !mail)) return;
       setIsSentMessageLoading(true);
       Keyboard.dismiss()
       const { data } = await refetch();
@@ -136,7 +137,7 @@ const Compose: React.FC = ({ navigation }) => {
         });
       }
     } catch {
-
+      setIsSentMessageLoading(false);
     }
    
   };

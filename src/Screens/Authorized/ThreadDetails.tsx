@@ -85,7 +85,6 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
     const flattenData = !!data?.pages && data?.pages?.[0] !== undefined
       ? data?.pages.flatMap((page) => page?.data)
       : [];
-
     setAllMessages(flattenData);
     setLastMessageData(flattenData[0]);
 
@@ -212,7 +211,7 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
                       {item?.failedToSend ? <FailedMessage item={item}
                         createComposeRequest={createComposeRequest}
                         moveFromFailedToSuccess={moveFromFailedToSuccess}
-                      /> : <Message item={item} />}
+                      /> : (item.text && <Message item={item} />)}
                     </View>
                   </HoldItem>
                 }

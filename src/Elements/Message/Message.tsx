@@ -45,9 +45,6 @@ const Message = ({ item }) => {
   const messageSenderLabel =
     messageSender.name.length > 0 ? messageSender.name : messageSender.address;
 
-  const contentContainerStyles = isGroupChat
-    ? [styles.contentContainer]
-    : [styles.contentContainer, styles.groupContentContainer];
   return (
     <>
       <View
@@ -65,7 +62,7 @@ const Message = ({ item }) => {
           onPress={() => {
             setShowDate((prevState) => !prevState);
           }}
-          style={contentContainerStyles}
+          style={[styles.contentContainer, {backgroundColor: isOwnMessage ? colors.dark02 : colors.dark04}]}
         >
           <Typography type="largeRegularBody" color="chat">
             {isGroupChat && !isOwnMessage && (
@@ -122,10 +119,6 @@ const useStyles = useStylesWithTheme((theme) => ({
     width: "80%",
     borderRadius: 20,
     backgroundColor: theme.colors.dark02,
-  },
-  groupContentContainer: {
-    flexDirection: "row",
-    alignItems: "center",
   },
   activityIndicatorContainer: {
    position: "absolute",
