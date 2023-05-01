@@ -7,7 +7,7 @@ import {
     View,
     Text,
 } from "react-native";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {getTranslatedText} from "@followBack/Localization";
 import {IthreadCardProps} from "@followBack/Elements/ThreadCard/types";
 import Typography from "@followBack/GenericElements/Typography";
@@ -20,10 +20,14 @@ import {getThreadParticipantsUserName} from "@followBack/Utils/stringUtils";
 const ThreadCard: React.FC<IthreadCardProps> = ({threadItem}) => {
     const {userDetails} = useUserDetails();
 
-    const others = excludeUser({
+    let others = excludeUser({
         users: [threadItem.lastMessage.from, ...threadItem.lastMessage.to, ...threadItem.lastMessage.cc, ...threadItem.lastMessage.bcc ],
         userAddress: userDetails.email,
     });
+
+    others = others.length === 0  &&  threadItem?.lastMessage?.from?.address === userDetails.email ?  [threadItem.lastMessage.from]  : others;
+    const message = threadItem.lastMessage.text && threadItem.lastMessage.text !== "" ? threadItem.lastMessage.text : "\<no message\>";
+    const subject = threadItem.lastMessage.subject && threadItem.lastMessage.subject !== "" ? threadItem.lastMessage.subject : "\<no subject\>";
     const isMessageSeen = !threadItem.lastMessage.unseen;
     const textColor = isMessageSeen ? "secondary" : "chat";
     return (
@@ -52,7 +56,7 @@ const ThreadCard: React.FC<IthreadCardProps> = ({threadItem}) => {
                         ellipsizeMode="tail"
                         numberOfLines={1}
                     >
-                        {threadItem.lastMessage.subject ?? "..."}
+                        {subject}
                     </Typography>
                 </View>
                 <View>
@@ -62,16 +66,19 @@ const ThreadCard: React.FC<IthreadCardProps> = ({threadItem}) => {
                         ellipsizeMode="tail"
                         numberOfLines={1}
                     >
-                        {threadItem.lastMessage.text}
+                        {message}
                     </Typography>
                 </View>
             </View>
-
-            <View style={styles.date}>
+            <View style={{gap: 3}}>
+                <View style={{height: 25}}></View>
+                <View style={{height: 20, marginBottom: isMessageSeen ? 5.5 : 10}}></View>
+            <View style={[styles.date, {height: isMessageSeen ? 17 : 22, justifyContent: "center"}]}>
                 <Typography type={isMessageSeen ? "smallRegularBody" : "smallBoldBody"}
                             color={textColor}>
                     {formatMessageDate(threadItem.lastMessage.date)}
                 </Typography>
+            </View>
             </View>
         </View>
     );
@@ -80,12 +87,12 @@ export default ThreadCard;
 
 const styles = StyleSheet.create({
     container: {
-        height: 86,
+        height: 80,
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "flex-start",
         flex: 1,
-        position: "relative",
+       // position: "relative",
     },
 
     avatar: {
@@ -98,10 +105,11 @@ const styles = StyleSheet.create({
         width: "100%",
     },
     date: {
-        alignSelf: "flex-end",
-        paddingBottom: 10,
-        marginLeft: 10
-        //flex: 1
+      //  alignSelf: "flex-end",
+
+     //   paddingBottom: 10,
+      //  marginLeft: 10
+/**/        //flex: 1
         // position: "absolute",
         //  right: 0,
         //bottom: 8,
