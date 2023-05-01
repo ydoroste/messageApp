@@ -6,13 +6,14 @@ export interface ITypographyProps extends TextProps{
     color: colorTypes,
     textDecoration?: "underline",
     children: ReactNode,
-    textAlign?: textAlignTypes
+    textAlign?: textAlignTypes,
+    lineHeight?: number
 }
 
 export type typographyTypes = "smallRegularTitle" | "mediumRegularTitle" | "largeRegularTitle" | "mediumBoldTitle" |
     "largeBoldTitle" | "smallRegularBody" | "mediumRegularBody" | "smallBoldBody" | "mediumBoldBody" |
     "largeBoldBody" | "largeRegularBody";
 
-export type colorTypes = "primary" | "secondary" | "error" | "disabled" | "verified" | "chat";
+export type colorTypes = "primary" | "secondary" | "error" | "disabled" | "verified" | "chat" | "black";
 
 export type textAlignTypes = 'auto' | 'left' | 'right' | 'center' | 'justify' | undefined;

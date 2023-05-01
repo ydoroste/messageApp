@@ -36,7 +36,7 @@ const ThreadCard: React.FC<IthreadCardProps> = ({threadItem}) => {
                 <Avatar users={others}/>
             </View>
 
-            <View style={styles.content}>
+            <View style={[styles.content, {flex: 4}]}>
                 <View >
                     <Typography
                         type={isMessageSeen ? "mediumRegularTitle" : "mediumBoldTitle"}
@@ -49,7 +49,7 @@ const ThreadCard: React.FC<IthreadCardProps> = ({threadItem}) => {
                     </Typography>
                 </View>
 
-                <View style={{width: "82%", marginBottom: 3}}>
+                <View style={{marginBottom: 3}}>
                     <Typography
                         type={isMessageSeen ? "largeRegularBody" : "largeBoldBody"}
                         color={textColor}
@@ -70,15 +70,40 @@ const ThreadCard: React.FC<IthreadCardProps> = ({threadItem}) => {
                     </Typography>
                 </View>
             </View>
-            <View style={{gap: 3}}>
-                <View style={{height: 25}}></View>
-                <View style={{height: 20, marginBottom: isMessageSeen ? 5.5 : 10}}></View>
-            <View style={[styles.date, {height: isMessageSeen ? 17 : 22, justifyContent: "center"}]}>
-                <Typography type={isMessageSeen ? "smallRegularBody" : "smallBoldBody"}
-                            color={textColor}>
-                    {formatMessageDate(threadItem.lastMessage.date)}
-                </Typography>
-            </View>
+            <View style={styles.content}>
+                <View >
+                    <Typography
+                        type={isMessageSeen ? "mediumRegularTitle" : "mediumBoldTitle"}
+                        color={"black"}
+                        ellipsizeMode="tail"
+                        numberOfLines={1}
+
+                    >
+                        {getThreadParticipantsUserName(others)}
+                    </Typography>
+                </View>
+
+                <View style={{marginBottom: 8}}>
+                    <Typography
+                        type={isMessageSeen ? "largeRegularBody" : "largeBoldBody"}
+                        color={"black"}
+                        ellipsizeMode="tail"
+                        numberOfLines={1}
+                    >
+                        {subject}
+                    </Typography>
+                </View>
+                <View style={{height: 17, justifyContent: "center"}}>
+                    <Typography
+                        type={isMessageSeen ? "smallRegularBody" : "smallBoldBody"}
+                        color={textColor}
+                        ellipsizeMode="tail"
+                        numberOfLines={1}
+                        lineHeight={17}
+                    >
+                        {formatMessageDate(threadItem.lastMessage.date)}
+                    </Typography>
+                </View>
             </View>
         </View>
     );
@@ -100,7 +125,7 @@ const styles = StyleSheet.create({
         width: 52
     },
     content: {
-        gap: 3,
+       // gap: 3,
         flex: 1,
         width: "100%",
     },

@@ -7,5 +7,6 @@ export const colorsToTheme: Record<colorTypes, string> = {
     "error": "red",
     "disabled": "dark01",
     "verified": "blue02",
-    "chat": "white"
+    "chat": "white",
+    "black": "black"
 };
