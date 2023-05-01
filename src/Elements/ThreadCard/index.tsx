@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
     },
     date: {
         alignSelf: "flex-end",
-        paddingBottom: 12,
+        paddingBottom: 10,
         marginLeft: 10
         //flex: 1
         // position: "absolute",
