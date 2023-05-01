@@ -124,9 +124,9 @@ const Compose: React.FC = ({ navigation }) => {
   const { refetch } = useCompose(composeRequest);
   const onPressCompose = async () => {
     try {
+      if (toTags.length < 0) return;
       setIsSentMessageLoading(true);
       Keyboard.dismiss()
-      if (!subject || toTags.length < 0) return;
       const { data } = await refetch();
       if (data?.["success"]) {
         setIsSentMessageLoading(false);
