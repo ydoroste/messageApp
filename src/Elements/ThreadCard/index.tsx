@@ -36,7 +36,7 @@ const ThreadCard: React.FC<IthreadCardProps> = ({threadItem}) => {
                 <Avatar users={others}/>
             </View>
 
-            <View style={[styles.content, {flex: 4}]}>
+            <View style={[styles.content, {flex: 3.5}]}>
                 <View >
                     <Typography
                         type={isMessageSeen ? "mediumRegularTitle" : "mediumBoldTitle"}
@@ -100,6 +100,7 @@ const ThreadCard: React.FC<IthreadCardProps> = ({threadItem}) => {
                         ellipsizeMode="tail"
                         numberOfLines={1}
                         lineHeight={17}
+                        textAlign="center"
                     >
                         {formatMessageDate(threadItem.lastMessage.date)}
                     </Typography>
