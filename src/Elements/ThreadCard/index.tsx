@@ -93,7 +93,7 @@ const ThreadCard: React.FC<IthreadCardProps> = ({threadItem}) => {
                         {subject}
                     </Typography>
                 </View>
-                <View style={{height: 17, justifyContent: "center"}}>
+                <View style={{justifyContent: "center"}}>
                     <Typography
                         type={isMessageSeen ? "smallRegularBody" : "smallBoldBody"}
                         color={textColor}
