@@ -4,14 +4,15 @@ import * as localization from 'expo-localization';
 
 export const formatMessageDate = ( date: string ) => {
     const offset = getTimeZoneOffset();
-  const momentDate = moment(date, 'YYYY-MM-DD hh:mm A').add(offset, "hours");
+  const momentDate = moment(date, 'YYYY-MM-DD h:mm A').add(offset, "hours");
 
-    let hours = moment().diff(momentDate, 'hours');
+
+    const dateDiff = moment(momentDate).startOf('day').diff(moment(Date.now()).startOf('day'), 'days')
     //if message send date is less than 24 hours, show hours only
-    if(hours < 24){
-        return momentDate.format("hh:mm A");
+    if(dateDiff === 0){
+        return momentDate.format("h:mm A");
     }
-    if(hours > 24 && hours < 48){
+    if(dateDiff === -1){
         return "yesterday";
     }
  const years = moment().diff(momentDate, 'years', false);
@@ -20,7 +21,7 @@ export const formatMessageDate = ( date: string ) => {
 };
 export const conversationDateTime = (date: string)=>{
     const offset = getTimeZoneOffset();
-    const momentDate = moment(date, 'YYYY-MM-DD hh:mm A').add(offset, "hours");
+    const momentDate = moment(date, 'YYYY-MM-DD h:mm A').add(offset, "hours");
     return  momentDate.format("MMM DD");
 
 };
