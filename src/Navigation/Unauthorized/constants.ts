@@ -14,15 +14,15 @@ export enum UnauthorizedScreensEnum {
 
 export const UnauthorizedScreens: Record<UnauthorizedScreensEnum, IScreensDetails> = {
     [UnauthorizedScreensEnum.signIn]: {
-        title: "sign in",
+        title: "Sign in",
         name: "signIn"
     },
     [UnauthorizedScreensEnum.resetPassword]: {
-        title: "reset password",
+        title: "Reset password",
         name: "resetPassword"
     },
     [UnauthorizedScreensEnum.signUp]: {
-        title: "sign up",
+        title: "Sign up",
         name: "signUp"
     },
     [UnauthorizedScreensEnum.lockedAccount]: {
@@ -30,11 +30,11 @@ export const UnauthorizedScreens: Record<UnauthorizedScreensEnum, IScreensDetail
         name: "lockedAccount"
     },
     [UnauthorizedScreensEnum.chooseAccount]: {
-        title: "reset password",
+        title: "Reset password",
         name: "chooseAccount"
     },
     [UnauthorizedScreensEnum.codeVerification]: {
-        title: "reset password",
+        title: "Reset password",
         name: "codeVerification"
     },
     [UnauthorizedScreensEnum.resetSuccessfully]: {
@@ -50,7 +50,7 @@ export const UnauthorizedScreens: Record<UnauthorizedScreensEnum, IScreensDetail
         name: "createdSuccessfully"
     },
     [UnauthorizedScreensEnum.singUpVerification]: {
-        title: "sign up",
+        title: "Sign up",
         name: "singUpVerification"
     }
 };

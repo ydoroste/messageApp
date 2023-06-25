@@ -14,15 +14,31 @@ const UnauthorizedHeader: React.FC<UnauthorizedHeaderProps> = ({handleBackButton
 
     const canGoBack = navigation.canGoBack();
     const onBackButtonPress = ()=>{
-        if(!!handleBackButtonPress){
+        if(handleBackButtonPress){
             handleBackButtonPress()
             return;
         }
         canGoBack && navigation.goBack();
     };
     const {colors} = useTheme();
+    const useStyles = useStylesWithTheme((theme)=> ({
+        headerStyle: {
+            height: 85,
+            flexDirection: "row",
+            backgroundColor: theme.colors.black,
+            justifyContent: "center",
+            alignItems: "flex-end",
+            paddingTop: 0,
+            paddingHorizontal: 50
+    
+        },
+        iconButton: {
+            margin: 0,
+            position: "absolute",
+            bottom: -10
+        }
+    }));
     const {styles} = useStyles();
-    const title = route.name;
     return(
         <>
         <View style={styles.headerStyle}>
@@ -41,22 +57,5 @@ const UnauthorizedHeader: React.FC<UnauthorizedHeaderProps> = ({handleBackButton
     )
 };
 
-const useStyles = useStylesWithTheme((theme)=> ({
-    headerStyle: {
-        height: 85,
-        flexDirection: "row",
-        backgroundColor: theme.colors.black,
-        justifyContent: "center",
-        alignItems: "flex-end",
-        paddingTop: 0,
-        paddingHorizontal: 50
-
-    },
-    iconButton: {
-        margin: 0,
-        position: "absolute",
-        bottom: -10
-    }
-}));
 export default UnauthorizedHeader;
 

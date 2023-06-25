@@ -6,19 +6,17 @@ import {useUserDetails} from "@followBack/Hooks/useUserDetails";
 SplashScreen.preventAutoHideAsync();
 
 export default () =>{
-const [fontLoaded]= useFonts();
-const {isLoading} = useUserDetails();
-const isAppLoaded = fontLoaded && !isLoading;
+    const [fontLoaded]= useFonts();
+    const {isLoading} = useUserDetails();
+    const isAppLoaded = fontLoaded && !isLoading;
 
-    useEffect(()=>{
-        const loadApp = async () => {
-            await SplashScreen.hideAsync();
-        };
+        useEffect(()=>{
+            const loadApp = async () => {
+                await SplashScreen.hideAsync();
+            };
+            isAppLoaded && loadApp();
+        }, [isAppLoaded]);
 
-        isAppLoaded && loadApp();
-
-    }, [isAppLoaded]);
-
-return [isAppLoaded] as const;
+    return [isAppLoaded] as const;
 };
 

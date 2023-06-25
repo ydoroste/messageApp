@@ -1,3 +1,4 @@
+import * as React from "react";
 import {QueryClient, QueryClientProvider} from "react-query";
 import {ThemeProvider} from "@followBack/Contexts/ThemeContext";
 import {Provider as PaperProvider} from "react-native-paper";
@@ -6,14 +7,9 @@ import {NavigationContainer} from "@react-navigation/native";
 import {StatusBar} from "expo-status-bar";
 import UnauthorizedNavigation from "@followBack/Navigation/Unauthorized";
 import AuthorizedNavigation from "@followBack/Navigation/Authorized";
-import * as React from "react";
 import useInitialLoading from "@followBack/Hooks/useInitialLoading";
 import {useUserDetails} from "@followBack/Hooks/useUserDetails";
-import {
-    MailBoxesContext,
-    MailBoxesProvider,
-} from "./Contexts/MailBoxesContext";
-import {HoldMenuProvider} from "react-native-hold-menu";
+import { MailBoxesProvider } from "./Contexts/MailBoxesContext";
 
 const queryClient = new QueryClient();
 

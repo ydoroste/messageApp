@@ -9,15 +9,15 @@ import {
   deleteAccessToken,
   getAccessToken,
 } from "@followBack/Utils/accessToken";
+
+import { Apis } from "@followBack/Apis";
 import { GetApi } from "@followBack/Utils/httpApis/apis";
 import { AUTH_SERVICE_URL } from "@followBack/Apis/constants";
-
-export const UserContext = createContext<IUserContext>({} as IUserContext);
-import { Apis } from "@followBack/Apis";
 
 export const UserProvider: React.FC<IUserProviderProp> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  
   const [userDetails, setUserDetails] = useState<IUserDetails>({
     birth_date: new Date(),
     first_name: "",
@@ -55,24 +55,20 @@ export const UserProvider: React.FC<IUserProviderProp> = ({ children }) => {
   useEffect(() => {
     if (!isAuthenticated) return;
     const getUserDetails = async () => {
-      const token = await getAccessToken();
       try {
-        const {
-          data: { data },
-        } = await GetApi(
+        const token = await getAccessToken();
+        const { data: {userInfo} } = await GetApi(
           `${AUTH_SERVICE_URL}${Apis.userDetailsPath}`,
           undefined,
           {
             headers: { "x-auth-token": token },
           }
         );
-        setUserDetails(data);
+        setUserDetails(userInfo);
       } catch (e) {
         setIsAuthenticated(false);
-
       }
     };
-
     getUserDetails();
   }, [isAuthenticated]);
 
@@ -84,3 +80,5 @@ export const UserProvider: React.FC<IUserProviderProp> = ({ children }) => {
     </UserContext.Provider>
   );
 };
+
+export const UserContext = createContext<IUserContext>({} as IUserContext);

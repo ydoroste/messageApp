@@ -12,13 +12,13 @@ export interface IUserContext {
 }
 
 export interface IUserDetails {
-  birth_date: Date;
-  first_name: string;
-  gender: string;
   id: string;
+  first_name: string;
   last_name: string;
-  phone_number: string;
+  birth_date: Date;
+  gender: string;
   user_name: string;
-  wildduck_user_id: string;
   email: string;
+  phone_number: string;
+  wildduck_user_id: string;
 }

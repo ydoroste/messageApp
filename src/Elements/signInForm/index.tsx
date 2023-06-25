@@ -1,6 +1,6 @@
 import {useForm, Controller} from "react-hook-form";
 import {ISignInFormValues} from "@followBack/Elements/signInForm/types";
-import {View, StyleSheet, TextInput} from "react-native";
+import {View, StyleSheet} from "react-native";
 import InputField from "@followBack/GenericElements/InputField";
 import * as React from "react";
 import PasswordInput from "@followBack/GenericElements/PasswordInput";
@@ -10,30 +10,27 @@ import Typography from "@followBack/GenericElements/Typography";
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {UnauthorizedStackNavigationProps} from "@followBack/Navigation/Unauthorized/types";
 import {UnauthorizedScreensEnum} from "@followBack/Navigation/Unauthorized/constants";
-import {useCallback, useEffect, useState} from "react";
+import {useCallback, useState} from "react";
 import {useLogin} from "@followBack/Hooks/Apis/Login";
-import {ILoginApiRequest, ILoginApiResponse, ILoginApiResponseData} from "@followBack/Apis/Login/types";
+import {ILoginApiRequest, ILoginApiResponseData} from "@followBack/Apis/Login/types";
 import {setAccessToken} from "@followBack/Utils/accessToken";
 import {useUserDetails} from "@followBack/Hooks/useUserDetails";
-import {isError} from "react-query";
 import {IForgetPasswordApiRequest, IForgetPasswordData, ResetMethod} from "@followBack/Apis/ForgetPassword/types";
 import {useForgetPassword} from "@followBack/Hooks/Apis/ForgetPassword";
 
 const SignInForm: React.FC = () => {
     const nav = useNavigation<UnauthorizedStackNavigationProps['navigation']>();
+
     const [showVerifyLink, setShowVerifyLink] = useState(false);
     const {control, handleSubmit, formState: {errors, isValid, isSubmitting}, reset, setFocus, watch, setError} = useForm<ISignInFormValues>({
         defaultValues: {
             userNameOrPhone: "",
             password: ""
         },
-        mode: 'onChange'
+        mode: 'onChange',
     });
-    const rules = {
-        required: true
-    };
-    const values = watch();
 
+    const values = watch();
 
     const resetRequest: IForgetPasswordApiRequest = {
         user_name: values.userNameOrPhone,
@@ -41,9 +38,6 @@ const SignInForm: React.FC = () => {
     };
     //generate verification code
     const {refetch: refetchForgetPassword} = useForgetPassword(resetRequest);
-
-
-
     const request: ILoginApiRequest = {
         user_name: values.userNameOrPhone,
         password: values.password
@@ -75,14 +69,6 @@ const SignInForm: React.FC = () => {
         nav.navigate(UnauthorizedScreensEnum.signUp);
     };
 
-    useFocusEffect(
-        useCallback(() => {
-            setFocus("userNameOrPhone");
-            return () => {
-                reset();
-            };
-        }, []));
-
     const onSubmit = async () => {
         const {data, error, isError} = await refetch();
         if (isError) {
@@ -104,12 +90,19 @@ const SignInForm: React.FC = () => {
 
     };
 
+    useFocusEffect(
+        useCallback(() => {
+            setFocus("userNameOrPhone");
+            return () => {
+                reset();
+            };
+        }, []));
+
     return (
         <>
             <Controller
                 control={control}
                 name="userNameOrPhone"
-                rules={rules}
                 render={({field: {onChange, value, ref}}) => (
                     <View style={styles.textInput}>
                         <InputField

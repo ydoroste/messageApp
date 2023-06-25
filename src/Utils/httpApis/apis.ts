@@ -10,6 +10,7 @@ export const GetApi = <Response, Query = null>
     }
    return axios.get<Response, AxiosResponse<Response, object>, object>(newUrl, config);
 };
+
 export const DeleteApi = <Response, Query = null>
 (url: string, query?: Query, config?: object) =>{
     let newUrl = url;

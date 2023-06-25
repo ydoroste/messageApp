@@ -1,4 +1,4 @@
-import {SafeAreaView, Text, View} from "react-native";
+import {View} from "react-native";
 import {createNativeStackNavigator} from "@react-navigation/native-stack";
 import React from "react";
 import UnauthorizedHeader from "@followBack/Elements/Headers/UnAuthorized/UnauthorizedHeader/UnauthorizedHeader";
@@ -27,12 +27,13 @@ const Unauthorized = () => {
         <View style={{flex: 1}}>
             <Stack.Navigator
                 screenOptions={{
-                    //   unmountOnBlur: true,
+                    
                     header: (props) => <UnauthorizedHeader {...props} />,
                     contentStyle: {
                         backgroundColor: colors.black,
                     },
                 }}
+                initialRouteName={UnauthorizedScreensEnum.signIn}
             >
                 <Stack.Screen
                     name={UnauthorizedScreensEnum.signIn}
