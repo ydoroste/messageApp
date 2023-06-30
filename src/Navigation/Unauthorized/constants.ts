@@ -1,4 +1,4 @@
-export enum UnauthorizedScreensEnum {
+export enum AuthStackScreensEnum {
     signIn = 'signIn',
     resetPassword = 'resetPassword',
     signUp = 'signUp',
@@ -12,44 +12,44 @@ export enum UnauthorizedScreensEnum {
 }
 
 
-export const UnauthorizedScreens: Record<UnauthorizedScreensEnum, IScreensDetails> = {
-    [UnauthorizedScreensEnum.signIn]: {
+export const AuthStackScreens: Record<AuthStackScreensEnum, IScreensDetails> = {
+    [AuthStackScreensEnum.signIn]: {
         title: "Sign in",
         name: "signIn"
     },
-    [UnauthorizedScreensEnum.resetPassword]: {
+    [AuthStackScreensEnum.resetPassword]: {
         title: "Reset password",
         name: "resetPassword"
     },
-    [UnauthorizedScreensEnum.signUp]: {
+    [AuthStackScreensEnum.signUp]: {
         title: "Sign up",
         name: "signUp"
     },
-    [UnauthorizedScreensEnum.lockedAccount]: {
+    [AuthStackScreensEnum.lockedAccount]: {
         title: "",
         name: "lockedAccount"
     },
-    [UnauthorizedScreensEnum.chooseAccount]: {
+    [AuthStackScreensEnum.chooseAccount]: {
         title: "Reset password",
         name: "chooseAccount"
     },
-    [UnauthorizedScreensEnum.codeVerification]: {
+    [AuthStackScreensEnum.codeVerification]: {
         title: "Reset password",
         name: "codeVerification"
     },
-    [UnauthorizedScreensEnum.resetSuccessfully]: {
+    [AuthStackScreensEnum.resetSuccessfully]: {
         title: "",
         name: "resetSuccessfully"
     },
-    [UnauthorizedScreensEnum.noSecondaryEmail]: {
+    [AuthStackScreensEnum.noSecondaryEmail]: {
         title: "",
         name: "noSecondaryEmail"
     },
-    [UnauthorizedScreensEnum.createdSuccessfully]: {
+    [AuthStackScreensEnum.createdSuccessfully]: {
         title: "",
         name: "createdSuccessfully"
     },
-    [UnauthorizedScreensEnum.singUpVerification]: {
+    [AuthStackScreensEnum.singUpVerification]: {
         title: "Sign up",
         name: "singUpVerification"
     }

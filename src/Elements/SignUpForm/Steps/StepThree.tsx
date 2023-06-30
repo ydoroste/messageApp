@@ -12,7 +12,7 @@ import { UnauthorizedStackNavigationProps } from "@followBack/Navigation/Unautho
 import { encryptCodeVerificationValue } from "@followBack/Elements/CodeVerificationLayout/utils";
 import { useRoute } from "@react-navigation/native";
 import { ResetMethod } from "@followBack/Apis/ForgetPassword/types";
-import { UnauthorizedScreensEnum } from "@followBack/Navigation/Unauthorized/constants";
+import { AuthStackScreensEnum } from "@followBack/Navigation/Unauthorized/constants";
 import { IStepThreeProps } from "@followBack/Elements/SignUpForm/types";
 
 import { useVerifyUser } from "@followBack/Hooks/Apis/VerifyUser";
@@ -62,7 +62,7 @@ const StepThree: React.FC<IStepThreeProps> = ({
       return;
     }
 
-    nav.navigate(UnauthorizedScreensEnum.createdSuccessfully, {
+    nav.navigate(AuthStackScreensEnum.createdSuccessfully, {
       userName: user_name,
     });
   };

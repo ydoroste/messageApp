@@ -9,7 +9,7 @@ import {getTranslatedText} from "@followBack/Localization";
 import Typography from "@followBack/GenericElements/Typography";
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {UnauthorizedStackNavigationProps} from "@followBack/Navigation/Unauthorized/types";
-import {UnauthorizedScreensEnum} from "@followBack/Navigation/Unauthorized/constants";
+import {AuthStackScreensEnum} from "@followBack/Navigation/Unauthorized/constants";
 import {useCallback, useState} from "react";
 import {useLogin} from "@followBack/Hooks/Apis/Login";
 import {ILoginApiRequest, ILoginApiResponseData} from "@followBack/Apis/Login/types";
@@ -53,7 +53,7 @@ const SignInForm: React.FC = () => {
             return
         }
         const resData = data?.data as IForgetPasswordData;
-        nav.navigate(UnauthorizedScreensEnum.singUpVerification,
+        nav.navigate(AuthStackScreensEnum.singUpVerification,
             {
                 phoneNumber: resData?.phone_number,
                 resetMethod: ResetMethod.Phone,
@@ -62,11 +62,11 @@ const SignInForm: React.FC = () => {
 
     };
     const onForgetPasswordPress = () => {
-        nav.navigate(UnauthorizedScreensEnum.chooseAccount);
+        nav.navigate(AuthStackScreensEnum.chooseAccount);
     };
 
     const onSignUpPress = () => {
-        nav.navigate(UnauthorizedScreensEnum.signUp);
+        nav.navigate(AuthStackScreensEnum.signUp);
     };
 
     const onSubmit = async () => {
@@ -75,7 +75,7 @@ const SignInForm: React.FC = () => {
             setShowVerifyLink(error?.response?.data?.message === "User isn't verified");
 
             if (error?.response?.data?.message === "your account has been locked") {
-                nav.navigate(UnauthorizedScreensEnum.lockedAccount, {userName: values.userNameOrPhone})
+                nav.navigate(AuthStackScreensEnum.lockedAccount, {userName: values.userNameOrPhone})
             }
             setError("userNameOrPhone", {
                 message: error?.response?.data?.message

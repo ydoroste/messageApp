@@ -7,13 +7,13 @@ import * as React from "react";
 import Typography from "@followBack/GenericElements/Typography";
 import Button from "@followBack/GenericElements/Button";
 import {getTranslatedText} from "@followBack/Localization";
-import {UnauthorizedScreensEnum} from "@followBack/Navigation/Unauthorized/constants";
+import {AuthStackScreensEnum} from "@followBack/Navigation/Unauthorized/constants";
 
 const ResetSuccessfully: React.FC = () => {
     const nav = useNavigation<UnauthorizedStackNavigationProps['navigation']>();
 
     const onSignInPress = () => {
-        nav.navigate(UnauthorizedScreensEnum.signIn);
+        nav.navigate(AuthStackScreensEnum.signIn);
     };
     return (
         <View style={styles.container}>

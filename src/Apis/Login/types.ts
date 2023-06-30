@@ -37,5 +37,4 @@ interface ILoginApiUserDetails {
     block_reason: string,
     opt_block_expiration_date: string,
     resetToken: string
-
 }

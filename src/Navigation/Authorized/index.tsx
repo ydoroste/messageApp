@@ -1,10 +1,9 @@
-import { ActivityIndicator, View } from "react-native";
+import { View } from "react-native";
 import { createDrawerNavigator } from "@react-navigation/drawer";
-import React, { useEffect } from "react";
+import React from "react";
 import Compose from "@followBack/Screens/Authorized/Compose";
 import ThreadsList from "@followBack/Screens/Authorized/ThreadsList";
 import ThreadDetails from "@followBack/Screens/Authorized/ThreadDetails";
-
 import { AuthorizedScreensEnum } from "@followBack/Navigation/Authorized/constants";
 import { AuthorizedParams } from "@followBack/Navigation/Authorized/types";
 import MailBoxHeader from "@followBack/Elements/Headers/Authorized/MailBoxHeader/MailBoxHeader";
@@ -13,11 +12,8 @@ import useTheme from "@followBack/Hooks/useTheme";
 import { SearchProvider } from "@followBack/Contexts/SearchContext";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { useMailBoxes } from "@followBack/Hooks/useMailboxes";
-import { TextInput } from "react-native-paper";
-import Typography from "@followBack/GenericElements/Typography";
 import LoadingScreen from "@followBack/Elements/LoadingScreen/LoadingScreen.index";
 import { FailedMessagesContextProvider } from "@followBack/Contexts/FailedMessagesContext";
-
 
 const Drawer = createDrawerNavigator<AuthorizedParams>();
 

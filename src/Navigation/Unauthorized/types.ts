@@ -1,18 +1,18 @@
 import {NativeStackScreenProps} from "react-native-screens/lib/typescript/native-stack/types";
-import {UnauthorizedScreensEnum} from "@followBack/Navigation/Unauthorized/constants";
+import {AuthStackScreensEnum} from "@followBack/Navigation/Unauthorized/constants";
 import {ResetMethod} from "@followBack/Apis/ForgetPassword/types";
 
 export type UnauthorizedParams = {
-    [UnauthorizedScreensEnum.signIn]: undefined;
-    [UnauthorizedScreensEnum.resetPassword]: IResetPasswordState;
-    [UnauthorizedScreensEnum.signUp]: undefined;
-    [UnauthorizedScreensEnum.lockedAccount]: ILockScreenState;
-    [UnauthorizedScreensEnum.chooseAccount]: undefined;
-    [UnauthorizedScreensEnum.codeVerification]: ICodeVerificationState;
-    [UnauthorizedScreensEnum.resetSuccessfully]: undefined;
-    [UnauthorizedScreensEnum.noSecondaryEmail]: undefined;
-    [UnauthorizedScreensEnum.createdSuccessfully]: ICreatedSuccessfullyState;
-    [UnauthorizedScreensEnum.singUpVerification]: ICodeVerificationState;
+    [AuthStackScreensEnum.signIn]: undefined;
+    [AuthStackScreensEnum.resetPassword]: IResetPasswordState;
+    [AuthStackScreensEnum.signUp]: undefined;
+    [AuthStackScreensEnum.lockedAccount]: ILockScreenState;
+    [AuthStackScreensEnum.chooseAccount]: undefined;
+    [AuthStackScreensEnum.codeVerification]: ICodeVerificationState;
+    [AuthStackScreensEnum.resetSuccessfully]: undefined;
+    [AuthStackScreensEnum.noSecondaryEmail]: undefined;
+    [AuthStackScreensEnum.createdSuccessfully]: ICreatedSuccessfullyState;
+    [AuthStackScreensEnum.singUpVerification]: ICodeVerificationState;
 };
 
 export interface  ICodeVerificationState {

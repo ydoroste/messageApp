@@ -9,8 +9,8 @@ import useTheme from "@followBack/Hooks/useTheme";
 import LockedAccount from "@followBack/Screens/Unauthorized/LockedAccount";
 import {UnauthorizedParams} from "@followBack/Navigation/Unauthorized/types";
 import {
-    UnauthorizedScreens,
-    UnauthorizedScreensEnum,
+    AuthStackScreens,
+    AuthStackScreensEnum,
 } from "@followBack/Navigation/Unauthorized/constants";
 import ChooseAccount from "@followBack/Screens/Unauthorized/ChooseAccount";
 import CodeVerification from "@followBack/Screens/Unauthorized/CodeVerification";
@@ -21,7 +21,7 @@ import SignUpVerification from "@followBack/Screens/Unauthorized/SignUpVerificat
 
 const Stack = createNativeStackNavigator<UnauthorizedParams>();
 
-const Unauthorized = () => {
+const AuthStack = () => {
     const {colors} = useTheme();
     return (
         <View style={{flex: 1}}>
@@ -33,62 +33,62 @@ const Unauthorized = () => {
                         backgroundColor: colors.black,
                     },
                 }}
-                initialRouteName={UnauthorizedScreensEnum.signIn}
+                initialRouteName={AuthStackScreensEnum.signIn}
             >
                 <Stack.Screen
-                    name={UnauthorizedScreensEnum.signIn}
-                    options={{title: UnauthorizedScreens.signIn.title}}
+                    name={AuthStackScreensEnum.signIn}
+                    options={{title: AuthStackScreens.signIn.title}}
                     component={SignIn}
                 />
                 <Stack.Screen
-                    name={UnauthorizedScreensEnum.resetPassword}
-                    options={{title: UnauthorizedScreens.resetPassword.title}}
+                    name={AuthStackScreensEnum.resetPassword}
+                    options={{title: AuthStackScreens.resetPassword.title}}
                     component={ResetPassword}
                 />
                 <Stack.Screen
-                    name={UnauthorizedScreensEnum.signUp}
-                    options={{title: UnauthorizedScreens.signUp.title}}
+                    name={AuthStackScreensEnum.signUp}
+                    options={{title: AuthStackScreens.signUp.title}}
                     component={SignUp}
                 />
                 <Stack.Screen
-                    name={UnauthorizedScreensEnum.lockedAccount}
-                    options={{title: UnauthorizedScreens.lockedAccount.title}}
+                    name={AuthStackScreensEnum.lockedAccount}
+                    options={{title: AuthStackScreens.lockedAccount.title}}
                     component={LockedAccount}
                 />
                 <Stack.Screen
-                    name={UnauthorizedScreensEnum.chooseAccount}
-                    options={{title: UnauthorizedScreens.chooseAccount.title}}
+                    name={AuthStackScreensEnum.chooseAccount}
+                    options={{title: AuthStackScreens.chooseAccount.title}}
                     component={ChooseAccount}
                 />
                 <Stack.Screen
-                    name={UnauthorizedScreensEnum.codeVerification}
-                    options={{title: UnauthorizedScreens.codeVerification.title}}
+                    name={AuthStackScreensEnum.codeVerification}
+                    options={{title: AuthStackScreens.codeVerification.title}}
                     component={CodeVerification}
                 />
                 <Stack.Screen
-                    name={UnauthorizedScreensEnum.resetSuccessfully}
-                    options={{title: UnauthorizedScreens.resetSuccessfully.title}}
+                    name={AuthStackScreensEnum.resetSuccessfully}
+                    options={{title: AuthStackScreens.resetSuccessfully.title}}
                     component={ResetSuccessfully}
                 />
                 <Stack.Screen
-                    name={UnauthorizedScreensEnum.noSecondaryEmail}
-                    options={{title: UnauthorizedScreens.noSecondaryEmail.title}}
+                    name={AuthStackScreensEnum.noSecondaryEmail}
+                    options={{title: AuthStackScreens.noSecondaryEmail.title}}
                     component={NoSecondaryEmail}
                 />
                 <Stack.Screen
-                    name={UnauthorizedScreensEnum.singUpVerification}
-                    options={{title: UnauthorizedScreens.singUpVerification.title}}
+                    name={AuthStackScreensEnum.singUpVerification}
+                    options={{title: AuthStackScreens.singUpVerification.title}}
                     component={SignUpVerification}
                 />
 
                 <Stack.Screen
-                    name={UnauthorizedScreensEnum.createdSuccessfully}
+                    name={AuthStackScreensEnum.createdSuccessfully}
                     options={{
-                        title: UnauthorizedScreens.createdSuccessfully.title,
+                        title: AuthStackScreens.createdSuccessfully.title,
                         header: (props) => (
                             <UnauthorizedHeader
                                 handleBackButtonPress={() => {
-                                    props.navigation.navigate(UnauthorizedScreensEnum.signIn);
+                                    props.navigation.navigate(AuthStackScreensEnum.signIn);
                                 }}
                                 {...props}
                             />
@@ -101,4 +101,4 @@ const Unauthorized = () => {
     );
 };
 
-export default Unauthorized;
+export default AuthStack;

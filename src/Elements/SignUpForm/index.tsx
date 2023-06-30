@@ -9,7 +9,7 @@ import {getTranslatedText} from "@followBack/Localization";
 import Typography from "@followBack/GenericElements/Typography";
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {UnauthorizedStackNavigationProps} from "@followBack/Navigation/Unauthorized/types";
-import {UnauthorizedScreensEnum} from "@followBack/Navigation/Unauthorized/constants";
+import {AuthStackScreensEnum} from "@followBack/Navigation/Unauthorized/constants";
 import {useCallback, useEffect} from "react";
 import {useUserDetails} from "@followBack/Hooks/useUserDetails";
 import {ISignUpFormValues} from "@followBack/Elements/SignUpForm/types";
@@ -83,7 +83,7 @@ const SignUpForm: React.FC = () => {
             });
         return;
         }
-        nav.navigate(UnauthorizedScreensEnum.singUpVerification,
+        nav.navigate(AuthStackScreensEnum.singUpVerification,
             {
                 phoneNumber: values.formattedPhoneNumber,
                 resetMethod: ResetMethod.Phone,

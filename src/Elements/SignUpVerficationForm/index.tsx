@@ -14,7 +14,7 @@ import Button from "@followBack/GenericElements/Button";
 import {SignUpVerificationValues} from "@followBack/Elements/SignUpVerficationForm/types";
 import {IVerifyUserApiRequest} from "@followBack/Apis/VerifyUser/types";
 import {useVerifyUser} from "@followBack/Hooks/Apis/VerifyUser";
-import {UnauthorizedScreensEnum} from "@followBack/Navigation/Unauthorized/constants";
+import {AuthStackScreensEnum} from "@followBack/Navigation/Unauthorized/constants";
 
 const SignUpVerificationForm =()=>{
     const route = useRoute<UnauthorizedStackNavigationProps['route']>();
@@ -44,7 +44,7 @@ const SignUpVerificationForm =()=>{
             return;
         }
 
-        nav.navigate(UnauthorizedScreensEnum.createdSuccessfully, {
+        nav.navigate(AuthStackScreensEnum.createdSuccessfully, {
             userName: userName,
         });
     };

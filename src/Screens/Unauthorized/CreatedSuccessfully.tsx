@@ -8,7 +8,7 @@ import * as React from "react";
 import Typography from "@followBack/GenericElements/Typography";
 import Button from "@followBack/GenericElements/Button";
 import { getTranslatedText } from "@followBack/Localization";
-import {UnauthorizedScreensEnum} from "@followBack/Navigation/Unauthorized/constants";
+import {AuthStackScreensEnum} from "@followBack/Navigation/Unauthorized/constants";
 import { useRoute } from "@react-navigation/native";
 
 const CreatedSuccessfully: React.FC = () => {
@@ -17,7 +17,7 @@ const CreatedSuccessfully: React.FC = () => {
   const { userName } = route.params as ICreatedSuccessfullyState;
 
   const onSignInPress = () => {
-    nav.navigate(UnauthorizedScreensEnum.signIn);
+    nav.navigate(AuthStackScreensEnum.signIn);
   };
   return (
     <View style={styles.container}>
