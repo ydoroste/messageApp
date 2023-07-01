@@ -1,5 +1,4 @@
 import {useForm, Controller} from "react-hook-form";
-import {ISignInFormValues} from "@followBack/Elements/signInForm/types";
 import {View, Dimensions} from "react-native";
 import InputField from "@followBack/GenericElements/InputField";
 import * as React from "react";
@@ -10,15 +9,13 @@ import Typography from "@followBack/GenericElements/Typography";
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {UnauthorizedStackNavigationProps} from "@followBack/Navigation/Unauthorized/types";
 import {AuthStackScreensEnum} from "@followBack/Navigation/Unauthorized/constants";
-import {useCallback, useEffect} from "react";
-import {useUserDetails} from "@followBack/Hooks/useUserDetails";
+import {useCallback} from "react";
 import {ISignUpFormValues} from "@followBack/Elements/SignUpForm/types";
 import PhoneNumberInput from "@followBack/GenericElements/PhoneNumberInput";
 import useStylesWithTheme from "@followBack/Hooks/useStylesWithTheme";
-import {TextInput, Tooltip} from "react-native-paper";
+import {TextInput} from "react-native-paper";
 import Dropdown from "@followBack/GenericElements/Dropdown";
 import DatePicker from "@followBack/GenericElements/DatePicker";
-import {useState} from "react";
 import moment from "moment";
 import {ResetMethod} from "@followBack/Apis/ForgetPassword/types";
 import {errorFieldsAsString, IRegisterApiRequest} from "@followBack/Apis/Register/types";
@@ -27,11 +24,46 @@ import {isValidPhoneNumber} from "@followBack/Utils/validations";
 
 
 const gender = [
-    {name: "male", value: "male"},
-    {name: "female", value: "female"},
+    {name: "Male", value: "male"},
+    {name: "Female", value: "female"},
 ];
 
 const windowWidth = Dimensions.get('window').width;
+
+const PasswordControl = (props: any) => {
+    const {styles} = useStyles();
+    const {control, errors} = props;
+    return (
+        <Controller
+                control={control}
+                name="password"
+                rules={{
+                    required: true,
+                    minLength: {
+                        message: "You need at least 8 characters ",
+                        value: 8
+                    }
+                }}
+                render={({field: {onChange, value, ref}}) => (
+                    <View style={[styles.textInput, styles.fullWidth]}>
+                        <PasswordInput
+                            error={!!errors.password}
+                            placeholder={getTranslatedText("password")}
+                            onChangeText={onChange}
+                            value={value}
+                        />
+                        {errors.password?.message && (
+                            <View style={styles.errorMessage}>
+                                <Typography type="smallRegularBody" color="error">
+                                    {errors.password.message}
+                                </Typography>
+                            </View>
+                        )}
+                    </View>
+                )}
+            />
+    );
+}
 const SignUpForm: React.FC = () => {
     const nav = useNavigation<UnauthorizedStackNavigationProps['navigation']>();
     const {control, handleSubmit, formState: {errors, isSubmitting, isValid}, setFocus, watch, setError, setValue} = useForm<ISignUpFormValues>({
@@ -52,11 +84,13 @@ const SignUpForm: React.FC = () => {
         required: true
     };
     const values = watch();
+
+    // Sending values to BE request
     const request: IRegisterApiRequest = {
         first_name: values.first_name,
         last_name: values.last_name,
         gender: values.gender,
-        birth_date: values?.birth_date ?? new Date(),
+        birth_date: values.birth_date ?? new Date(),
         user_name: values.user_name,
         phone_number: values.formattedPhoneNumber,
         password: values.password,
@@ -67,7 +101,7 @@ const SignUpForm: React.FC = () => {
     useFocusEffect(
         useCallback(() => {
             setFocus("first_name");
-            }, []));
+        }, []));
 
     const onSubmit = async (formData: ISignUpFormValues) => {
         if(!isValidPhoneNumber(formData.formattedPhoneNumber)){
@@ -77,11 +111,14 @@ const SignUpForm: React.FC = () => {
         const {data, error, isError} = await refetch();
         if (isError) {
             const errors = error?.response?.data?.errors;
+            if (errors == undefined) {
+                return;
+            }
             const errorKeys = Object.keys(errors) as errorFieldsAsString[];
             errorKeys.forEach(item => {
                 setError(item, {message: errors[item]})
             });
-        return;
+            return;
         }
         nav.navigate(AuthStackScreensEnum.singUpVerification,
             {
@@ -109,6 +146,7 @@ const SignUpForm: React.FC = () => {
                                 placeholder={getTranslatedText("firstName")}
                                 onChangeText={onChange}
                                 value={value}
+                                returnKeyType="next"
                             />
                             {errors.first_name?.message && (
                                 <View style={styles.errorMessage}>
@@ -123,6 +161,7 @@ const SignUpForm: React.FC = () => {
                 <Controller
                     control={control}
                     rules={rules}
+                    name="last_name"
                     render={({field: {onChange, value, ref}}) => (
                         <View style={styles.textInput}>
                             <InputField
@@ -142,10 +181,7 @@ const SignUpForm: React.FC = () => {
                             )}
                         </View>
                     )}
-                    name="last_name"
                 />
-
-
             </View>
             <Controller
                 control={control}
@@ -207,6 +243,7 @@ const SignUpForm: React.FC = () => {
                 />
                 <Controller
                     control={control}
+                    name="birth_date"
                     rules={{
                         required: true,
                         validate: (value?: Date) => {
@@ -236,7 +273,6 @@ const SignUpForm: React.FC = () => {
                             )}
                         </View>
                     )}
-                    name="birth_date"
                 />
             </View>
             <Controller
@@ -253,6 +289,7 @@ const SignUpForm: React.FC = () => {
                             onChangeText={onChange}
                             value={value}
                             right={<TextInput.Affix text="@unsend.app" textStyle={styles.email}/>}
+                            autoCapitalize="none"
                         />
 
                         {errors.user_name?.message && (
@@ -265,34 +302,7 @@ const SignUpForm: React.FC = () => {
                     </View>
                 )}
             />
-            <Controller
-                control={control}
-                rules={{
-                    required: true,
-                    minLength: {
-                        message: "you need at least 8 characters ",
-                        value: 8
-                    }
-                }}
-                render={({field: {onChange, value, ref}}) => (
-                    <View style={[styles.textInput, styles.fullWidth]}>
-                        <PasswordInput
-                            error={!!errors.password}
-                            placeholder={getTranslatedText("password")}
-                            onChangeText={onChange}
-                            value={value}
-                        />
-                        {errors.password?.message && (
-                            <View style={styles.errorMessage}>
-                                <Typography type="smallRegularBody" color="error">
-                                    {errors.password.message}
-                                </Typography>
-                            </View>
-                        )}
-                    </View>
-                )}
-                name="password"
-            />
+            <PasswordControl control={control} errors={errors}/>
             <View style={styles.buttonWrapper}>
                 <View style={styles.button}>
                     <Button

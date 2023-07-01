@@ -1,7 +1,6 @@
 import axios, {AxiosRequestConfig, AxiosResponse} from "axios";
 import queryString from "query-string";
 
-
 export const GetApi = <Response, Query = null>
 (url: string, query?: Query, config?: object) =>{
     let newUrl = url;

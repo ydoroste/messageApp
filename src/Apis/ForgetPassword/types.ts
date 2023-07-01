@@ -12,7 +12,6 @@ export interface IForgetPasswordApiResponse {
 export enum ResetMethod {
     Phone,
     Email
-
 }
 
 export interface IForgetPasswordData {

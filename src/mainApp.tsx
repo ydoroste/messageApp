@@ -10,8 +10,38 @@ import AuthorizedNavigation from "@followBack/Navigation/Authorized";
 import useInitialLoading from "@followBack/Hooks/useInitialLoading";
 import {useUserDetails} from "@followBack/Hooks/useUserDetails";
 import { MailBoxesProvider } from "./Contexts/MailBoxesContext";
+import axios from "axios";
+import { getAccessToken } from "./Utils/accessToken";
+import { AUTH_SERVICE_URL, CORE_SERVICE_URL } from "./Apis/constants";
 
 const queryClient = new QueryClient();
+
+const setupAxios = (isAuthenticated: boolean) => {
+    axios.create({
+        baseURL: isAuthenticated ? CORE_SERVICE_URL : AUTH_SERVICE_URL 
+    });
+
+    axios.interceptors.request.use(async function (config) {
+        console.log("Request interceptor");
+        if (!isAuthenticated) return config;
+        const token = await getAccessToken();
+        config.headers['x-auth-token'] =  token;
+        return config;
+    }, error => {
+        console.log(error);
+        return Promise.reject(error);
+    });
+
+    axios.interceptors.response.use(response => {
+        console.log(response);
+        console.log(response.data);
+            // Edit response config
+        return response;
+    }, error => {
+        console.log(error);
+        return Promise.reject(error);
+    });
+}
 
 const MainApp: React.FC = () => {
     const [isAppLoaded] = useInitialLoading();
@@ -19,6 +49,7 @@ const MainApp: React.FC = () => {
     if (!isAppLoaded) {
         return null;
     }
+    setupAxios(isAuthenticated);
     return (
         <QueryClientProvider client={queryClient}>
             <ThemeProvider>
