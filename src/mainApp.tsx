@@ -17,16 +17,22 @@ import { AUTH_SERVICE_URL, CORE_SERVICE_URL } from "./Apis/constants";
 const queryClient = new QueryClient();
 
 const setupAxios = (isAuthenticated: boolean) => {
-    axios.create({
-        baseURL: isAuthenticated ? CORE_SERVICE_URL : AUTH_SERVICE_URL 
-    });
-
     axios.interceptors.request.use(async function (config) {
         console.log("Request interceptor");
         if (!isAuthenticated) return config;
         const token = await getAccessToken();
         config.headers['x-auth-token'] =  token;
         return config;
+    }, error => {
+        console.log(error);
+        return Promise.reject(error);
+    });
+
+    axios.interceptors.request.use(request => {
+        request.baseURL = isAuthenticated ? CORE_SERVICE_URL : AUTH_SERVICE_URL;
+        console.log(request.baseURL);
+        console.log(request.url);
+        return request;
     }, error => {
         console.log(error);
         return Promise.reject(error);

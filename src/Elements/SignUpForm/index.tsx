@@ -64,9 +64,76 @@ const PasswordControl = (props: any) => {
             />
     );
 }
+
+const FullNameView = (props: any) => {
+    const {styles} = useStyles();
+    const {control, errors, rules} = props;
+    return (
+        <View style={styles.itemsWrapper}>
+                <Controller
+                    control={control}
+                    name="first_name"
+                    rules={rules}
+                    render={({field: {onChange, value, ref}}) => (
+                        <View style={styles.textInput}>
+                            <InputField
+                                // @ts-ignore
+                                ref={ref}
+                                error={!!errors.first_name}
+                                placeholder={getTranslatedText("firstName")}
+                                onChangeText={onChange}
+                                value={value}
+                                returnKeyType="next"
+                            />
+                            {errors.first_name?.message && (
+                                <View style={styles.errorMessage}>
+                                    <Typography type="smallRegularBody" color="error">
+                                        {errors.first_name.message}
+                                    </Typography>
+                                </View>
+                            )}
+                        </View>
+                    )}
+                />
+                <Controller
+                    control={control}
+                    rules={rules}
+                    name="last_name"
+                    render={({field: {onChange, value, ref}}) => (
+                        <View style={styles.textInput}>
+                            <InputField
+                                // @ts-ignore
+                                ref={ref}
+                                error={!!errors.last_name}
+                                placeholder={getTranslatedText("lastName")}
+                                onChangeText={onChange}
+                                value={value}
+                            />
+                            {errors.last_name?.message && (
+                                <View style={styles.errorMessage}>
+                                    <Typography type="smallRegularBody" color="error">
+                                        {errors.last_name.message}
+                                    </Typography>
+                                </View>
+                            )}
+                        </View>
+                    )}
+                />
+            </View>
+    );
+}
+
 const SignUpForm: React.FC = () => {
     const nav = useNavigation<UnauthorizedStackNavigationProps['navigation']>();
-    const {control, handleSubmit, formState: {errors, isSubmitting, isValid}, setFocus, watch, setError, setValue} = useForm<ISignUpFormValues>({
+    const {
+        control, 
+        handleSubmit, 
+        formState: {errors, isSubmitting, isValid}, 
+        setFocus, 
+        watch, 
+        setError, 
+        setValue
+    } = useForm<ISignUpFormValues>({
         defaultValues: {
             first_name: "",
             last_name: "",
@@ -132,57 +199,7 @@ const SignUpForm: React.FC = () => {
     const {styles} = useStyles();
     return (
         <>
-            <View style={styles.itemsWrapper}>
-                <Controller
-                    control={control}
-                    name="first_name"
-                    rules={rules}
-                    render={({field: {onChange, value, ref}}) => (
-                        <View style={styles.textInput}>
-                            <InputField
-                                // @ts-ignore
-                                ref={ref}
-                                error={!!errors.first_name}
-                                placeholder={getTranslatedText("firstName")}
-                                onChangeText={onChange}
-                                value={value}
-                                returnKeyType="next"
-                            />
-                            {errors.first_name?.message && (
-                                <View style={styles.errorMessage}>
-                                    <Typography type="smallRegularBody" color="error">
-                                        {errors.first_name.message}
-                                    </Typography>
-                                </View>
-                            )}
-                        </View>
-                    )}
-                />
-                <Controller
-                    control={control}
-                    rules={rules}
-                    name="last_name"
-                    render={({field: {onChange, value, ref}}) => (
-                        <View style={styles.textInput}>
-                            <InputField
-                                // @ts-ignore
-                                ref={ref}
-                                error={!!errors.last_name}
-                                placeholder={getTranslatedText("lastName")}
-                                onChangeText={onChange}
-                                value={value}
-                            />
-                            {errors.last_name?.message && (
-                                <View style={styles.errorMessage}>
-                                    <Typography type="smallRegularBody" color="error">
-                                        {errors.last_name.message}
-                                    </Typography>
-                                </View>
-                            )}
-                        </View>
-                    )}
-                />
-            </View>
+            <FullNameView control={control} errors={errors} rules={rules}/>
             <Controller
                 control={control}
                 rules={rules}

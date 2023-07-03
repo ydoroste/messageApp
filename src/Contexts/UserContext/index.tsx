@@ -57,7 +57,7 @@ export const UserProvider: React.FC<IUserProviderProp> = ({ children }) => {
     const getUserDetails = async () => {
       try {
         const token = await getAccessToken();
-        const { data: {userInfo} } = await GetApi(
+        const { data: { userInfo } } = await GetApi(
           `${AUTH_SERVICE_URL}${Apis.userDetailsPath}`,
           undefined,
           {
