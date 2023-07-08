@@ -1,13 +1,11 @@
 import { GetApi } from "@followBack/Utils/httpApis/apis";
-import { Apis } from "@followBack/Apis";
-import { CORE_SERVICE_URL } from "@followBack/Apis/constants";
-import { getAccessToken } from "@followBack/Utils/accessToken";
+import { ApiEndpoints } from "@followBack/Apis";
 import { MailBoxdData } from "./types";
+import { BETA_SERVICE_URL, CORE_SERVICE_URL } from "../constants";
+import { getAccessToken } from "@followBack/Utils/accessToken";
 
 export const getUserMailBoxes = async () => {
-  return GetApi<MailBoxdData>(`${CORE_SERVICE_URL}${Apis.getUserMailBoxes}`, undefined, {
-    headers: {
-      "x-auth-token": await getAccessToken(),
-    },
+  return GetApi<MailBoxdData>(`${BETA_SERVICE_URL}${ApiEndpoints.getUserMailBoxes}`, undefined, {
+    'x-auth-header': await getAccessToken()
   }).then((res) => res.data);
 };

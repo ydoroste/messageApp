@@ -7,7 +7,7 @@ import useKeyboardOpenListner from "@followBack/Hooks/useKeyboardOpenListner";
 import { UIActivityIndicator } from "react-native-indicators";
 
 
-const MailSender = ({ onChangeMailContent, onPressCompose, mail, isLoading = false }) => {
+const MailSender = ({ onChangeMailContent, onPressCompose, text, isLoading = false }) => {
   const { colors } = useTheme();
   const [focused, setFocused] = React.useState(false);
   const isKeyboardOpen = useKeyboardOpenListner();
@@ -37,10 +37,10 @@ const MailSender = ({ onChangeMailContent, onPressCompose, mail, isLoading = fal
           focused={focused}
           onFocus={onFocus}
           onBlur={onBlur}
-          value={mail}
+          value={text}
           inputMaxHeight={inputMaxHeight}
           textColor={colors.white}
-          onChangeText={(mail) => onChangeMailContent({ value: mail })}
+          onChangeText={(text) => onChangeMailContent({ value: text })}
           multiline
           mode="outlined"
           placeholder="write a message..."

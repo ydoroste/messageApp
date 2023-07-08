@@ -1,7 +1,6 @@
-import {ResetMethod} from "@followBack/Apis/ForgetPassword/types";
-import * as React from "react";
+import { Thread } from "@followBack/Apis/threadsList/type";
 
 export interface IthreadCardProps {
-    threadItem: any
+    threadItem: Thread
 }
 

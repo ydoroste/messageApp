@@ -5,9 +5,7 @@ import useTheme from "@followBack/Hooks/useTheme";
 import { TouchableHighlight, View } from "react-native";
 
 import IconButton from "@followBack/GenericElements/IconButton";
-import { useUserDetails } from "@followBack/Hooks/useUserDetails";
 import { AuthorizedScreensEnum } from "@followBack/Navigation/Authorized/constants";
-import { useMailBoxes } from "@followBack/Hooks/useMailboxes";
 import { Feather } from '@expo/vector-icons';
 import { ThreadDetailsHeaderProps } from "./threadDetailsHeader.types";
 
@@ -17,7 +15,6 @@ const ThreadDetailsHeader: React.FC<ThreadDetailsHeaderProps> = ({
   receiver,
   firtMessageDate
 }) => {
-
   const onBackButtonPress = () => {
 
     navigation?.navigate(

@@ -7,9 +7,9 @@ export interface IComposeApiRequest {
   [key: string]: string | Receiver[] | undefined 
   subject: string;
   text: string;
-  to: Receiver[];
-  cc: Receiver[];
-  bcc: Receiver[];
+  toList: Receiver[];
+  ccList: Receiver[];
+  bccList: Receiver[];
   uid?: string;
 }
 

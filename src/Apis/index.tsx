@@ -1,4 +1,4 @@
-export enum Apis {
+export enum ApiEndpoints {
   Login = "users/login",
   VerifyUser = "users/verify",
   forgetPassword = "users/forgetPassword",
@@ -7,10 +7,10 @@ export enum Apis {
   resendVerificationCode = "users/resendVerificationCode",
   register = "users/register",
   threadsListList = "threadsList",
-  getUserMailBoxes = "mailboxes/getAllUserMailboxes",
-  threadList = "threads/fetchThreads",
+  getUserMailBoxes = "inbox/mailboxes",
+  threadList = "inbox",
   userDetailsPath = "users/getUserData",
-  contactsList = "contacts/get",
-  compose = "mail/compose",
-  threadMessages = "threads/fetchThreadMsgs",
+  contactsList = "contacts",
+  compose = "inbox/send",
+  threadMessages = "inbox/chat",
 }

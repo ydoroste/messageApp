@@ -9,30 +9,36 @@ import UnauthorizedNavigation from "@followBack/Navigation/Unauthorized";
 import AuthorizedNavigation from "@followBack/Navigation/Authorized";
 import useInitialLoading from "@followBack/Hooks/useInitialLoading";
 import {useUserDetails} from "@followBack/Hooks/useUserDetails";
-import { MailBoxesProvider } from "./Contexts/MailBoxesContext";
+import { MailBoxesProvider } from "./Contexts/MailboxesContext";
 import axios from "axios";
 import { getAccessToken } from "./Utils/accessToken";
-import { AUTH_SERVICE_URL, CORE_SERVICE_URL } from "./Apis/constants";
+import { AUTH_SERVICE_URL, BETA_SERVICE_URL, CORE_SERVICE_URL } from "./Apis/constants";
 
 const queryClient = new QueryClient();
 
-const setupAxios = (isAuthenticated: boolean) => {
-    axios.interceptors.request.use(async function (config) {
-        console.log("Request interceptor");
-        if (!isAuthenticated) return config;
-        const token = await getAccessToken();
-        config.headers['x-auth-token'] =  token;
-        return config;
+const MainApp: React.FC = () => {
+    const [isAppLoaded] = useInitialLoading();
+    const {isAuthenticated} = useUserDetails();
+    if (!isAppLoaded) {
+        return null;
+    }
+    
+    axios.interceptors.request.use(request => {
+        request.baseURL = isAuthenticated ? BETA_SERVICE_URL : AUTH_SERVICE_URL;
+        console.log(request.baseURL);
+        console.log(request.url);
+        return request;
     }, error => {
         console.log(error);
         return Promise.reject(error);
     });
-
-    axios.interceptors.request.use(request => {
-        request.baseURL = isAuthenticated ? CORE_SERVICE_URL : AUTH_SERVICE_URL;
-        console.log(request.baseURL);
-        console.log(request.url);
-        return request;
+    
+    axios.interceptors.request.use(async function (config) {
+        console.log("Request interceptor");
+        if (!isAuthenticated) return config;
+        const token = await getAccessToken();
+        config.headers['Authorization'] =  `Bearer ${token}`;
+        return config;
     }, error => {
         console.log(error);
         return Promise.reject(error);
@@ -47,15 +53,8 @@ const setupAxios = (isAuthenticated: boolean) => {
         console.log(error);
         return Promise.reject(error);
     });
-}
 
-const MainApp: React.FC = () => {
-    const [isAppLoaded] = useInitialLoading();
-    const {isAuthenticated} = useUserDetails();
-    if (!isAppLoaded) {
-        return null;
-    }
-    setupAxios(isAuthenticated);
+
     return (
         <QueryClientProvider client={queryClient}>
             <ThemeProvider>

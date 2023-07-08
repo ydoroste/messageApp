@@ -1,35 +1,29 @@
 import {
     StyleSheet,
-    KeyboardAvoidingView,
-    Platform,
-    Pressable,
-    Keyboard,
     View,
-    Text,
 } from "react-native";
-import React, {useEffect, useState} from "react";
-import {getTranslatedText} from "@followBack/Localization";
+import React, {} from "react";
 import {IthreadCardProps} from "@followBack/Elements/ThreadCard/types";
 import Typography from "@followBack/GenericElements/Typography";
 import Avatar from "@followBack/Elements/Avatar";
-import {formatMessageDate} from "@followBack/Utils/date";
 import {useUserDetails} from "@followBack/Hooks/useUserDetails";
 import {excludeUser} from "@followBack/Utils/messages";
 import {getThreadParticipantsUserName} from "@followBack/Utils/stringUtils";
 
-const ThreadCard: React.FC<IthreadCardProps> = ({threadItem}) => {
+const ThreadCard: React.FC<IthreadCardProps> = ({ threadItem }) => {
     const {userDetails} = useUserDetails();
-
+    
     let others = excludeUser({
-        users: [threadItem.lastMessage.from, ...threadItem.lastMessage.to, ...threadItem.lastMessage.cc, ...threadItem.lastMessage.bcc ],
-        userAddress: userDetails.email,
+        users: [threadItem.lastHeader.formContact, ...threadItem.lastHeader.toList, ...threadItem.lastHeader.ccList ?? [], ...threadItem.lastHeader.bccList ?? [] ],
+        userAddress: "username@unsend.app"
     });
-
-    others = others.length === 0  &&  threadItem?.lastMessage?.from?.address === userDetails.email ?  [threadItem.lastMessage.from]  : others;
-    const message = threadItem.lastMessage.text?.trim() && threadItem.lastMessage.text?.trim() !== "" ? threadItem.lastMessage.text?.trim() : "\<no message\>";
-    const subject = threadItem.lastMessage.subject?.trim() && threadItem.lastMessage.subject?.trim() !== "" ? threadItem.lastMessage.subject?.trim() : "\<no subject\>";
-    const isMessageSeen = !threadItem.lastMessage.unseen;
+    
+    others = others.length === 0  &&  threadItem?.lastHeader.formContact.address === userDetails.email ?  [threadItem.lastHeader.formContact]  : others;
+    const message = threadItem.text?.trim() && threadItem.text?.trim() !== "" ? threadItem.text?.trim() : "\<no message\>";
+    const subject = threadItem.subject?.trim() && threadItem.subject?.trim() !== "" ? threadItem.subject?.trim() : "\<no subject\>";
+    const isMessageSeen = false;
     const textColor = isMessageSeen ? "secondary" : "chat";
+    
     return (
         <View style={styles.container}>
             <View style={{...styles.avatar}}>
@@ -102,7 +96,7 @@ const ThreadCard: React.FC<IthreadCardProps> = ({threadItem}) => {
                         lineHeight={17}
                         textAlign="center"
                     >
-                        {formatMessageDate(threadItem.lastMessage.date)}
+                        {/* {formatMessageDate(threadItem.lastMessage.date)} */}
                     </Typography>
                 </View>
             </View>

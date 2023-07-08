@@ -1,8 +1,5 @@
 import {
-    StyleSheet,
-    KeyboardAvoidingView,
-    Platform,
-    Pressable, Keyboard, View
+    View
 } from "react-native";
 import React, {useState} from "react";
 import Typography from "@followBack/GenericElements/Typography";
@@ -12,9 +9,6 @@ import {getTranslatedText} from "@followBack/Localization";
 import {ICodeVerificationLayoutProps} from "@followBack/Elements/CodeVerificationLayout/types";
 import {IResendVerificationCodeRequest} from "@followBack/Apis/ResendVerificationCode/types";
 import {useResendVerificationCode} from "@followBack/Hooks/Apis/ResendVerificationCode";
-import {useRoute} from "@react-navigation/core";
-import {ICodeVerificationState, UnauthorizedStackNavigationProps} from "@followBack/Navigation/Unauthorized/types";
-import {err} from "react-native-svg/lib/typescript/xml";
 
 const CodeVerificationLayout: React.FC<ICodeVerificationLayoutProps> = ({children, userName, hashedCodeVerificationValue}) => {
     const [showResend, setShowResend] = useState(false);
@@ -28,6 +22,7 @@ const CodeVerificationLayout: React.FC<ICodeVerificationLayoutProps> = ({childre
     const onTimerFinish = () => {
         setShowResend(true);
     };
+    
     const resendCode = async () => {
         await refetch();
         setErrorMessage(isError ? error?.response?.data?.message : "");

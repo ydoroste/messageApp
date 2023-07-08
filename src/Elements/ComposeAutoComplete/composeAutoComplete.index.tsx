@@ -15,7 +15,7 @@ const ComposeAutoComplete = forwardRef<TextInput, IComposeAutoComplete>(({ searc
     setSearchValue(searchValue);
   };
 
-  const suggestions = data?.filter(({ address }) => !tags.includes(address)) || [];
+  const suggestions = data?.contacts.filter(({ address }) => !tags.includes(address)) || [];
 
   const onTagPress = (pressedTag: string) => {
     const subtractedTags = tags.filter(tag => tag !== pressedTag);

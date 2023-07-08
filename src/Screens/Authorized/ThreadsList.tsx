@@ -9,37 +9,36 @@ import { useFetchthreadsList } from "@followBack/Hooks/Apis/ThreadsList";
 import { useSearch } from "@followBack/Hooks/useSearch";
 import { AuthorizedScreensEnum } from "@followBack/Navigation/Authorized/constants";
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import {
-  authorizedStackNavigationProps} from "@followBack/Navigation/Authorized/types";
+import { authorizedStackNavigationProps} from "@followBack/Navigation/Authorized/types";
 import {useMailBoxes} from "@followBack/Hooks/useMailboxes";
 import LoadingScreen from "@followBack/Elements/LoadingScreen/LoadingScreen.index";
+import { Thread } from "@followBack/Apis/threadsList/type";
 
-let timer;
 const ThreadList: React.FC = () => {
   const nav = useNavigation<authorizedStackNavigationProps['navigation']>();
    //route = useRoute<authorizedStackNavigationProps['route']>();
   const {data: mail} = useMailBoxes();
-  const {id, path} = mail?.mailboxes?.find(t => t.path === "INBOX");
-
+  const {id} = mail?.data.mailboxes?.find(t => t.mailbox.toLowerCase() === "inbox") ?? {id: ""};
   const { colors } = useTheme();
   const { searchValue } = useSearch();
-  const [isIitialLoading, setIsInitialLoading] = React.useState(true);
-  const [threadsList, setthreadsList] = React.useState([]);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const [threadsList, setthreadsList] = useState([]);
   const [refetchData, setRefetchData] = useState(false);
   const { data, isLoading, isError, isSuccess, hasNextPage, fetchNextPage } =
     useFetchthreadsList({ id, searchValue, refetchData });
+
   const loadNextPageData = () => {
     if (hasNextPage) {
       fetchNextPage();
     }
   };
-  React.useEffect(() => {
-    if (!isIitialLoading) return;
+  
+  useEffect(() => {
+    if (!isInitialLoading) return;
     setIsInitialLoading(isLoading);
   }, [isLoading]);
 
   useFocusEffect(
-
       useCallback(() => {
         setRefetchData(true);
         return () => {
@@ -48,7 +47,7 @@ const ThreadList: React.FC = () => {
       }, [])
   );
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (typeof data === typeof undefined) return;
 
     const flattenData = !!data?.pages

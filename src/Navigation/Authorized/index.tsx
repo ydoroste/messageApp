@@ -39,9 +39,9 @@ const ThreadsListStack = () => {
   const Stack = createNativeStackNavigator<AuthorizedParams>();
 
   return (
-    <Stack.Navigator initialRouteName="threadsList">
+    <Stack.Navigator initialRouteName={AuthorizedScreensEnum.threadsList}>
       <Stack.Screen
-        name="threadsList"
+        name={AuthorizedScreensEnum.threadsList}
         component={ThreadsList}
         options={{ header: (props) => <MailBoxHeader hideSearch {...props} /> }}
       />
@@ -51,7 +51,7 @@ const ThreadsListStack = () => {
           headerShown: false,
           animation: "slide_from_right"
         }}
-        name="threadDetails"
+        name={AuthorizedScreensEnum.threadDetails}
         component={ThreadDetails}
       />
     </Stack.Navigator>

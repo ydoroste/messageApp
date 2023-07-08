@@ -6,8 +6,7 @@ export interface IMailBoxesProviderProps {
 
 export interface MailBox {
   id: string;
-  path: string;
-  subscribed: boolean;
+  mailbox: string; // Name of the mailbox, ie: Drafs/INBOX, etc...
 }
 
 
@@ -16,6 +15,7 @@ export interface IMailBoxesContext {
   isLoading?: boolean;
   isError?: boolean;
   isSuccess?: boolean;
-  inboxThread?: MailBox | null
-  sentMailThread?: MailBox | null
+  inboxThread?: MailBox | null;
+  sentMailThread?: MailBox | null;
+  mailboxes?: MailBox[]; // For future usage to have full view of all mailboxes available
 }

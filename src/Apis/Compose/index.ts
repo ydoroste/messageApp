@@ -1,5 +1,5 @@
 import { PostApi } from "@followBack/Utils/httpApis/apis";
-import { Apis } from "@followBack/Apis";
+import { ApiEndpoints } from "@followBack/Apis";
 import {
   IComposeApiRequest,
   IComposeApiResponse,
@@ -19,14 +19,7 @@ export const snatizeComposeApi = (request: IComposeApiRequest) => {
 
 export const composeApi = async (request: IComposeApiRequest) => {
   return PostApi<IComposeApiRequest, IComposeApiResponse>(
-    `${CORE_SERVICE_URL}${Apis.compose}`,
-    snatizeComposeApi(request),
-    undefined,
-    {
-      headers: {
-        "x-auth-token": await getAccessToken(),
-      },
-    }
-  )
-    .then((res) =>  res.data)
+    `${CORE_SERVICE_URL}${ApiEndpoints.compose}`,
+    snatizeComposeApi(request)
+  ).then((res) =>  res.data);
 };

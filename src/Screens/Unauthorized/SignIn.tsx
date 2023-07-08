@@ -1,13 +1,8 @@
 import {
-    Text,
-    TextInput,
     StyleSheet,
     KeyboardAvoidingView,
-    View,
-    Dimensions,
     Pressable,
-    Platform, Keyboard, TouchableWithoutFeedback, TouchableNativeFeedback
-} from "react-native";
+    Platform, Keyboard} from "react-native";
 import React from "react";
 
 import SignInForm from "@followBack/Elements/signInForm";

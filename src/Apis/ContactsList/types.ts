@@ -7,7 +7,11 @@ export interface IContact {
 }
 
 export interface IContactListApiResponse {
-    success: boolean,
-    data: IContact[];
-    message?: string
+    data: ContactsData;
+    page: number;
+    totalCount: number;
+}
+
+export interface ContactsData {
+    contacts: IContact[];
 }

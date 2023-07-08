@@ -27,6 +27,11 @@ import MailSender from "@followBack/Elements/MailSender/MailSender";
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from "@followBack/Theme/Theme";
 import { TextInput } from "react-native-gesture-handler";
+import { NativeStackHeaderProps } from "@react-navigation/native-stack";
+
+interface ComposeHeaderProps extends NativeStackHeaderProps {
+  handleBackButtonPress?: ()=> void;
+}
 
 const SET_KEY_VALUE = "SET_KEY_VALUE";
 
@@ -36,11 +41,11 @@ const initialState = {
   toSearchValue: "",
   ccSearchValue: "",
   bccSearchValue: "",
-  toTags: [],
-  ccTags: [],
-  bccTags: [],
+  toList: [],
+  ccList: [],
+  bccList: [],
   subject: "",
-  mail: "",
+  text: "",
   showSubject: true,
   showCcBcc: false,
 };
@@ -58,7 +63,7 @@ const reducer = (state, { type, payload }) => {
   }
 };
 
-const Compose: React.FC = ({ navigation }) => {
+const Compose: React.FC<ComposeHeaderProps> = ({ navigation }) => {
   const { sentMailThread } = useMailBoxes();
   const [toFieldIsFocused, setToFieldIsFocused] = useState(false);
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -67,10 +72,10 @@ const Compose: React.FC = ({ navigation }) => {
     toSearchValue,
     ccSearchValue,
     bccSearchValue,
-    toTags,
-    ccTags,
-    bccTags,
-    mail,
+    toList,
+    ccList,
+    bccList,
+    text,
     subject,
     showSubject,
     showCcBcc,
@@ -87,20 +92,20 @@ const Compose: React.FC = ({ navigation }) => {
   const { colors } = useTheme();
 
   const formatTags = (tags: string[]) => tags.map((mail) => ({ address: mail.trim() }));
-  const formattedToTags = formatTags(toTags);
-  const formattedCcTags = formatTags(ccTags);
-  const formattedBccTags = formatTags(bccTags);
+  const formattedToTags = formatTags(toList);
+  const formattedCcTags = formatTags(ccList);
+  const formattedBccTags = formatTags(bccList);
 
   const composeRequest: IComposeApiRequest = {
     subject,
-    text: mail || " ",
-    to: isValidEmail(toSearchValue)
+    text: text || " ",
+    toList: isValidEmail(toSearchValue)
       ? [...formattedToTags, { address: toSearchValue }]
       : formattedToTags,
-    cc: isValidEmail(ccSearchValue)
+    ccList: isValidEmail(ccSearchValue)
       ? [...formattedCcTags, { address: ccSearchValue }]
       : formattedCcTags,
-    bcc: isValidEmail(bccSearchValue)
+    bccList: isValidEmail(bccSearchValue)
       ? [...formattedBccTags, { address: bccSearchValue }]
       : formattedBccTags,
   };
@@ -125,16 +130,14 @@ const Compose: React.FC = ({ navigation }) => {
   const { refetch } = useCompose(composeRequest);
   const onPressCompose = async () => {
     try {
-      if (toTags.length < 0 || (!subject && !mail)) return;
+      if (toList.length < 0 || (!subject && !text)) return;
       setIsSentMessageLoading(true);
       Keyboard.dismiss()
       const { data } = await refetch();
-      if (data?.["success"]) {
+      if (data != undefined) {
         setIsSentMessageLoading(false);
-        navigation.navigate(AuthorizedScreensEnum.threadsListStack, {
-          screen: AuthorizedScreensEnum.threadDetails,
-          params: { id: data.thread, to: composeRequest.to, cc: composeRequest.cc, bcc: composeRequest.bcc },
-        });
+        console.log("Email senttttt----------");
+        navigation.goBack();
       }
     } catch {
       setIsSentMessageLoading(false);
@@ -143,7 +146,7 @@ const Compose: React.FC = ({ navigation }) => {
   };
 
   const onChangeMailContent = ({ value }: { value: any }) => {
-    setKeyValue({ key: "mail", value });
+    setKeyValue({ key: "text", value });
   };
 
 
@@ -201,7 +204,7 @@ const Compose: React.FC = ({ navigation }) => {
                   setSearchValue={(text) =>
                     setKeyValue({ key: "toSearchValue", value: text })
                   }
-                  tags={toTags}
+                  tags={toList}
                   setTags={(tags) =>
                     setKeyValue({ key: "toTags", value: tags })
                   }
@@ -232,7 +235,7 @@ const Compose: React.FC = ({ navigation }) => {
                     <ComposeAutoComplete
                       searchValue={ccSearchValue}
                       setSearchValue={(text) => setKeyValue({ key: "ccSearchValue", value: text })}
-                      tags={ccTags}
+                      tags={ccList}
                       setTags={(tags) => setKeyValue({ key: "ccTags", value: tags })}
                       type={"cc"} />
                   </View>
@@ -249,7 +252,7 @@ const Compose: React.FC = ({ navigation }) => {
                       setSearchValue={(text) =>
                         setKeyValue({ key: "bccSearchValue", value: text })
                       }
-                      tags={bccTags}
+                      tags={bccList}
                       setTags={(tags) =>
                         setKeyValue({ key: "bccTags", value: tags })
                       }
@@ -285,7 +288,7 @@ const Compose: React.FC = ({ navigation }) => {
         <MailSender
           onPressCompose={onPressCompose}
           onChangeMailContent={onChangeMailContent}
-          mail={mail}
+          text={text}
           isLoading={isSentMessageLoading}
         />
       </Pressable>

@@ -10,7 +10,7 @@ import {
   getAccessToken,
 } from "@followBack/Utils/accessToken";
 
-import { Apis } from "@followBack/Apis";
+import { ApiEndpoints } from "@followBack/Apis";
 import { GetApi } from "@followBack/Utils/httpApis/apis";
 import { AUTH_SERVICE_URL } from "@followBack/Apis/constants";
 
@@ -58,7 +58,7 @@ export const UserProvider: React.FC<IUserProviderProp> = ({ children }) => {
       try {
         const token = await getAccessToken();
         const { data: { userInfo } } = await GetApi(
-          `${AUTH_SERVICE_URL}${Apis.userDetailsPath}`,
+          `${AUTH_SERVICE_URL}${ApiEndpoints.userDetailsPath}`,
           undefined,
           {
             headers: { "x-auth-token": token },

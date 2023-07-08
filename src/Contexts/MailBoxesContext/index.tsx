@@ -6,21 +6,14 @@ import {
 } from "@followBack/Contexts/MailboxesContext/types";
 import {useFetchUserMailBoxes} from "@followBack/Hooks/Apis/UserMailBoxes";
 
-const contextData: IMailBoxesContext ={
-    isError: false,
-    isSuccess: false,
-    isLoading: false,
-    inboxThread: {} as MailBox,
-    data: undefined,
-    sentMailThread: {} as MailBox
-}
 export const MailBoxesContext = createContext<IMailBoxesContext>({
     isError: false,
     isSuccess: false,
     isLoading: false,
     inboxThread: {} as MailBox,
     data: undefined,
-    sentMailThread: {} as MailBox
+    sentMailThread: {} as MailBox,
+    mailboxes: []
 } as IMailBoxesContext);
 
 export const MailBoxesProvider: React.FC<IMailBoxesProviderProps> = ({
@@ -29,16 +22,16 @@ export const MailBoxesProvider: React.FC<IMailBoxesProviderProps> = ({
     const {data, isLoading, isError, isSuccess} = useFetchUserMailBoxes();
     const [inboxThread, setInboxThread] = useState<MailBox| undefined>();
     const [sentMailThread, setSentMailThread] = useState<MailBox | undefined>();
+    const [mailboxes, setMailboxes] = useState<MailBox[]>();
     useEffect(() => {
         if (!data) return;
-        const inboxThread = data?.mailboxes.find(
-            ({path}) => path.toLowerCase() === "inbox"
+        setMailboxes(data.data.mailboxes);
+        const inboxThread = data?.data.mailboxes.find(
+            ({mailbox}) => mailbox.toLowerCase() === "inbox"
         );
-
-        const sentMailThread = data?.mailboxes.find(
-            ({path}) => path.toLowerCase() === "sent mail"
+        const sentMailThread = data?.data.mailboxes.find(
+            ({mailbox}) => mailbox.toLowerCase() === "sent mail"
         );
-
         setInboxThread(inboxThread);
         setSentMailThread(sentMailThread);
     }, [data]);
@@ -46,6 +39,7 @@ export const MailBoxesProvider: React.FC<IMailBoxesProviderProps> = ({
     return (
         <MailBoxesContext.Provider
             value={{
+                mailboxes,
                 sentMailThread,
                 inboxThread,
                 data,

@@ -44,14 +44,13 @@ const UnauthorizedHeader: React.FC<UnauthorizedHeaderProps> = ({handleBackButton
         <View style={styles.headerStyle}>
             <Typography type="mediumRegularTitle" color="secondary">{options.title}</Typography>
         </View>
-            <IconButton
+            {canGoBack && <IconButton
                 style={styles.iconButton}
                 rippleColor={colors.grey02}
                 size={24}
-                disabled={!canGoBack}
                 onPress={onBackButtonPress}
                 icon={({size, color})=> <Ionicons name="ios-chevron-back" size={size} color={color}  />}
-            />
+            />}
 
         </>
     )
