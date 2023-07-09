@@ -1,30 +1,28 @@
-import { IApiError } from "@followBack/Apis/types";
+import { IContact } from "../ContactsList/types";
 
-interface Receiver {
-  address: string;
-}
 export interface IComposeApiRequest {
-  [key: string]: string | Receiver[] | undefined 
+  [key: string]: string | IContact[] | undefined 
   subject: string;
   text: string;
-  toList: Receiver[];
-  ccList: Receiver[];
-  bccList: Receiver[];
+  toList: IContact[];
+  ccList: IContact[];
+  bccList: IContact[];
   uid?: string;
 }
 
 export interface IComposeApiResponse {
-  success: boolean;
-  data: IComposeResponseData
-  message?: string;
+  status: number;
+  data: IComposeResponseData;
 }
 
 export interface IComposeResponseData {
-  message: string;
-  modseq: number;
-  msgid: string;
-  success: string;
-  thread: string;
-  uid: string;
-  unseen: boolean;
+  topicId: string;
+    fromContact: IContact;
+    to: IContact[];
+    cc: IContact[];
+    bcc: IContact[];
+    subject: string;
+    text: string;
+    headerId: string;
+    attachments: string[];
 }

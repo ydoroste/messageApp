@@ -53,6 +53,7 @@ export const UserProvider: React.FC<IUserProviderProp> = ({ children }) => {
   }, []);
 
   useEffect(() => {
+    console.log("User details called -----------------------------------");
     if (!isAuthenticated) return;
     const getUserDetails = async () => {
       try {
@@ -65,6 +66,7 @@ export const UserProvider: React.FC<IUserProviderProp> = ({ children }) => {
           }
         );
         setUserDetails(userInfo);
+        setIsAuthenticated(true);
       } catch (e) {
         setIsAuthenticated(false);
       }

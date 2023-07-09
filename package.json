@@ -23,6 +23,7 @@
     "expo-blur": "~12.0.1",
     "expo-checkbox": "~2.2.2",
     "expo-dev-client": "~2.0.1",
+    "expo-dev-menu": "^3.1.6",
     "expo-font": "~11.0.1",
     "expo-haptics": "~12.0.1",
     "expo-localization": "~14.0.0",

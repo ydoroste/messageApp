@@ -19,20 +19,32 @@ import { useFailedMessages } from "@followBack/Hooks/useFailedMessages";
 import FailedMessage from "@followBack/Elements/FailedMessage/FailedMessage.index";
 import { getAccessToken } from "@followBack/Utils/accessToken";
 import { composeApi } from "@followBack/Apis/Compose";
+import { IThreadMessage } from "@followBack/Apis/ThreadMessages/types";
 
 const ThreadDetails: React.FC = ({ navigation, options, route }) => {
   const { id } = route.params;
   const params = route.params;
-  const [allMessages, setAllMessages] = useState([]);
+  const [allMessages, setAllMessages] = useState<IThreadMessage[]>([]);
   const [failedMessages, setFailedMessages] = useState([]);
   const { colors } = useTheme();
 
   const [mail, setMail] = useState("");
-  const { userDetails } = useUserDetails();
+  // const { userDetails } = useUserDetails();
+  const userDetails = {
+    "id": "64aa89d22d70c06d0f2d04b4",
+    "first_name": "First",
+    "last_name": "Last",
+    "gender": "male",
+    "birth_date": "1985-07-09T10:19:31.000Z",
+    "user_name": "testsign",
+    "email": "testsign@iinboxx.com",
+    "phone_number": "+447859730937",
+    "wildduck_user_id": null
+  };
   const { failedMessagesData, setFailedMessagesData } = useFailedMessages();
-  const onChangeMailContent = ({ value }) => setMail(value);
+  const onChangeMailContent = ({ value }: {value: string}) => setMail(value);
   const [refetchData, setRefetchData] = useState(false);
-  const [lastMessageData, setLastMessageData] = useState({});
+  const [lastMessageData, setLastMessageData] = useState<IThreadMessage>();
   const { data, isLoading, isError, isSuccess, hasNextPage, fetchNextPage } =
     useFetchThreadMessages({ id, refetchData });
 
@@ -74,6 +86,7 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
     { text: 'edit', onPress: () => { } },
   ];
 
+  // MARK: - Load thread messages from API
   useEffect(() => {
     if (failedMessagesData[id]) {
       setFailedMessages(failedMessagesData[id].reverse())
@@ -83,16 +96,16 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
       return;
     };
 
-    const flattenData = !!data?.pages && data?.pages?.[0] !== undefined
+    let flattenData = !!data?.pages && data?.pages?.[0] !== undefined
       ? data?.pages.flatMap((page) => page?.data)
       : [];
     setAllMessages(flattenData);
     setLastMessageData(flattenData[0]);
-
   }, [data]);
 
   // Test temp solution
   useEffect(() => {
+    console.log("Callllll mesaggessssssssss --------- " + userDetails);
     setRefetchData(false);
     const stopFetchingTimer = setTimeout(() => {
       setRefetchData(true);
@@ -121,13 +134,13 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
       toEndPoints?.push({ address: lastFromEndPoint })
     }
     const composeRequest: IComposeApiRequest = {
-      subject: lastMessageData?.subject,
+      topicId: lastMessageData?.headerId || "",
+      subject: lastMessageData?.subject || "",
       text: messageText,
-      to: toEndPoints,
-      cc: formatEndPoints(lastMessageData?.cc || []),
-      bcc: formatEndPoints(lastMessageData?.bcc || []),
-      from: userDetails?.email,
-      uid: lastMessageData?.uid
+      toList: toEndPoints,
+      ccList: formatEndPoints(lastMessageData?.cc || []),
+      bccList: formatEndPoints(lastMessageData?.bcc || []),
+      from: userDetails?.email
     };
 
     return composeRequest
@@ -137,13 +150,16 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
     try {
       if (!mail) return;
       setMail("");
+      // let newMessageComponent = {} as IThreadMessage;
       const allMessagesCopy = [...allMessages];
-      const newMessage = { text: mail?.trim(), messageId: (new Date()).getTime(), notConfirmedNewMessage: true };
+      const newMessage = { text: mail?.trim(), messageId: (new Date()).getTime().toString(), notConfirmedNewMessage: true };
+      // newMessageComponent = [...newMessage];
       allMessagesCopy.unshift(newMessage);
 
       setAllMessages(allMessagesCopy);
       const data = await composeApi(createComposeRequest(mail?.trim()));
       const newMessageIndex = allMessagesCopy.findIndex((message) => message.messageId === newMessage.messageId);
+      console.log(`Data of Compose --------- ${data.status}`);
       if (data?.["success"]) {
         allMessagesCopy.splice(newMessageIndex, 1, { ...allMessagesCopy[newMessageIndex], notConfirmedNewMessage: false });
         setAllMessages(allMessagesCopy);
@@ -231,7 +247,7 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
 
         </View>
         <MailSender
-          mail={mail}
+          text={mail}
           onChangeMailContent={onChangeMailContent}
           onPressCompose={onPressCompose}
         />

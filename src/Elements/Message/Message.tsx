@@ -15,7 +15,18 @@ import {
 const Message = ({ item }) => {
   const { styles } = useStyles();
   const { text, to, from, cc, bcc, messageDateTime, notConfirmedNewMessage } = item;
-  const { userDetails } = useUserDetails();
+  // const { userDetails } = useUserDetails();
+  const userDetails = {
+    "id": "64aa89d22d70c06d0f2d04b4",
+    "first_name": "First",
+    "last_name": "Last",
+    "gender": "male",
+    "birth_date": "1985-07-09T10:19:31.000Z",
+    "user_name": "testsign",
+    "email": "testsign@iinboxx.com",
+    "phone_number": "+447859730937",
+    "wildduck_user_id": null
+  };
   const { colors } = useTheme();
   const isOwnMessage = !item?.from?.address
     ? true

@@ -91,22 +91,22 @@ const Compose: React.FC<ComposeHeaderProps> = ({ navigation }) => {
 
   const { colors } = useTheme();
 
-  const formatTags = (tags: string[]) => tags.map((mail) => ({ address: mail.trim() }));
+  const formatTags = (tags: string[]) => tags.map((mail) => ({ name: mail.trim(), address: mail.trim() }));
   const formattedToTags = formatTags(toList);
   const formattedCcTags = formatTags(ccList);
   const formattedBccTags = formatTags(bccList);
 
   const composeRequest: IComposeApiRequest = {
-    subject,
+    subject: subject,
     text: text || " ",
     toList: isValidEmail(toSearchValue)
-      ? [...formattedToTags, { address: toSearchValue }]
+      ? [...formattedToTags, { name: toSearchValue, address: toSearchValue }]
       : formattedToTags,
     ccList: isValidEmail(ccSearchValue)
-      ? [...formattedCcTags, { address: ccSearchValue }]
+      ? [...formattedCcTags, { name: toSearchValue, address: ccSearchValue }]
       : formattedCcTags,
     bccList: isValidEmail(bccSearchValue)
-      ? [...formattedBccTags, { address: bccSearchValue }]
+      ? [...formattedBccTags, { name: toSearchValue, address: bccSearchValue }]
       : formattedBccTags,
   };
 
@@ -136,7 +136,6 @@ const Compose: React.FC<ComposeHeaderProps> = ({ navigation }) => {
       const { data } = await refetch();
       if (data != undefined) {
         setIsSentMessageLoading(false);
-        console.log("Email senttttt----------");
         navigation.goBack();
       }
     } catch {
@@ -148,7 +147,6 @@ const Compose: React.FC<ComposeHeaderProps> = ({ navigation }) => {
   const onChangeMailContent = ({ value }: { value: any }) => {
     setKeyValue({ key: "text", value });
   };
-
 
   return (
     <KeyboardAvoidingView
@@ -206,7 +204,7 @@ const Compose: React.FC<ComposeHeaderProps> = ({ navigation }) => {
                   }
                   tags={toList}
                   setTags={(tags) =>
-                    setKeyValue({ key: "toTags", value: tags })
+                    setKeyValue({ key: "toList", value: tags })
                   }
                   type={"to"}
                 />
@@ -236,7 +234,7 @@ const Compose: React.FC<ComposeHeaderProps> = ({ navigation }) => {
                       searchValue={ccSearchValue}
                       setSearchValue={(text) => setKeyValue({ key: "ccSearchValue", value: text })}
                       tags={ccList}
-                      setTags={(tags) => setKeyValue({ key: "ccTags", value: tags })}
+                      setTags={(tags) => setKeyValue({ key: "ccList", value: tags })}
                       type={"cc"} />
                   </View>
                 </View>
@@ -254,7 +252,7 @@ const Compose: React.FC<ComposeHeaderProps> = ({ navigation }) => {
                       }
                       tags={bccList}
                       setTags={(tags) =>
-                        setKeyValue({ key: "bccTags", value: tags })
+                        setKeyValue({ key: "bccList", value: tags })
                       }
                       type={"bcc"}
                     />
