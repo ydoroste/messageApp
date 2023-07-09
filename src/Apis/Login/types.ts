@@ -17,24 +17,13 @@ export interface ILoginApiResponseData {
 }
 
 interface ILoginApiUserDetails {
-    _id: string,
-    verification_code_sent: boolean,
-    is_verified: boolean,
-    is_active: true,
-    invalid_login_attempts: number,
-    otp_sent_retries_count: number,
-    is_blocked: number,
-    first_name: string,
-    last_name: string,
-    gender: string,
-    birth_date: Date,
-    user_name: Date,
-    phone_number: string,
-    createdAt: Date,
-    updatedAt: Date,
-    __v: number,
-    wildduck_user_id: string,
-    block_reason: string,
-    opt_block_expiration_date: string,
-    resetToken: string
+    id: string;
+    first_name: string;
+    last_name: string;
+    birth_date: string;
+    gender: string;
+    user_name: string;
+    phone_number: string;
+    wildduck_user_id: string;
+    email?: string;
 }

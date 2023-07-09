@@ -69,7 +69,7 @@ const Authorized = () => {
             <Drawer.Navigator
               initialRouteName={AuthorizedScreensEnum.threadsListStack}
               drawerContent={(props) => (
-                <CustomDrawerContent {...props} mailboxes={data?.mailboxes} />
+                <CustomDrawerContent {...props} />
               )}
             >
               <Drawer.Screen

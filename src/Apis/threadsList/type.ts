@@ -18,7 +18,7 @@ export interface IthreadsListAPIResponse {
 export interface Thread {
     topicId: string;
     threadId: string;
-    createdAt: string; // TODO: Parse to date
+    createdAt: string;
     subject: string;
     initiator: IContact;
     text: string;

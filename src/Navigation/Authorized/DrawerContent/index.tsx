@@ -11,8 +11,8 @@ import { useUserDetails } from "@followBack/Hooks/useUserDetails";
 import { AuthorizedScreensEnum } from "../constants";
 import { useQueryClient } from "react-query";
 
-const CustomDrawerContent = (props) => {
-  const { navigation, mailboxes } = props;
+const CustomDrawerContent = (props: any) => {
+  const { navigation } = props;
   const { colors } = useTheme();
   const { setIsAuthenticated } = useUserDetails();
   const queryClient = useQueryClient();
@@ -67,6 +67,12 @@ const CustomDrawerContent = (props) => {
         label="Logout"
         labelStyle={{ color: "#ffffff" }}
         onPress={logOut}
+      />
+      
+      <DrawerItem
+        label="1.0.09082023"
+        onPress={() => {}}
+        labelStyle={{ color: "#8c8c8c", position:'absolute' }}
       />
     </DrawerContentScrollView>
   );

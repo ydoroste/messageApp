@@ -19,7 +19,7 @@ export const UserProvider: React.FC<IUserProviderProp> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   
   const [userDetails, setUserDetails] = useState<IUserDetails>({
-    birth_date: new Date(),
+    birth_date: "",
     first_name: "",
     gender: "",
     id: "",
@@ -34,7 +34,6 @@ export const UserProvider: React.FC<IUserProviderProp> = ({ children }) => {
     const getToken = async () => {
       try {
         const token = await getAccessToken();
-
         if (!token || token === "") {
           setIsAuthenticated(false);
           setIsLoading(false);
@@ -52,31 +51,30 @@ export const UserProvider: React.FC<IUserProviderProp> = ({ children }) => {
     getToken();
   }, []);
 
+  const getUserDetails = async () => {
+    try {
+      const token = await getAccessToken();
+      const { data: { userInfo } } = await GetApi(
+        `${AUTH_SERVICE_URL}${ApiEndpoints.userDetailsPath}`,
+        undefined,
+        {
+          headers: { "x-auth-token": token },
+        }
+      );
+      setUserDetails(userInfo);
+    } catch (e) {
+      setIsAuthenticated(false);
+    }
+  };
+
   useEffect(() => {
-    console.log("User details called -----------------------------------");
     if (!isAuthenticated) return;
-    const getUserDetails = async () => {
-      try {
-        const token = await getAccessToken();
-        const { data: { userInfo } } = await GetApi(
-          `${AUTH_SERVICE_URL}${ApiEndpoints.userDetailsPath}`,
-          undefined,
-          {
-            headers: { "x-auth-token": token },
-          }
-        );
-        setUserDetails(userInfo);
-        setIsAuthenticated(true);
-      } catch (e) {
-        setIsAuthenticated(false);
-      }
-    };
     getUserDetails();
   }, [isAuthenticated]);
 
   return (
     <UserContext.Provider
-      value={{ isLoading, isAuthenticated, userDetails, setIsAuthenticated }}
+      value={{ isLoading, isAuthenticated, userDetails, setIsAuthenticated, setUserDetails }}
     >
       {children}
     </UserContext.Provider>

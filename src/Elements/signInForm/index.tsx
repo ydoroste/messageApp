@@ -43,7 +43,7 @@ const SignInForm: React.FC = () => {
         password: values.password
     };
     const {refetch} = useLogin(request);
-    const {setIsAuthenticated} = useUserDetails();
+    const {setIsAuthenticated, setUserDetails} = useUserDetails();
     const onVerifyAccountClick = async ()=>{
         const {data, isError, error} = await refetchForgetPassword();
         if(isError){
@@ -85,9 +85,9 @@ const SignInForm: React.FC = () => {
         const signInData = data?.data as ILoginApiResponseData;
         if (signInData.accessToken && signInData.accessToken !== "") {
             await setAccessToken(signInData.accessToken);
+            setUserDetails(signInData.user);
             setIsAuthenticated(true);
         }
-
     };
 
     useFocusEffect(

@@ -11,10 +11,11 @@ import useTheme from "@followBack/Hooks/useTheme";
 import {
   UIActivityIndicator,
 } from 'react-native-indicators';
+import { IThreadMessage } from "@followBack/Apis/ThreadMessages/types";
 
-const Message = ({ item }) => {
+const Message = ({ item }: {item: IThreadMessage}) => {
   const { styles } = useStyles();
-  const { text, to, from, cc, bcc, messageDateTime, notConfirmedNewMessage } = item;
+  const { text, to, from, cc, bcc, createdAt } = item;
   // const { userDetails } = useUserDetails();
   const userDetails = {
     "id": "64aa89d22d70c06d0f2d04b4",
@@ -107,7 +108,7 @@ const Message = ({ item }) => {
           ]}
         >
           <Typography type="smallRegularBody" color="secondary">
-            {formatMessageDate(messageDateTime)}
+            {formatMessageDate(createdAt)}
           </Typography>
         </View>
       )}

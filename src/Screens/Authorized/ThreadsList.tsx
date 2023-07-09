@@ -13,19 +13,21 @@ import { authorizedStackNavigationProps} from "@followBack/Navigation/Authorized
 import {useMailBoxes} from "@followBack/Hooks/useMailboxes";
 import LoadingScreen from "@followBack/Elements/LoadingScreen/LoadingScreen.index";
 import { Thread } from "@followBack/Apis/threadsList/type";
+import { useUserDetails } from "@followBack/Hooks/useUserDetails";
 
 const ThreadList: React.FC = () => {
   const nav = useNavigation<authorizedStackNavigationProps['navigation']>();
-   //route = useRoute<authorizedStackNavigationProps['route']>();
   const {data: mail} = useMailBoxes();
   const {id} = mail?.data.mailboxes?.find(t => t.mailbox.toLowerCase() === "inbox") ?? {id: ""};
   const { colors } = useTheme();
   const { searchValue } = useSearch();
   const [isInitialLoading, setIsInitialLoading] = useState(true);
-  const [threadsList, setthreadsList] = useState([]);
+  const [threadsList, setthreadsList] = useState<Thread[]>([]);
   const [refetchData, setRefetchData] = useState(false);
   const { data, isLoading, isError, isSuccess, hasNextPage, fetchNextPage } =
     useFetchthreadsList({ id, searchValue, refetchData });
+  const { userDetails } = useUserDetails();
+  // const emaaail = userDetails.first_name;
 
   const loadNextPageData = () => {
     if (hasNextPage) {
@@ -50,10 +52,20 @@ const ThreadList: React.FC = () => {
   useEffect(() => {
     if (typeof data === typeof undefined) return;
 
-    const flattenData = !!data?.pages
+    let flattenData = !!data?.pages
       ? data.pages.flatMap((page) => page?.data)
       : [];
-
+    flattenData = flattenData.sort(function(a, b) {
+      var dateA = new Date(a?.createdAt || "");
+      var dateB = new Date(b?.createdAt || "");
+      if (dateA < dateB ) {
+        return 1;
+      }
+      if (dateA > dateB ) {
+        return -1;
+      }
+      return 0;
+    });
     setthreadsList(flattenData);
   }, [data]);
 
@@ -111,7 +123,7 @@ const ThreadList: React.FC = () => {
             keyExtractor={(item) => item.threadId}
               scrollIndicatorInsets={{right:1}}
               data={threadsList}
-            renderItem={({ item }) => (
+            renderItem={({ item }: {item : Thread}) => (
               <Pressable
                   style={({pressed})=>({
                     opacity: pressed ? 0.7 : 1,
@@ -120,7 +132,7 @@ const ThreadList: React.FC = () => {
                 onPress={() => {
                   nav.navigate(AuthorizedScreensEnum.threadsListStack, {
                     screen: AuthorizedScreensEnum.threadDetails,
-                    params: { id: item.threadId },
+                    params: { id: item.threadId, topicId: item.topicId, subject: item.subject },
                   });
                 }}
               >

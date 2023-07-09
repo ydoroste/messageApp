@@ -4,7 +4,7 @@
     "slug": "mobileapp",
     "owner": "omar-salah-elboredy",
     "privacy": "hidden",
-    "version": "1.0.0",
+    "version": "1.0.09072023",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -22,7 +22,8 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.abdulazizmassoud.MobileApp"
+      "bundleIdentifier": "com.abdulazizmassoud.MobileApp",
+      "buildNumber": "1.0.09072023"
     },
     "android": {
       "adaptiveIcon": {

@@ -22,7 +22,7 @@ import { composeApi } from "@followBack/Apis/Compose";
 import { IThreadMessage } from "@followBack/Apis/ThreadMessages/types";
 
 const ThreadDetails: React.FC = ({ navigation, options, route }) => {
-  const { id } = route.params;
+  const { id, topicId, subject } = route.params;
   const params = route.params;
   const [allMessages, setAllMessages] = useState<IThreadMessage[]>([]);
   const [failedMessages, setFailedMessages] = useState([]);
@@ -72,8 +72,7 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
   others = others.length === 0  &&  sender.address === userDetails.email ?  [sender]  : others;
 
   const receiver = hasData ? getThreadParticipantsUserName(others, initiator) : "";
-  const subject = hasData ? firstMessage?.subject : "";
-  const firstMessageDate = hasData ? conversationDateTime(firstMessage?.messageDateTime) : "";
+  const firstMessageDate = hasData ? conversationDateTime(firstMessage.createdAt ?? "") : "";
 
 
   const loadNextPageData = async () => {
@@ -99,13 +98,23 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
     let flattenData = !!data?.pages && data?.pages?.[0] !== undefined
       ? data?.pages.flatMap((page) => page?.data)
       : [];
+      flattenData = flattenData.sort(function(a, b) {
+        var dateA = new Date(a?.createdAt || "");
+        var dateB = new Date(b?.createdAt || "");
+        if (dateA < dateB ) {
+          return 1;
+        }
+        if (dateA > dateB ) {
+          return -1;
+        }
+        return 0;
+      });
     setAllMessages(flattenData);
     setLastMessageData(flattenData[0]);
   }, [data]);
 
   // Test temp solution
   useEffect(() => {
-    console.log("Callllll mesaggessssssssss --------- " + userDetails);
     setRefetchData(false);
     const stopFetchingTimer = setTimeout(() => {
       setRefetchData(true);
@@ -134,13 +143,13 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
       toEndPoints?.push({ address: lastFromEndPoint })
     }
     const composeRequest: IComposeApiRequest = {
-      topicId: lastMessageData?.headerId || "",
-      subject: lastMessageData?.subject || "",
+      topicId: topicId,
+      subject: subject,
       text: messageText,
       toList: toEndPoints,
       ccList: formatEndPoints(lastMessageData?.cc || []),
       bccList: formatEndPoints(lastMessageData?.bcc || []),
-      from: userDetails?.email
+      from: `${userDetails?.user_name}@iinboxx.com`
     };
 
     return composeRequest
@@ -157,10 +166,9 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
       allMessagesCopy.unshift(newMessage);
 
       setAllMessages(allMessagesCopy);
-      const data = await composeApi(createComposeRequest(mail?.trim()));
+      const data = (await composeApi(createComposeRequest(mail?.trim()))).data;
       const newMessageIndex = allMessagesCopy.findIndex((message) => message.messageId === newMessage.messageId);
-      console.log(`Data of Compose --------- ${data.status}`);
-      if (data?.["success"]) {
+      if (data !== undefined) {
         allMessagesCopy.splice(newMessageIndex, 1, { ...allMessagesCopy[newMessageIndex], notConfirmedNewMessage: false });
         setAllMessages(allMessagesCopy);
       } else {
