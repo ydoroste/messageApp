@@ -3,7 +3,7 @@ import { createDrawerNavigator } from "@react-navigation/drawer";
 import React from "react";
 import Compose from "@followBack/Screens/Authorized/Compose";
 import ThreadsList from "@followBack/Screens/Authorized/ThreadsList";
-import ThreadDetails from "@followBack/Screens/Authorized/ThreadDetails";
+import ThreadDetails from "@followBack/Screens/Authorized/ChatScreen/ThreadDetails";
 import { AuthorizedScreensEnum } from "@followBack/Navigation/Authorized/constants";
 import { AuthorizedParams } from "@followBack/Navigation/Authorized/types";
 import MailBoxHeader from "@followBack/Elements/Headers/Authorized/MailBoxHeader/MailBoxHeader";

@@ -8,10 +8,7 @@ import {
   Pressable,
   StyleSheet,
   TouchableHighlight,
-  TouchableOpacity,
-  View,
-  ScrollView
-} from "react-native";
+  View } from "react-native";
 import useTheme from "@followBack/Hooks/useTheme";
 import Button from "@followBack/GenericElements/Button";
 import InputField from "@followBack/GenericElements/InputField";
@@ -25,9 +22,11 @@ import { useFocusEffect } from "@react-navigation/native";
 import { useMailBoxes } from "@followBack/Hooks/useMailboxes";
 import MailSender from "@followBack/Elements/MailSender/MailSender";
 import { Ionicons } from '@expo/vector-icons';
-import { theme } from "@followBack/Theme/Theme";
 import { TextInput } from "react-native-gesture-handler";
 import { NativeStackHeaderProps } from "@react-navigation/native-stack";
+import { useFetchthreadsList } from "@followBack/Hooks/Apis/ThreadsList";
+import { useSearch } from "@followBack/Hooks/useSearch";
+import { Thread } from "@followBack/Apis/threadsList/type";
 
 interface ComposeHeaderProps extends NativeStackHeaderProps {
   handleBackButtonPress?: ()=> void;
@@ -128,6 +127,15 @@ const Compose: React.FC<ComposeHeaderProps> = ({ navigation }) => {
   );
 
   const { refetch } = useCompose(composeRequest);
+  const { inboxThread } = useMailBoxes();
+  const { searchValue } = useSearch();
+  const id = inboxThread?.id ?? "";
+  const [refetchData, setRefetchData] = useState(false);
+  const [composeThread, setComposeThread] = useState<Thread>();
+  const [topicId, setTopicId] = useState<string>("");
+  const { data: threadsListData } =
+    useFetchthreadsList({ id, searchValue, refetchData });
+
   const onPressCompose = async () => {
     try {
       if (toList.length < 0 || (!subject && !text)) return;
@@ -143,6 +151,16 @@ const Compose: React.FC<ComposeHeaderProps> = ({ navigation }) => {
     }
    
   };
+
+  useEffect(() => {
+    if (typeof threadsListData === typeof undefined) return;
+
+    let flattenData = !!threadsListData?.pages
+      ? threadsListData.pages.flatMap((page) => page?.data)
+      : [];
+    let composeThread = flattenData.find(thread => thread?.topicId == topicId);
+    setComposeThread(composeThread);
+  }, [threadsListData]);
 
   const onChangeMailContent = ({ value }: { value: any }) => {
     setKeyValue({ key: "text", value });

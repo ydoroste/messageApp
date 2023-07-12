@@ -33,4 +33,5 @@ export interface Thread {
         outbound: false;
         attachments: string[];
     }
+    seen: boolean;
 }

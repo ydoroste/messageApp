@@ -7,7 +7,7 @@ import useKeyboardOpenListner from "@followBack/Hooks/useKeyboardOpenListner";
 import { UIActivityIndicator } from "react-native-indicators";
 
 
-const MailSender = ({ onChangeMailContent, onPressCompose, text, isLoading = false }) => {
+const MailSender = ({ onChangeMailContent, onPressCompose, text, isLoading = false, onPressAttachments }) => {
   const { colors } = useTheme();
   const [focused, setFocused] = React.useState(false);
   const isKeyboardOpen = useKeyboardOpenListner();
@@ -25,7 +25,7 @@ const MailSender = ({ onChangeMailContent, onPressCompose, text, isLoading = fal
     <View style={styles.flexCenter}>
       <View style={styles.iconContainer}>
         <IconButton
-          onPress={() => { }}
+          onPress={onPressAttachments}
           name="add"
           width={17}
           height={17}

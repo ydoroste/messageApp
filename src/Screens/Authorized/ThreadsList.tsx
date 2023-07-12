@@ -1,6 +1,6 @@
 import Typography from "@followBack/GenericElements/Typography";
 import React, {memo, useCallback, useEffect, useState} from "react";
-import { KeyboardAvoidingView, Platform, Pressable, StyleSheet, View } from "react-native";
+import { Animated, KeyboardAvoidingView, Platform, Pressable, StyleSheet, View } from "react-native";
 
 import useTheme from "@followBack/Hooks/useTheme";
 import { FlashList } from "@shopify/flash-list";
@@ -13,7 +13,8 @@ import { authorizedStackNavigationProps} from "@followBack/Navigation/Authorized
 import {useMailBoxes} from "@followBack/Hooks/useMailboxes";
 import LoadingScreen from "@followBack/Elements/LoadingScreen/LoadingScreen.index";
 import { Thread } from "@followBack/Apis/threadsList/type";
-import { useUserDetails } from "@followBack/Hooks/useUserDetails";
+import { HoldItem } from "react-native-hold-menu";
+import { RectButton, Swipeable } from "react-native-gesture-handler";
 
 const ThreadList: React.FC = () => {
   const nav = useNavigation<authorizedStackNavigationProps['navigation']>();
@@ -26,15 +27,13 @@ const ThreadList: React.FC = () => {
   const [refetchData, setRefetchData] = useState(false);
   const { data, isLoading, isError, isSuccess, hasNextPage, fetchNextPage } =
     useFetchthreadsList({ id, searchValue, refetchData });
-  const { userDetails } = useUserDetails();
-  // const emaaail = userDetails.first_name;
 
   const loadNextPageData = () => {
     if (hasNextPage) {
       fetchNextPage();
     }
   };
-  
+
   useEffect(() => {
     if (!isInitialLoading) return;
     setIsInitialLoading(isLoading);
@@ -123,21 +122,21 @@ const ThreadList: React.FC = () => {
             keyExtractor={(item) => item.threadId}
               scrollIndicatorInsets={{right:1}}
               data={threadsList}
-            renderItem={({ item }: {item : Thread}) => (
-              <Pressable
-                  style={({pressed})=>({
-                    opacity: pressed ? 0.7 : 1,
-                    marginVertical: 10
-                  })}
-                onPress={() => {
-                  nav.navigate(AuthorizedScreensEnum.threadsListStack, {
-                    screen: AuthorizedScreensEnum.threadDetails,
-                    params: { id: item.threadId, topicId: item.topicId, subject: item.subject },
-                  });
-                }}
-              >
-                <ThreadCard threadItem={item} />
-              </Pressable>
+              renderItem={({ item }: {item : Thread}) => (
+                  <Pressable
+                      style={({pressed})=>({
+                        opacity: pressed ? 0.7 : 1,
+                        marginVertical: 10
+                      })}
+                    onPress={() => {
+                      nav.navigate(AuthorizedScreensEnum.threadsListStack, {
+                        screen: AuthorizedScreensEnum.threadDetails,
+                        params: { id: item.threadId, topicId: item.topicId, subject: item.subject },
+                      });
+                    }}
+                  >
+                    <ThreadCard threadItem={item} />
+                  </Pressable>
             )}
             estimatedItemSize={100}
             onEndReached={loadNextPageData}

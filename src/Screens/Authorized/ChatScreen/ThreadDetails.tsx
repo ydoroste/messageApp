@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { View, KeyboardAvoidingView, Platform, StyleSheet, TouchableHighlight, Pressable, Keyboard, FlatList, TextInput } from "react-native";
+import { View, KeyboardAvoidingView, Platform, StyleSheet } from "react-native";
 import useTheme from "@followBack/Hooks/useTheme";
 import { useFetchThreadMessages } from "@followBack/Hooks/Apis/ThreadMessages";
 import Message from "@followBack/Elements/Message/Message";
@@ -11,15 +11,16 @@ import { getThreadParticipantsUserName } from "@followBack/Utils/stringUtils";
 import { conversationDateTime } from "@followBack/Utils/date";
 import { useFocusEffect } from "@react-navigation/native";
 import { IComposeApiRequest } from "@followBack/Apis/Compose/types";
-import { useCompose } from "@followBack/Hooks/Apis/Compose";
 import { HoldItem } from "react-native-hold-menu";
 import LoadingScreen from "@followBack/Elements/LoadingScreen/LoadingScreen.index";
 import { FlashList } from "@shopify/flash-list";
 import { useFailedMessages } from "@followBack/Hooks/useFailedMessages";
 import FailedMessage from "@followBack/Elements/FailedMessage/FailedMessage.index";
-import { getAccessToken } from "@followBack/Utils/accessToken";
 import { composeApi } from "@followBack/Apis/Compose";
 import { IThreadMessage } from "@followBack/Apis/ThreadMessages/types";
+import { IContact } from "@followBack/Apis/ContactsList/types";
+import * as ImagePicker from "expo-image-picker";
+import { ImagePickerResponse } from "./types";
 
 const ThreadDetails: React.FC = ({ navigation, options, route }) => {
   const { id, topicId, subject } = route.params;
@@ -27,20 +28,8 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
   const [allMessages, setAllMessages] = useState<IThreadMessage[]>([]);
   const [failedMessages, setFailedMessages] = useState([]);
   const { colors } = useTheme();
-
   const [mail, setMail] = useState("");
-  // const { userDetails } = useUserDetails();
-  const userDetails = {
-    "id": "64aa89d22d70c06d0f2d04b4",
-    "first_name": "First",
-    "last_name": "Last",
-    "gender": "male",
-    "birth_date": "1985-07-09T10:19:31.000Z",
-    "user_name": "testsign",
-    "email": "testsign@iinboxx.com",
-    "phone_number": "+447859730937",
-    "wildduck_user_id": null
-  };
+  const { isAuthenticated, userDetails } = useUserDetails();
   const { failedMessagesData, setFailedMessagesData } = useFailedMessages();
   const onChangeMailContent = ({ value }: {value: string}) => setMail(value);
   const [refetchData, setRefetchData] = useState(false);
@@ -52,7 +41,7 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
   const firstMessage = allMessages?.[allMessages.length - 1];
   const sender = lastMessageData?.from ?? {
     name: userDetails.user_name,
-    address: userDetails.email,
+    address: `${userDetails.user_name}@iinboxx.com`,
   };
   const initiator = data?.pages?.[0]?.initiator;
   const composeTo = params.to ?? [];
@@ -66,10 +55,10 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
     hasData
       ? excludeUser({
         users: [sender, ...to, ...cc, ...bcc],
-        userAddress: userDetails.email,
+        userAddress: `${userDetails.user_name}@iinboxx.com`,
       })
       : [];
-  others = others.length === 0  &&  sender.address === userDetails.email ?  [sender]  : others;
+  others = others.length === 0  &&  sender.address === `${userDetails.user_name}@iinboxx.com` ?  [sender]  : others;
 
   const receiver = hasData ? getThreadParticipantsUserName(others, initiator) : "";
   const firstMessageDate = hasData ? conversationDateTime(firstMessage.createdAt ?? "") : "";
@@ -133,13 +122,13 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
     }, [])
   );
 
-  const formatEndPoints = (endPoint: { address: string, name: string }[]): { address: string }[] => endPoint?.map((obj) => ({ address: obj?.address?.trim() }))
-    .filter(({ address }) => address !== userDetails.email);
+  const formatEndPoints = (endPoint: IContact[]) => endPoint?.map((obj) => ({ address: obj?.address?.trim() }))
+    .filter(({ address }) => address !== `${userDetails.user_name}@iinboxx.com`);
 
   const createComposeRequest = (messageText: string): IComposeApiRequest => {
     const lastFromEndPoint = lastMessageData?.from?.address || "";
-    const toEndPoints = formatEndPoints(lastMessageData?.to)?.filter(({ address }) => address !== lastFromEndPoint);
-    if (lastFromEndPoint !== userDetails.email) {
+    const toEndPoints = formatEndPoints(lastMessageData?.to ?? [])?.filter(({ address }) => address !== lastFromEndPoint);
+    if (lastFromEndPoint !== `${userDetails.user_name}@iinboxx.com`) {
       toEndPoints?.push({ address: lastFromEndPoint })
     }
     const composeRequest: IComposeApiRequest = {
@@ -147,28 +136,27 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
       subject: subject,
       text: messageText,
       toList: toEndPoints,
-      ccList: formatEndPoints(lastMessageData?.cc || []),
+      ccList: formatEndPoints(lastMessageData?.cc ?? []),
       bccList: formatEndPoints(lastMessageData?.bcc || []),
       from: `${userDetails?.user_name}@iinboxx.com`
     };
-
+    console.log("Compose request" + composeRequest);
     return composeRequest
   };
 
+  // MARK: - Send new message in chat/thread
   const onPressCompose = async () => {
     try {
       if (!mail) return;
       setMail("");
-      // let newMessageComponent = {} as IThreadMessage;
       const allMessagesCopy = [...allMessages];
       const newMessage = { text: mail?.trim(), messageId: (new Date()).getTime().toString(), notConfirmedNewMessage: true };
-      // newMessageComponent = [...newMessage];
       allMessagesCopy.unshift(newMessage);
 
       setAllMessages(allMessagesCopy);
-      const data = (await composeApi(createComposeRequest(mail?.trim()))).data;
+      const data = (await composeApi(createComposeRequest(mail?.trim())));
       const newMessageIndex = allMessagesCopy.findIndex((message) => message.messageId === newMessage.messageId);
-      if (data !== undefined) {
+      if (data) {
         allMessagesCopy.splice(newMessageIndex, 1, { ...allMessagesCopy[newMessageIndex], notConfirmedNewMessage: false });
         setAllMessages(allMessagesCopy);
       } else {
@@ -200,6 +188,24 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
     const failedMessagesFromContext = failedMessagesData[id].filter(message => message.messageId !== messageTempId);
     // set the failed context with the new data
     setFailedMessagesData && setFailedMessagesData({ ...failedMessagesData, [id]: failedMessagesFromContext })
+  };
+
+  // MARK:- add new attachments
+  const onPressAttachments = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      aspect: [4, 3],
+      allowsMultipleSelection: true,
+      selectionLimit: 3,
+      orderedSelection: true,
+    });
+    if (result && !result.canceled) {
+      const response = result as ImagePickerResponse;
+      let imagePaths: string[] = [];
+      result.assets.forEach((asset) => {
+        imagePaths.push(asset.uri);
+      });
+    }
   };
 
   if (!hasData || isError) {
@@ -258,6 +264,7 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
           text={mail}
           onChangeMailContent={onChangeMailContent}
           onPressCompose={onPressCompose}
+          onPressAttachments={onPressAttachments}
         />
       </View>
 

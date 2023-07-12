@@ -3,7 +3,7 @@ import { IApiError } from "../types";
 
 export interface IContact {
     address: string;
-    name: string
+    name?: string
 }
 
 export interface IContactListApiResponse {

@@ -14,7 +14,7 @@ export const useFetchthreadsList = ({id, searchValue, refetchData }: {id: string
       },
         keepPreviousData: true,
         enabled: refetchData,
-        refetchInterval: 10000,
+        refetchInterval: 2000,
         refetchOnWindowFocus: true,
         refetchOnReconnect: true,
         refetchOnMount: true

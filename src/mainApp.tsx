@@ -14,6 +14,7 @@ import axios, { InternalAxiosRequestConfig } from "axios";
 import { getAccessToken } from "./Utils/accessToken";
 import { AUTH_SERVICE_URL, BETA_SERVICE_URL, CORE_SERVICE_URL } from "./Apis/constants";
 import { ApiEndpoints } from "./Apis";
+import { UserProvider } from "./Contexts/UserContext";
 
 const queryClient = new QueryClient();
 
@@ -24,7 +25,8 @@ const getBaseURL = (request: InternalAxiosRequestConfig) => {
         request.url == ApiEndpoints.register || 
         request.url == ApiEndpoints.resetPassword ||
         request.url == ApiEndpoints.resendVerificationCode || 
-        request.url == ApiEndpoints.verifyResetPasswordCode) {
+        request.url == ApiEndpoints.verifyResetPasswordCode || 
+        request.url == ApiEndpoints.userDetailsPath) {
             return AUTH_SERVICE_URL;
         }
     return CORE_SERVICE_URL;
@@ -58,16 +60,6 @@ const MainApp: React.FC = () => {
         return Promise.reject(error);
     });
 
-    axios.interceptors.response.use(response => {
-        console.log(response);
-        console.log(response.data);
-            // Edit response config
-        return response;
-    }, error => {
-        console.log(error);
-        return Promise.reject(error);
-    });
-
 
     return (
         <QueryClientProvider client={queryClient}>
@@ -77,9 +69,11 @@ const MainApp: React.FC = () => {
                             <NavigationContainer>
                                 <StatusBar style="light"/>
                                 {isAuthenticated ? (
-                                    <MailBoxesProvider>
-                                        <AuthorizedNavigation/>
-                                    </MailBoxesProvider>
+                                    <UserProvider>
+                                        <MailBoxesProvider>
+                                            <AuthorizedNavigation/>
+                                        </MailBoxesProvider>
+                                    </UserProvider>
                                 ) : (
                                     <UnauthorizedNavigation/>
                                 )}

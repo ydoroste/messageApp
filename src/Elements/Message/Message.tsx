@@ -1,12 +1,11 @@
 import Typography from "@followBack/GenericElements/Typography";
 import React, { useRef, useState } from "react";
-import { View, StyleSheet, Pressable, ViewStyle } from "react-native";
+import { View, Pressable } from "react-native";
 import { formatMessageDate } from "@followBack/Utils/date";
 import useStylesWithTheme from "@followBack/Hooks/useStylesWithTheme";
 import { useUserDetails } from "@followBack/Hooks/useUserDetails";
 import { excludeUser } from "@followBack/Utils/messages";
 import { emailNameParcer } from "@followBack/Utils/email";
-import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import useTheme from "@followBack/Hooks/useTheme";
 import {
   UIActivityIndicator,
@@ -16,18 +15,7 @@ import { IThreadMessage } from "@followBack/Apis/ThreadMessages/types";
 const Message = ({ item }: {item: IThreadMessage}) => {
   const { styles } = useStyles();
   const { text, to, from, cc, bcc, createdAt } = item;
-  // const { userDetails } = useUserDetails();
-  const userDetails = {
-    "id": "64aa89d22d70c06d0f2d04b4",
-    "first_name": "First",
-    "last_name": "Last",
-    "gender": "male",
-    "birth_date": "1985-07-09T10:19:31.000Z",
-    "user_name": "testsign",
-    "email": "testsign@iinboxx.com",
-    "phone_number": "+447859730937",
-    "wildduck_user_id": null
-  };
+  const { userDetails } = useUserDetails();
   const { colors } = useTheme();
   const isOwnMessage = !item?.from?.address
     ? true

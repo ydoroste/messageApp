@@ -13,4 +13,5 @@ export enum ApiEndpoints {
   contactsList = "contacts",
   compose = "inbox/send",
   threadMessages = "inbox/chat",
+  getAttachmentsLink = "attachments/link",
 }

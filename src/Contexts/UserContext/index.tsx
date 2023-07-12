@@ -14,6 +14,11 @@ import { ApiEndpoints } from "@followBack/Apis";
 import { GetApi } from "@followBack/Utils/httpApis/apis";
 import { AUTH_SERVICE_URL } from "@followBack/Apis/constants";
 
+export interface GetDetailsAPIResponse {
+  success: boolean;
+  data: IUserDetails;
+};
+
 export const UserProvider: React.FC<IUserProviderProp> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -54,14 +59,15 @@ export const UserProvider: React.FC<IUserProviderProp> = ({ children }) => {
   const getUserDetails = async () => {
     try {
       const token = await getAccessToken();
-      const { data: { userInfo } } = await GetApi(
+      const { data } = await GetApi<GetDetailsAPIResponse>(
         `${AUTH_SERVICE_URL}${ApiEndpoints.userDetailsPath}`,
         undefined,
         {
           headers: { "x-auth-token": token },
         }
       );
-      setUserDetails(userInfo);
+      setUserDetails(data.data);
+      console.log("Setting user Details from context" + JSON.stringify(data.data));
     } catch (e) {
       setIsAuthenticated(false);
     }
@@ -71,6 +77,10 @@ export const UserProvider: React.FC<IUserProviderProp> = ({ children }) => {
     if (!isAuthenticated) return;
     getUserDetails();
   }, [isAuthenticated]);
+
+  useEffect(() => {
+    console.log('s changed to: ABC', userDetails);
+  }, [userDetails])
 
   return (
     <UserContext.Provider

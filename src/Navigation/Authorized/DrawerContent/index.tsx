@@ -14,7 +14,7 @@ import { useQueryClient } from "react-query";
 const CustomDrawerContent = (props: any) => {
   const { navigation } = props;
   const { colors } = useTheme();
-  const { setIsAuthenticated } = useUserDetails();
+  const { setIsAuthenticated, userDetails } = useUserDetails();
   const queryClient = useQueryClient();
   
   const goToScreen = ({ stackName, screenName, params = {} }) => {
@@ -70,10 +70,21 @@ const CustomDrawerContent = (props: any) => {
       />
       
       <DrawerItem
-        label="1.0.09082023"
+        label="1.0.12082023"
         onPress={() => {}}
         labelStyle={{ color: "#8c8c8c", position:'absolute' }}
       />
+      <DrawerItem
+            label={userDetails.user_name}
+            labelStyle={{ color: "#ffffff" }}
+            onPress={() =>
+                goToScreen({
+                    stackName: AuthorizedScreensEnum.threadsListStack,
+                    screenName: AuthorizedScreensEnum.threadsList,
+                    //  params: { id, path, subscribed },
+                })
+            }
+        />
     </DrawerContentScrollView>
   );
 };

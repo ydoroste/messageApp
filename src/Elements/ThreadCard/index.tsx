@@ -21,7 +21,7 @@ const ThreadCard: React.FC<IthreadCardProps> = ({ threadItem }) => {
     others = others.length === 0  &&  threadItem?.lastHeader.formContact.address === userDetails.email ?  [threadItem.lastHeader.formContact]  : others;
     const message = threadItem.text?.trim() && threadItem.text?.trim() !== "" ? threadItem.text?.trim() : "\<no message\>";
     const subject = threadItem.subject?.trim() && threadItem.subject?.trim() !== "" ? threadItem.subject?.trim() : "\<no subject\>";
-    const isMessageSeen = false;
+    const isMessageSeen = threadItem.seen;
     const textColor = isMessageSeen ? "secondary" : "chat";
     
     return (

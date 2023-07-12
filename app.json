@@ -4,7 +4,7 @@
     "slug": "mobileapp",
     "owner": "omar-salah-elboredy",
     "privacy": "hidden",
-    "version": "1.0.09072023",
+    "version": "1.0.10072023",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -23,7 +23,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.abdulazizmassoud.MobileApp",
-      "buildNumber": "1.0.09072023"
+      "buildNumber": "1.0.12072023"
     },
     "android": {
       "adaptiveIcon": {
@@ -40,6 +40,14 @@
         "projectId": "ce3c7ad7-529c-40ca-9877-dc30206a1cd6"
       }
     },
-    "runtimeVersion" : "exposdk:47.0.0"
+    "runtimeVersion" : "exposdk:47.0.0",
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "The app accesses your photos to let you share them with your friends."
+        }
+      ]
+    ]
   }
 }

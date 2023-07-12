@@ -17,6 +17,7 @@ import {setAccessToken} from "@followBack/Utils/accessToken";
 import {useUserDetails} from "@followBack/Hooks/useUserDetails";
 import {IForgetPasswordApiRequest, IForgetPasswordData, ResetMethod} from "@followBack/Apis/ForgetPassword/types";
 import {useForgetPassword} from "@followBack/Hooks/Apis/ForgetPassword";
+import { setUserData } from "@followBack/Utils/userDetails";
 
 const SignInForm: React.FC = () => {
     const nav = useNavigation<UnauthorizedStackNavigationProps['navigation']>();
@@ -85,7 +86,20 @@ const SignInForm: React.FC = () => {
         const signInData = data?.data as ILoginApiResponseData;
         if (signInData.accessToken && signInData.accessToken !== "") {
             await setAccessToken(signInData.accessToken);
-            setUserDetails(signInData.user);
+            let signedinUser = signInData.user
+            let userInfo = {
+                id: signedinUser.id,
+                first_name: signedinUser.first_name,
+                last_name: signedinUser.last_name,
+                email: `${signedinUser.user_name}@iinboxx.com`,
+                user_name: signedinUser.user_name,
+                phone_number: signedinUser.phone_number,
+                birth_date: signedinUser.birth_date,
+                gender: signedinUser.gender,
+                wildduck_user_id: signedinUser.wildduck_user_id
+            };
+            setUserDetails(userInfo);
+            await setUserData(JSON.stringify(userInfo));
             setIsAuthenticated(true);
         }
     };
