@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { View, KeyboardAvoidingView, Platform, StyleSheet } from "react-native";
+import React, { useState, useEffect, useCallback, useRef } from "react";
+import { View, KeyboardAvoidingView, Platform, StyleSheet, Alert } from "react-native";
 import useTheme from "@followBack/Hooks/useTheme";
 import { useFetchThreadMessages } from "@followBack/Hooks/Apis/ThreadMessages";
 import Message from "@followBack/Elements/Message/Message";
 import MailSender from "@followBack/Elements/MailSender/MailSender";
 import ThreadDetailsHeader from "@followBack/Elements/Headers/Authorized/ThreadDetailsHeader/threadDetailsHeader.index";
-import { excludeUser } from "@followBack/Utils/messages";
+import { excludeUser, makeid } from "@followBack/Utils/messages";
 import { useUserDetails } from "@followBack/Hooks/useUserDetails";
 import { getThreadParticipantsUserName } from "@followBack/Utils/stringUtils";
 import { conversationDateTime } from "@followBack/Utils/date";
@@ -20,10 +20,15 @@ import { composeApi } from "@followBack/Apis/Compose";
 import { IThreadMessage } from "@followBack/Apis/ThreadMessages/types";
 import { IContact } from "@followBack/Apis/ContactsList/types";
 import * as ImagePicker from "expo-image-picker";
-import { ImagePickerResponse } from "./types";
+import { ImagePickerResponse, AssetResponseObject } from "./types";
+import * as DocumentPicker from 'expo-document-picker';
+import { createAttachment, getUploadLinkApi } from "@followBack/Apis/GetAttachmentUploadLink";
+import { ScrollView } from "react-native-gesture-handler";
+import * as mime from "mime";
+import { ICreateAttachmentRequest } from "@followBack/Apis/GetAttachmentUploadLink/types";
 
 const ThreadDetails: React.FC = ({ navigation, options, route }) => {
-  const { id, topicId, subject } = route.params;
+  const { id, topicId, subject, headerId } = route.params;
   const params = route.params;
   const [allMessages, setAllMessages] = useState<IThreadMessage[]>([]);
   const [failedMessages, setFailedMessages] = useState([]);
@@ -36,9 +41,11 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
   const [lastMessageData, setLastMessageData] = useState<IThreadMessage>();
   const { data, isLoading, isError, isSuccess, hasNextPage, fetchNextPage } =
     useFetchThreadMessages({ id, refetchData });
+  const [attachments, setAttachments] = useState<string[]>([]);
 
+  const scrollViewRef = useRef<ScrollView|null>(null);
   const hasData = allMessages?.length > 0;
-  const firstMessage = allMessages?.[allMessages.length - 1];
+  const firstMessage = allMessages?.[0];
   const sender = lastMessageData?.from ?? {
     name: userDetails.user_name,
     address: `${userDetails.user_name}@iinboxx.com`,
@@ -91,15 +98,16 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
         var dateA = new Date(a?.createdAt || "");
         var dateB = new Date(b?.createdAt || "");
         if (dateA < dateB ) {
-          return 1;
+          return -1;
         }
         if (dateA > dateB ) {
-          return -1;
+          return 1;
         }
         return 0;
       });
     setAllMessages(flattenData);
     setLastMessageData(flattenData[0]);
+    scrollViewRef.current?.scrollToEnd();
   }, [data]);
 
   // Test temp solution
@@ -138,7 +146,8 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
       toList: toEndPoints,
       ccList: formatEndPoints(lastMessageData?.cc ?? []),
       bccList: formatEndPoints(lastMessageData?.bcc || []),
-      from: `${userDetails?.user_name}@iinboxx.com`
+      from: `${userDetails?.user_name}@iinboxx.com`,
+      attachments: attachments
     };
     console.log("Compose request" + composeRequest);
     return composeRequest
@@ -147,11 +156,11 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
   // MARK: - Send new message in chat/thread
   const onPressCompose = async () => {
     try {
-      if (!mail) return;
+      if (!mail || !attachments || attachments.length == 0) return;
       setMail("");
       const allMessagesCopy = [...allMessages];
       const newMessage = { text: mail?.trim(), messageId: (new Date()).getTime().toString(), notConfirmedNewMessage: true };
-      allMessagesCopy.unshift(newMessage);
+      allMessagesCopy.push(newMessage);
 
       setAllMessages(allMessagesCopy);
       const data = (await composeApi(createComposeRequest(mail?.trim())));
@@ -159,6 +168,8 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
       if (data) {
         allMessagesCopy.splice(newMessageIndex, 1, { ...allMessagesCopy[newMessageIndex], notConfirmedNewMessage: false });
         setAllMessages(allMessagesCopy);
+        scrollViewRef.current?.scrollToEnd();
+        console.log(allMessages);
       } else {
         const allMessagesWithoutTheFailed = allMessagesCopy.filter(item => !item?.notConfirmedNewMessage);
         setAllMessages(allMessagesWithoutTheFailed)
@@ -192,6 +203,7 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
 
   // MARK:- add new attachments
   const onPressAttachments = async () => {
+    let attachments: string[] = [];
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
       aspect: [4, 3],
@@ -199,12 +211,45 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
       selectionLimit: 3,
       orderedSelection: true,
     });
-    if (result && !result.canceled) {
-      const response = result as ImagePickerResponse;
-      let imagePaths: string[] = [];
-      result.assets.forEach((asset) => {
-        imagePaths.push(asset.uri);
+    if (result) {
+      result.assets?.forEach(async (asset) => {
+        if (asset.fileSize && asset.fileSize > 25*1024*1024) { Alert.alert("Error", "Attachment size is bigger than 25 MB!!!"); }
+        else {
+          let link = await getUploadLinkApi({filename: asset.fileName ?? ""});
+          let formData = new FormData();
+          const mimeType = mime.getType(asset.fileName ?? "") // => 'application/pdf'
+          formData.append('file', { type: mimeType ?? "", uri:asset.uri ?? "", name:asset.fileName ?? ""} );
+      // Please change file upload URL
+      let res = await fetch(
+        link.link,
+        {
+          method: 'PUT',
+          body: formData,
+          headers: {
+            'Content-Type': 'multipart/form-data; ',
+          },
+        }
+      );
+      console.log(JSON.stringify(res));
+      if (res.status == 200) {
+        alert('Upload Successful');
+        let createAttachmentReq: ICreateAttachmentRequest = {
+          headerId: headerId,
+          url: link.link,
+          title: asset.fileName ?? "",
+          type: mimeType ?? "",
+          size: asset.fileSize ?? 0
+        };
+        let createRes = await createAttachment(createAttachmentReq);
+        console.log("Create attachment response: ", createRes);
+        attachments.push(createRes.id ?? "");
+      } else {
+
+      }
+      setAttachments(attachments);
+        }
       });
+
     }
   };
 
@@ -234,6 +279,12 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
         <View style={styles.chatWrapper}>
           {hasData && (
             <>
+            <ScrollView 
+              ref={scrollViewRef}
+              showsVerticalScrollIndicator={false}
+              showsHorizontalScrollIndicator={false}
+              nestedScrollEnabled
+            >
               <FlashList
                 data={[...failedMessages, ...allMessages]}
                 renderItem={({ item }) =>
@@ -246,16 +297,19 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
                     </View>
                   </HoldItem>
                 }
-                keyExtractor={(item) => item?.messageId}
+                keyExtractor={(item, _) => item?.messageId ?? makeid(10)}
                 onEndReachedThreshold={0.2}
                 estimatedItemSize={100}
                 scrollIndicatorInsets={{ right: 1 }}
-                inverted={true}
+                inverted={false}
                 onEndReached={async () => {
                   await loadNextPageData()
                 }}
+                indicatorStyle="white"
+                showsVerticalScrollIndicator={true}
               />
               <View style={{ height: 20 }} />
+              </ScrollView>
             </>
           )}
 

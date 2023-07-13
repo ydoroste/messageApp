@@ -17,7 +17,6 @@ export const snatizeComposeApi = (request: IComposeApiRequest) => {
 };
 
 export const composeApi = async (request: IComposeApiRequest) => {
-  console.log(`Request to compose ${request}`);
   return PostApi<IComposeApiRequest, IComposeApiResponse>(
     `${CORE_SERVICE_URL}${ApiEndpoints.compose}`,
     snatizeComposeApi(request)

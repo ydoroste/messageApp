@@ -4,7 +4,7 @@ export interface ImagePickerResponse {
     cancelled: boolean;
   };
 
-  interface AssetResponseObject {
+  export interface AssetResponseObject {
     assetId?: string | null;
     base64?: string | null,
     duration?: number | null,

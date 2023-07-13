@@ -131,7 +131,7 @@ const ThreadList: React.FC = () => {
                     onPress={() => {
                       nav.navigate(AuthorizedScreensEnum.threadsListStack, {
                         screen: AuthorizedScreensEnum.threadDetails,
-                        params: { id: item.threadId, topicId: item.topicId, subject: item.subject },
+                        params: { id: item.threadId, topicId: item.topicId, subject: item.subject, headerId: item.headerId },
                       });
                     }}
                   >

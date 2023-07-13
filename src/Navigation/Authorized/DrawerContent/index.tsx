@@ -47,7 +47,6 @@ const CustomDrawerContent = (props: any) => {
                 goToScreen({
                     stackName: AuthorizedScreensEnum.threadsListStack,
                     screenName: AuthorizedScreensEnum.threadsList,
-                    //  params: { id, path, subscribed },
                 })
             }
         />
@@ -81,7 +80,6 @@ const CustomDrawerContent = (props: any) => {
                 goToScreen({
                     stackName: AuthorizedScreensEnum.threadsListStack,
                     screenName: AuthorizedScreensEnum.threadsList,
-                    //  params: { id, path, subscribed },
                 })
             }
         />

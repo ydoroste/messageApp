@@ -7,7 +7,7 @@ export interface IFailedMessagesContext {
 };
 
 export interface IFailedMEssage {
-text: string
+    text: string
 };
 
 export interface FailedMessagesDictionary {

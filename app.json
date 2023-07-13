@@ -23,7 +23,8 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.abdulazizmassoud.MobileApp",
-      "buildNumber": "1.0.12072023"
+      "buildNumber": "1.0.12072023",
+      "usesIcloudStorage": true
     },
     "android": {
       "adaptiveIcon": {

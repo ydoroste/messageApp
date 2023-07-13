@@ -1,13 +1,14 @@
 import { IContact } from "../ContactsList/types";
 
 export interface IComposeApiRequest {
-  [key: string]: string | IContact[] | undefined 
+  [key: string]: string | IContact[] | undefined | string[]
   subject: string;
   text: string;
   toList: IContact[];
   ccList: IContact[];
   bccList: IContact[];
   uid?: string;
+  attachments?: string[];
 }
 
 export interface IComposeApiResponse {
