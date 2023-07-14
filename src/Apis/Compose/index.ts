@@ -1,4 +1,4 @@
-import { PostApi } from "@followBack/Utils/httpApis/apis";
+import { PostApi, PutApi } from "@followBack/Utils/httpApis/apis";
 import { ApiEndpoints } from "@followBack/Apis";
 import {
   IComposeApiRequest,
@@ -19,6 +19,13 @@ export const snatizeComposeApi = (request: IComposeApiRequest) => {
 export const composeApi = async (request: IComposeApiRequest) => {
   return PostApi<IComposeApiRequest, IComposeApiResponse>(
     `${CORE_SERVICE_URL}${ApiEndpoints.compose}`,
+    snatizeComposeApi(request)
+  ).then((res) =>  res.data);
+};
+
+export const editMessageApi = async (request: IComposeApiRequest) => {
+  return PutApi<IComposeApiRequest, IComposeApiResponse>(
+    `${CORE_SERVICE_URL}${ApiEndpoints.editMessage}`,
     snatizeComposeApi(request)
   ).then((res) =>  res.data);
 };

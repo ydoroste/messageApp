@@ -9,6 +9,7 @@ export interface IComposeApiRequest {
   bccList: IContact[];
   uid?: string;
   attachments?: string[];
+  id?: string;
 }
 
 export interface IComposeApiResponse {

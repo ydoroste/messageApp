@@ -15,4 +15,5 @@ export enum ApiEndpoints {
   threadMessages = "inbox/chat",
   getAttachmentsLink = "attachments/link",
   createAttachment = "attachments",
+  editMessage = "messages"
 }

@@ -1,13 +1,21 @@
 import IconButton from "@followBack/GenericElements/IconButton";
 import React, { useCallback, useReducer } from "react";
-import { StyleSheet, View } from "react-native";
+import { GestureResponderEvent, StyleSheet, View } from "react-native";
 import InputField from "@followBack/GenericElements/InputField";
 import useTheme from "@followBack/Hooks/useTheme";
 import useKeyboardOpenListner from "@followBack/Hooks/useKeyboardOpenListner";
 import { UIActivityIndicator } from "react-native-indicators";
+import { AssetResponseObject } from "@followBack/Screens/Authorized/ChatScreen/types";
 
 
-const MailSender = ({ onChangeMailContent, onPressCompose, text, isLoading = false, onPressAttachments }) => {
+const MailSender = ({ onChangeMailContent, onPressCompose, text, isLoading = false, onPressAttachments, tempAttachments }: {
+  tempAttachments: AssetResponseObject[], 
+  isLoading?: boolean, 
+  onPressCompose: (e: GestureResponderEvent) => void,
+  onChangeMailContent: Function,
+  text: string,
+  onPressAttachments: (e: GestureResponderEvent) => void
+}) => {
   const { colors } = useTheme();
   const [focused, setFocused] = React.useState(false);
   const isKeyboardOpen = useKeyboardOpenListner();
@@ -40,7 +48,7 @@ const MailSender = ({ onChangeMailContent, onPressCompose, text, isLoading = fal
           value={text}
           inputMaxHeight={inputMaxHeight}
           textColor={colors.white}
-          onChangeText={(text) => onChangeMailContent({ value: text })}
+          onChangeText={(text: string) => onChangeMailContent({ value: text })}
           multiline
           mode="outlined"
           placeholder="write a message..."
@@ -56,7 +64,7 @@ const MailSender = ({ onChangeMailContent, onPressCompose, text, isLoading = fal
             name="send"
             width={17}
             height={17}
-            color={colors.grey01}
+            color={tempAttachments.length > 0 || text ? colors.grey03 : colors.grey01}
           />}
       </View>
     </View>

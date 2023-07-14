@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { View, KeyboardAvoidingView, Platform, StyleSheet, Alert } from "react-native";
+import { View, KeyboardAvoidingView, Platform, StyleSheet, Alert, Image, Pressable } from "react-native";
 import useTheme from "@followBack/Hooks/useTheme";
 import { useFetchThreadMessages } from "@followBack/Hooks/Apis/ThreadMessages";
 import Message from "@followBack/Elements/Message/Message";
@@ -16,7 +16,7 @@ import LoadingScreen from "@followBack/Elements/LoadingScreen/LoadingScreen.inde
 import { FlashList } from "@shopify/flash-list";
 import { useFailedMessages } from "@followBack/Hooks/useFailedMessages";
 import FailedMessage from "@followBack/Elements/FailedMessage/FailedMessage.index";
-import { composeApi } from "@followBack/Apis/Compose";
+import { composeApi, editMessageApi } from "@followBack/Apis/Compose";
 import { IThreadMessage } from "@followBack/Apis/ThreadMessages/types";
 import { IContact } from "@followBack/Apis/ContactsList/types";
 import * as ImagePicker from "expo-image-picker";
@@ -26,6 +26,7 @@ import { createAttachment, getUploadLinkApi } from "@followBack/Apis/GetAttachme
 import { ScrollView } from "react-native-gesture-handler";
 import * as mime from "mime";
 import { ICreateAttachmentRequest } from "@followBack/Apis/GetAttachmentUploadLink/types";
+import { emailNameParcer } from "@followBack/Utils/email";
 
 const ThreadDetails: React.FC = ({ navigation, options, route }) => {
   const { id, topicId, subject, headerId } = route.params;
@@ -34,14 +35,17 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
   const [failedMessages, setFailedMessages] = useState([]);
   const { colors } = useTheme();
   const [mail, setMail] = useState("");
-  const { isAuthenticated, userDetails } = useUserDetails();
+  const { userDetails } = useUserDetails();
   const { failedMessagesData, setFailedMessagesData } = useFailedMessages();
   const onChangeMailContent = ({ value }: {value: string}) => setMail(value);
   const [refetchData, setRefetchData] = useState(false);
   const [lastMessageData, setLastMessageData] = useState<IThreadMessage>();
   const { data, isLoading, isError, isSuccess, hasNextPage, fetchNextPage } =
     useFetchThreadMessages({ id, refetchData });
-  const [attachments, setAttachments] = useState<string[]>([]);
+  const [attachments, setAttachments] = useState<AssetResponseObject[]>([]);
+  const [composeAttachments, setComposeAttachments] = useState<string[]>([]);
+  const [messageToEdit, setIsEditingMessage] = useState<IThreadMessage | undefined>(undefined);
+  const [replyToMessage, setReplyTo] = useState<IThreadMessage| undefined>(undefined);
 
   const scrollViewRef = useRef<ScrollView|null>(null);
   const hasData = allMessages?.length > 0;
@@ -57,7 +61,11 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
   const to = lastMessageData?.to ?? composeTo;
   const cc = lastMessageData?.cc ?? composeCc;
   const bcc = lastMessageData?.bcc ?? composeBcc;
-
+  const isOwnMessage = (item: IThreadMessage) => { 
+    return !item?.from?.address
+    ? true
+    : userDetails.user_name === emailNameParcer(item?.from?.address);
+  }
   let others =
     hasData
       ? excludeUser({
@@ -76,10 +84,23 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
       fetchNextPage();
     }
   };
-  const MenuItems = [
-    { text: 'unsend', onPress: () => { } },
-    { text: 'edit', onPress: () => { } },
-  ];
+
+  const MenuItems = (isOwnMessage: boolean) => {
+    if (isOwnMessage) {
+      return [
+          { text: 'Unsend', onPress: () => {} },
+          { text: 'Edit', onPress: (threadMessage: IThreadMessage) => {
+            setIsEditingMessage(threadMessage);
+            setMail(threadMessage.text);
+          } },
+          { text: 'Reply', onPress: () => {} }
+        ]
+    } else {
+      return [
+        { text: 'Reply', onPress: () => {} }
+      ]
+    }
+  };
 
   // MARK: - Load thread messages from API
   useEffect(() => {
@@ -139,7 +160,7 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
     if (lastFromEndPoint !== `${userDetails.user_name}@iinboxx.com`) {
       toEndPoints?.push({ address: lastFromEndPoint })
     }
-    const composeRequest: IComposeApiRequest = {
+    let composeRequest: IComposeApiRequest = {
       topicId: topicId,
       subject: subject,
       text: messageText,
@@ -147,21 +168,69 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
       ccList: formatEndPoints(lastMessageData?.cc ?? []),
       bccList: formatEndPoints(lastMessageData?.bcc || []),
       from: `${userDetails?.user_name}@iinboxx.com`,
-      attachments: attachments
+      attachments: composeAttachments,
     };
+    if (messageToEdit) {
+      composeRequest = { ...composeRequest, id: messageToEdit?.messageId }
+    }
     console.log("Compose request" + composeRequest);
     return composeRequest
   };
 
+
+  const uploadAttachments = async () => {
+    let attachmentsOfMessage: string[] = [];
+    attachments.forEach(async (asset, index) => {
+      let link = await getUploadLinkApi({filename: asset.fileName ?? ""});
+          let formData = new FormData();
+          const mimeType = mime.getType(asset.fileName ?? "") // => 'application/pdf'
+          formData.append('file', { type: mimeType ?? "", uri:asset.uri ?? "", name:asset.fileName ?? ""} );
+          let res = await fetch(
+            link.link,
+            {
+              method: 'PUT',
+              body: formData,
+              headers: {
+                'Content-Type': 'multipart/form-data; ',
+              },
+            }
+          );
+          console.log(JSON.stringify(res));
+          if (res.status == 200) {
+            let createAttachmentReq: ICreateAttachmentRequest = {
+              headerId: headerId,
+              url: link.link,
+              title: asset.fileName ?? "",
+              type: mimeType ?? "",
+              size: asset.fileSize ?? 0
+            };
+            let createRes = await createAttachment(createAttachmentReq);
+            console.log("Create attachment response: ", createRes);
+            attachmentsOfMessage.push(createRes.id ?? "");
+          } else {
+
+          }
+    });
+    setComposeAttachments(attachmentsOfMessage);
+  };
+
   // MARK: - Send new message in chat/thread
   const onPressCompose = async () => {
+    console.log(mail);
+    if (messageToEdit != undefined) {
+      const data = (await editMessageApi(createComposeRequest(mail?.trim())));
+      console.log("Edit response ===>", data);
+      setMail("");
+      setIsEditingMessage(undefined);
+      return
+    }
     try {
-      if (!mail || !attachments || attachments.length == 0) return;
+      if (!mail && !attachments && attachments.length == 0) return;
+      await uploadAttachments();
       setMail("");
       const allMessagesCopy = [...allMessages];
       const newMessage = { text: mail?.trim(), messageId: (new Date()).getTime().toString(), notConfirmedNewMessage: true };
       allMessagesCopy.push(newMessage);
-
       setAllMessages(allMessagesCopy);
       const data = (await composeApi(createComposeRequest(mail?.trim())));
       const newMessageIndex = allMessagesCopy.findIndex((message) => message.messageId === newMessage.messageId);
@@ -169,6 +238,7 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
         allMessagesCopy.splice(newMessageIndex, 1, { ...allMessagesCopy[newMessageIndex], notConfirmedNewMessage: false });
         setAllMessages(allMessagesCopy);
         setAttachments([]);
+        setComposeAttachments([]);
         scrollViewRef.current?.scrollToEnd();
         console.log(allMessages);
       } else {
@@ -186,7 +256,6 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
     } catch (error) {
       console.log("error", error)
     }
-
   };
 
   const moveFromFailedToSuccess = (messageTempId) => {
@@ -204,7 +273,7 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
 
   // MARK:- add new attachments
   const onPressAttachments = async () => {
-    let attachments: string[] = [];
+    let attachmentsToUpload: AssetResponseObject[] = attachments.length > 0 ? attachments : [];
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
       aspect: [4, 3],
@@ -215,42 +284,9 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
     if (result) {
       result.assets?.forEach(async (asset) => {
         if (asset.fileSize && asset.fileSize > 25*1024*1024) { Alert.alert("Error", "Attachment size is bigger than 25 MB!!!"); }
-        else {
-          let link = await getUploadLinkApi({filename: asset.fileName ?? ""});
-          let formData = new FormData();
-          const mimeType = mime.getType(asset.fileName ?? "") // => 'application/pdf'
-          formData.append('file', { type: mimeType ?? "", uri:asset.uri ?? "", name:asset.fileName ?? ""} );
-      // Please change file upload URL
-      let res = await fetch(
-        link.link,
-        {
-          method: 'PUT',
-          body: formData,
-          headers: {
-            'Content-Type': 'multipart/form-data; ',
-          },
-        }
-      );
-      console.log(JSON.stringify(res));
-      if (res.status == 200) {
-        alert('Upload Successful');
-        let createAttachmentReq: ICreateAttachmentRequest = {
-          headerId: headerId,
-          url: link.link,
-          title: asset.fileName ?? "",
-          type: mimeType ?? "",
-          size: asset.fileSize ?? 0
-        };
-        let createRes = await createAttachment(createAttachmentReq);
-        console.log("Create attachment response: ", createRes);
-        attachments.push(createRes.id ?? "");
-      } else {
-
-      }
-      setAttachments(attachments);
-        }
+        else {attachmentsToUpload.push(asset);}
       });
-
+      setAttachments(attachmentsToUpload);
     }
   };
 
@@ -289,7 +325,11 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
               <FlashList
                 data={[...failedMessages, ...allMessages]}
                 renderItem={({ item }) =>
-                  <HoldItem items={MenuItems}>
+                  <HoldItem 
+                  items={MenuItems(isOwnMessage(item))}
+                  actionParams={{
+                    Edit: [item],
+                  }}>
                     <View style={{ marginVertical: 8 }}>
                       {item?.failedToSend ? <FailedMessage item={item}
                         createComposeRequest={createComposeRequest}
@@ -315,14 +355,29 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
           )}
 
         </View>
+        {attachments && attachments.length > 0 && (<>
+        <ScrollView horizontal style={{ maxHeight: 95 , marginBottom: 60 }} showsHorizontalScrollIndicator scrollIndicatorInsets={{bottom: 1}}>
+          <View style={{ height: 90, flexDirection: "row" }}>
+              {attachments.map((att, index) => {
+                return (
+                <Pressable key={makeid(index)} onPress={() => {
+                  attachments.splice(index, 1);
+                  setAttachments(attachments);
+                }}><Image key={makeid(index)} source={{ uri: att.uri }} style={{ width: 80, height: 80, margin: 5, borderRadius: 5 }}/></Pressable>
+                )
+              })}
+          </View>
+        </ScrollView>
+        </>
+        )}
         <MailSender
           text={mail}
           onChangeMailContent={onChangeMailContent}
           onPressCompose={onPressCompose}
           onPressAttachments={onPressAttachments}
+          tempAttachments={attachments}
         />
       </View>
-
     </KeyboardAvoidingView>
   );
 };
@@ -340,7 +395,7 @@ const styles = StyleSheet.create({
   },
   chatWrapper: {
     flex: 1,
-    marginBottom: 48,
+    marginBottom: 5,
   },
   emptyOrErrorMessageContainer: {
     alignItems: "center",

@@ -11,8 +11,7 @@ import {
   UIActivityIndicator,
 } from 'react-native-indicators';
 import { IThreadMessage } from "@followBack/Apis/ThreadMessages/types";
-import FastImage from 'react-native-fast-image'
-// import { Image } from 'expo-image';
+import { ScrollView } from "react-native-gesture-handler";
 
 const Message = ({ item }: {item: IThreadMessage}) => {
   const { styles } = useStyles();
@@ -61,7 +60,6 @@ const Message = ({ item }: {item: IThreadMessage}) => {
         style={{
           ...styles.container,
           ...(isOwnMessage ? { marginLeft: "auto" } : { marginRight: "auto" }),
-          // opacity: notConfirmedNewMessage ? 0.6 : 1
         }}
       >
         <Pressable
@@ -80,13 +78,14 @@ const Message = ({ item }: {item: IThreadMessage}) => {
             {text}
           </Typography>
           {item.attachments && item.attachments.length > 0 && 
-            item.attachments.map((attachment, index) => {
-              return <Image
-              key={makeid(20)}
-              style={{width : 200, height: 200}}
-              source={{ uri: attachment.url}}
-            />
-            })
+              <ScrollView horizontal style={{maxHeight: 100}}>
+                {item.attachments.map((attachment, index) => {
+                  return <Image
+                  key={makeid(index)}
+                  style={{ width: 80, height: 80, margin: 5, borderRadius: 5 }}
+                  source={{ uri: attachment.url}}/>
+                })}
+              </ScrollView>
           }
         </Pressable>
         {
