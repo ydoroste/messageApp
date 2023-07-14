@@ -1,4 +1,5 @@
 import { IContact } from "../ContactsList/types";
+import { ICreateAttachmentApiResponse } from "../GetAttachmentUploadLink/types";
 
 export interface IThreadMessagesAPIResponse {
     data: IThreadMessage[];
@@ -15,7 +16,7 @@ export interface IThreadMessage {
     html?: string;
     text: string;
     outbound?: boolean,
-    attachments?: string[];
+    attachments?: ICreateAttachmentApiResponse[];
     reactions?: [],
     replyTo?: [],
     edited?: boolean;

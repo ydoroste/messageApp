@@ -168,6 +168,7 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
       if (data) {
         allMessagesCopy.splice(newMessageIndex, 1, { ...allMessagesCopy[newMessageIndex], notConfirmedNewMessage: false });
         setAllMessages(allMessagesCopy);
+        setAttachments([]);
         scrollViewRef.current?.scrollToEnd();
         console.log(allMessages);
       } else {

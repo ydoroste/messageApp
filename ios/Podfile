@@ -9,6 +9,8 @@ platform :ios, podfile_properties['ios.deploymentTarget'] || '13.0'
 install! 'cocoapods',
   :deterministic_uuids => false
 
+ENV['USE_HERMES'] = '0'
+
 target 'MobileApp' do
   use_expo_modules!
   config = use_native_modules!

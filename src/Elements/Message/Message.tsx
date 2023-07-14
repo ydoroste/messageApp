@@ -1,16 +1,18 @@
 import Typography from "@followBack/GenericElements/Typography";
 import React, { useRef, useState } from "react";
-import { View, Pressable } from "react-native";
+import { View, Pressable, Image } from "react-native";
 import { formatMessageDate } from "@followBack/Utils/date";
 import useStylesWithTheme from "@followBack/Hooks/useStylesWithTheme";
 import { useUserDetails } from "@followBack/Hooks/useUserDetails";
-import { excludeUser } from "@followBack/Utils/messages";
+import { excludeUser, makeid } from "@followBack/Utils/messages";
 import { emailNameParcer } from "@followBack/Utils/email";
 import useTheme from "@followBack/Hooks/useTheme";
 import {
   UIActivityIndicator,
 } from 'react-native-indicators';
 import { IThreadMessage } from "@followBack/Apis/ThreadMessages/types";
+import FastImage from 'react-native-fast-image'
+// import { Image } from 'expo-image';
 
 const Message = ({ item }: {item: IThreadMessage}) => {
   const { styles } = useStyles();
@@ -46,7 +48,9 @@ const Message = ({ item }: {item: IThreadMessage}) => {
     messageSender.name.length > 0 ? messageSender.name : messageSender.address;
 
   const messageStyle = isOwnMessage ? styles.ownMessageStyle : styles.otherMessagesStyle;
-
+  const blurhash =
+  '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
+  
   return (
     <>
       <View
@@ -75,6 +79,15 @@ const Message = ({ item }: {item: IThreadMessage}) => {
 
             {text}
           </Typography>
+          {item.attachments && item.attachments.length > 0 && 
+            item.attachments.map((attachment, index) => {
+              return <Image
+              key={makeid(20)}
+              style={{width : 200, height: 200}}
+              source={{ uri: attachment.url}}
+            />
+            })
+          }
         </Pressable>
         {
         // notConfirmedNewMessage 
