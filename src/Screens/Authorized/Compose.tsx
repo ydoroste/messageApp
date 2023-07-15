@@ -2,13 +2,16 @@ import IconButton from "@followBack/GenericElements/IconButton";
 import Typography from "@followBack/GenericElements/Typography";
 import React, { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import {
+  Alert,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
   Pressable,
+  ScrollView,
   StyleSheet,
   TouchableHighlight,
-  View } from "react-native";
+  View,
+  Image } from "react-native";
 import useTheme from "@followBack/Hooks/useTheme";
 import Button from "@followBack/GenericElements/Button";
 import InputField from "@followBack/GenericElements/InputField";
@@ -27,6 +30,12 @@ import { NativeStackHeaderProps } from "@react-navigation/native-stack";
 import { useFetchthreadsList } from "@followBack/Hooks/Apis/ThreadsList";
 import { useSearch } from "@followBack/Hooks/useSearch";
 import { Thread } from "@followBack/Apis/threadsList/type";
+import * as ImagePicker from "expo-image-picker";
+import { AssetResponseObject } from "@followBack/Screens/Authorized/ChatScreen/types";
+import { ICreateAttachmentRequest } from "@followBack/Apis/GetAttachmentUploadLink/types";
+import { createAttachment, getUploadLinkApi } from "@followBack/Apis/GetAttachmentUploadLink";
+import mime from "mime";
+import { makeid } from "@followBack/Utils/messages";
 
 interface ComposeHeaderProps extends NativeStackHeaderProps {
   handleBackButtonPress?: ()=> void;
@@ -63,10 +72,13 @@ const reducer = (state, { type, payload }) => {
 };
 
 const Compose: React.FC<ComposeHeaderProps> = ({ navigation }) => {
-  const { sentMailThread } = useMailBoxes();
   const [toFieldIsFocused, setToFieldIsFocused] = useState(false);
   const [state, dispatch] = useReducer(reducer, initialState);
   const [isSentMessageLoading, setIsSentMessageLoading] = useState(false);
+  const [isUploadingAttachment, setIsUploadingAttachment] = useState<boolean>(false);
+  const [attachments, setAttachments] = useState<string[]>([]);
+  const [attachmentsLocalURI, setAttachmentsLocalURI] = useState<string[]>([]);
+
   const {
     toSearchValue,
     ccSearchValue,
@@ -107,6 +119,7 @@ const Compose: React.FC<ComposeHeaderProps> = ({ navigation }) => {
     bccList: isValidEmail(bccSearchValue)
       ? [...formattedBccTags, { name: toSearchValue, address: bccSearchValue }]
       : formattedBccTags,
+    attachments: attachments
   };
 
   const reset = () => {
@@ -122,6 +135,7 @@ const Compose: React.FC<ComposeHeaderProps> = ({ navigation }) => {
       return () => {
         reset();
         setIsSentMessageLoading(false);
+        setAttachments([]);
       };
     }, [])
   );
@@ -135,21 +149,77 @@ const Compose: React.FC<ComposeHeaderProps> = ({ navigation }) => {
   const [topicId, setTopicId] = useState<string>("");
   const { data: threadsListData } =
     useFetchthreadsList({ id, searchValue, refetchData });
-
+    
   const onPressCompose = async () => {
+    console.log("attachments localURI", attachmentsLocalURI);
+    console.log("attachments NormalUP", attachments);
+    if (isUploadingAttachment && attachments.length != attachmentsLocalURI.length) {return}
     try {
       if (toList.length < 0 || (!subject && !text)) return;
       setIsSentMessageLoading(true);
-      Keyboard.dismiss()
-      const { data } = await refetch();
-      if (data != undefined) {
+      Keyboard.dismiss();
+      await refetch().then(() => {
         setIsSentMessageLoading(false);
+        setAttachments([]);
+        setAttachmentsLocalURI([]);
+        setIsUploadingAttachment(false);
         navigation.goBack();
-      }
+    });
     } catch {
       setIsSentMessageLoading(false);
     }
-   
+  };
+
+  // MARK:- add new attachments
+  const onPressAttachments = async () => {
+    setIsUploadingAttachment(true);
+    let attachmentsToUpload: string[] = attachments.length > 0 ? attachments : [];
+    let attachmentsToShow: string[] = attachmentsLocalURI.length > 0 ? attachmentsLocalURI : [];
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      aspect: [4, 3],
+      allowsMultipleSelection: true,
+      selectionLimit: 3,
+      orderedSelection: true,
+    });
+    if (result) {
+      result.assets?.forEach((asset) => {
+        attachmentsToShow.push(asset.uri);
+      });
+      setAttachmentsLocalURI(attachmentsToShow);
+      result.assets?.forEach(async (asset) => {
+        if (asset.fileSize && asset.fileSize > 25*1024*1024) { Alert.alert("Error", "Attachment size is bigger than 25 MB!!!"); }
+        else {
+          let link = await getUploadLinkApi({filename: asset.fileName ?? ""});
+          let formData = new FormData();
+          const mimeType = mime.getType(asset.fileName ?? "") // => 'application/pdf'
+          formData.append('file', { type: mimeType ?? "", uri: asset.uri ?? "", name: asset.fileName ?? ""} );
+          let res = await fetch(
+            link.link,
+            {
+              method: 'PUT',
+              body: formData,
+              headers: {
+                'Content-Type': 'multipart/form-data; ',
+              },
+            }
+          );
+          console.log(JSON.stringify(res));
+          if (res.status == 200) {
+            let createAttachmentReq: ICreateAttachmentRequest = {
+              url: link.link,
+              title: asset.fileName ?? "",
+              type: mimeType ?? "",
+              size: asset.fileSize ?? 0
+            };
+            let createRes = await createAttachment(createAttachmentReq);
+            console.log("Create attachment response: ", createRes);
+            attachmentsToUpload.push(createRes.id ?? "");
+          }
+        }
+      });
+    }
+    setAttachments(attachmentsToUpload);
   };
 
   useEffect(() => {
@@ -300,12 +370,29 @@ const Compose: React.FC<ComposeHeaderProps> = ({ navigation }) => {
             </View>
           </View>
         </View>
-
+        {attachmentsLocalURI.length > 0 && (<>
+        <ScrollView horizontal style={{ maxHeight: 95 , marginBottom: 60 }} showsHorizontalScrollIndicator scrollIndicatorInsets={{bottom: 1}}>
+          <View style={{ height: 90, flexDirection: "row" }}>
+              {attachmentsLocalURI.map((att, index) => {
+                return (
+                <Pressable key={makeid(index)} onPress={() => {
+                  attachments.splice(index, 1);
+                  setAttachmentsLocalURI(attachmentsLocalURI);
+                }}><Image key={makeid(index)} source={{ uri: att }} style={{ width: 80, height: 80, margin: 5, borderRadius: 5 }}/></Pressable>
+                )
+              })}
+          </View>
+        </ScrollView>
+        </>
+        )}
         <MailSender
+          onPressAttachments={onPressAttachments}
           onPressCompose={onPressCompose}
           onChangeMailContent={onChangeMailContent}
           text={text}
           isLoading={isSentMessageLoading}
+          isUploading={isUploadingAttachment}
+          tempAttachments={[]}
         />
       </Pressable>
     </KeyboardAvoidingView>

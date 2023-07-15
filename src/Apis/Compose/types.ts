@@ -10,6 +10,7 @@ export interface IComposeApiRequest {
   uid?: string;
   attachments?: string[];
   id?: string;
+  replyTo?: string;
 }
 
 export interface IComposeApiResponse {

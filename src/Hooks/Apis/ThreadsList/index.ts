@@ -2,6 +2,7 @@ import { useInfiniteQuery, useQuery } from "react-query";
 import { AxiosError } from "axios";
 
 import { getThreadListApi } from "@followBack/Apis/threadsList";
+import { IBookmarkRequest } from "@followBack/Apis/Bookmarks/types";
 
 export const useFetchthreadsList = ({id, searchValue, refetchData }: {id: string, searchValue: string, refetchData: boolean}) => {
   return useInfiniteQuery(
@@ -21,5 +22,3 @@ export const useFetchthreadsList = ({id, searchValue, refetchData }: {id: string
     }
   );
 };
-
-

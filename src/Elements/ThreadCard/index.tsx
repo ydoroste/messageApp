@@ -9,9 +9,13 @@ import Avatar from "@followBack/Elements/Avatar";
 import {useUserDetails} from "@followBack/Hooks/useUserDetails";
 import {excludeUser} from "@followBack/Utils/messages";
 import {getThreadParticipantsUserName} from "@followBack/Utils/stringUtils";
+import { formatMessageDate } from "@followBack/Utils/date";
+import IconButton from "@followBack/GenericElements/IconButton";
+import useTheme from "@followBack/Hooks/useTheme";
 
 const ThreadCard: React.FC<IthreadCardProps> = ({ threadItem }) => {
     const {userDetails} = useUserDetails();
+    const {colors} = useTheme();
     
     let others = excludeUser({
         users: [threadItem.lastHeader.formContact, ...threadItem.lastHeader.toList, ...threadItem.lastHeader.ccList ?? [], ...threadItem.lastHeader.bccList ?? [] ],
@@ -43,7 +47,7 @@ const ThreadCard: React.FC<IthreadCardProps> = ({ threadItem }) => {
                     </Typography>
                 </View>
 
-                <View style={{marginBottom: 3}}>
+                <View style={{marginBottom: 3, flexDirection: "row"}}>
                     <Typography
                         type={isMessageSeen ? "largeRegularBody" : "largeBoldBody"}
                         color={textColor}
@@ -52,6 +56,13 @@ const ThreadCard: React.FC<IthreadCardProps> = ({ threadItem }) => {
                     >
                         {subject}
                     </Typography>
+                    {threadItem.lastHeader.attachments.length > 0 && <IconButton
+                            onPress={() => {}}
+                            name="attachment"
+                            width={12}
+                            height={20}
+                            color={colors.grey01}
+                    />}
                 </View>
                 <View>
                     <Typography
@@ -96,7 +107,7 @@ const ThreadCard: React.FC<IthreadCardProps> = ({ threadItem }) => {
                         lineHeight={17}
                         textAlign="center"
                     >
-                        {/* {formatMessageDate(threadItem.lastMessage.date)} */}
+                        {formatMessageDate(threadItem.createdAt)}
                     </Typography>
                 </View>
             </View>

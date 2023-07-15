@@ -1,6 +1,6 @@
 import Typography from "@followBack/GenericElements/Typography";
 import React, {memo, useCallback, useEffect, useState} from "react";
-import { Animated, KeyboardAvoidingView, Platform, Pressable, StyleSheet, View } from "react-native";
+import { KeyboardAvoidingView, Platform, Pressable, StyleSheet, View, Dimensions } from "react-native";
 
 import useTheme from "@followBack/Hooks/useTheme";
 import { FlashList } from "@shopify/flash-list";
@@ -13,8 +13,12 @@ import { authorizedStackNavigationProps} from "@followBack/Navigation/Authorized
 import {useMailBoxes} from "@followBack/Hooks/useMailboxes";
 import LoadingScreen from "@followBack/Elements/LoadingScreen/LoadingScreen.index";
 import { Thread } from "@followBack/Apis/threadsList/type";
-import { HoldItem } from "react-native-hold-menu";
-import { RectButton, Swipeable } from "react-native-gesture-handler";
+import { Swipeable } from "react-native-gesture-handler";
+import IconButton from "@followBack/GenericElements/IconButton";
+import { editBookmark } from "@followBack/Apis/Bookmarks";
+
+
+const windowWidth = Dimensions.get('window').width;
 
 const ThreadList: React.FC = () => {
   const nav = useNavigation<authorizedStackNavigationProps['navigation']>();
@@ -47,6 +51,46 @@ const ThreadList: React.FC = () => {
         };
       }, [])
   );
+
+
+  const onBookmarkPressed = async (item: Thread) => {
+    await editBookmark({ threadId: item.threadId, bookmark: !item.favorite })
+  };
+
+  const renderRightActions = (item: Thread) => {
+    return (
+      <View style={{ width: windowWidth/10, justifyContent: "center"}}>
+        <IconButton
+            onPress={() => {onBookmarkPressed(item)}}
+            name="pin"
+            width={25}
+            height={31}
+            color={item.favorite ? colors.white : colors.grey01}
+          />
+      </View>
+    );
+  };
+  
+  const threadItem = (item: Thread) => {
+    return (
+      <Swipeable
+        renderRightActions={(progress, dragX) => renderRightActions(item)}
+        // onSwipeableOpen={() => closeRow(index)}
+        rightThreshold={windowWidth/10}
+      >
+      <Pressable
+      style={({pressed})=>({ opacity: pressed ? 0.7 : 1, marginVertical: 10 })}
+      onPress={() => {
+        nav.navigate(AuthorizedScreensEnum.threadsListStack, {
+          screen: AuthorizedScreensEnum.threadDetails,
+          params: { threadInfo: item }
+        })
+      }}>
+        <ThreadCard threadItem={item} />
+      </Pressable>
+      </Swipeable>
+    );
+  };
 
   useEffect(() => {
     if (typeof data === typeof undefined) return;
@@ -119,25 +163,10 @@ const ThreadList: React.FC = () => {
       {isSuccess && !!threadsList && !isEmptyList && (
         <View style={styles.container}>
           <FlashList
-            keyExtractor={(item) => item.threadId}
+              keyExtractor={(item, index) => { return item.threadId + "_" + index}}
               scrollIndicatorInsets={{right:1}}
               data={threadsList}
-              renderItem={({ item }: {item : Thread}) => (
-                  <Pressable
-                      style={({pressed})=>({
-                        opacity: pressed ? 0.7 : 1,
-                        marginVertical: 10
-                      })}
-                    onPress={() => {
-                      nav.navigate(AuthorizedScreensEnum.threadsListStack, {
-                        screen: AuthorizedScreensEnum.threadDetails,
-                        params: { id: item.threadId, topicId: item.topicId, subject: item.subject, headerId: item.headerId },
-                      });
-                    }}
-                  >
-                    <ThreadCard threadItem={item} />
-                  </Pressable>
-            )}
+              renderItem={({ item }: {item : Thread}) => (threadItem(item))}
             estimatedItemSize={100}
             onEndReached={loadNextPageData}
             onEndReachedThreshold={0.2}

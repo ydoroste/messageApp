@@ -9,7 +9,7 @@ export interface IGetUploadLinkApiResponse {
 }
 
 export interface ICreateAttachmentRequest {
-    headerId: string;
+    headerId?: string;
     url: string;
     title: string;
     type: string;

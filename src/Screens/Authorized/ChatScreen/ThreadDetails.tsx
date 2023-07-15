@@ -20,16 +20,18 @@ import { composeApi, editMessageApi } from "@followBack/Apis/Compose";
 import { IThreadMessage } from "@followBack/Apis/ThreadMessages/types";
 import { IContact } from "@followBack/Apis/ContactsList/types";
 import * as ImagePicker from "expo-image-picker";
-import { ImagePickerResponse, AssetResponseObject } from "./types";
-import * as DocumentPicker from 'expo-document-picker';
+import { AssetResponseObject } from "./types";
 import { createAttachment, getUploadLinkApi } from "@followBack/Apis/GetAttachmentUploadLink";
 import { ScrollView } from "react-native-gesture-handler";
 import * as mime from "mime";
 import { ICreateAttachmentRequest } from "@followBack/Apis/GetAttachmentUploadLink/types";
 import { emailNameParcer } from "@followBack/Utils/email";
+import Typography from "@followBack/GenericElements/Typography";
+import { Thread } from "@followBack/Apis/threadsList/type";
 
-const ThreadDetails: React.FC = ({ navigation, options, route }) => {
-  const { id, topicId, subject, headerId } = route.params;
+const ThreadDetails: React.FC = ({ navigation, route }) => {
+  const { threadInfo } = route.params;
+  const { threadId: id, topicId, subject, headerId, lastHeader } = threadInfo as Thread;
   const params = route.params;
   const [allMessages, setAllMessages] = useState<IThreadMessage[]>([]);
   const [failedMessages, setFailedMessages] = useState([]);
@@ -40,7 +42,7 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
   const onChangeMailContent = ({ value }: {value: string}) => setMail(value);
   const [refetchData, setRefetchData] = useState(false);
   const [lastMessageData, setLastMessageData] = useState<IThreadMessage>();
-  const { data, isLoading, isError, isSuccess, hasNextPage, fetchNextPage } =
+  const { data, isError, hasNextPage, fetchNextPage } =
     useFetchThreadMessages({ id, refetchData });
   const [attachments, setAttachments] = useState<AssetResponseObject[]>([]);
   const [composeAttachments, setComposeAttachments] = useState<string[]>([]);
@@ -60,7 +62,7 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
   const composeBcc = params.bcc ?? [];
   const to = lastMessageData?.to ?? composeTo;
   const cc = lastMessageData?.cc ?? composeCc;
-  const bcc = lastMessageData?.bcc ?? composeBcc;
+  const bcc = lastHeader?.bccList ?? composeBcc;
   const isOwnMessage = (item: IThreadMessage) => { 
     return !item?.from?.address
     ? true
@@ -78,7 +80,6 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
   const receiver = hasData ? getThreadParticipantsUserName(others, initiator) : "";
   const firstMessageDate = hasData ? conversationDateTime(firstMessage.createdAt ?? "") : "";
 
-
   const loadNextPageData = async () => {
     if (hasNextPage) {
       fetchNextPage();
@@ -92,12 +93,16 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
           { text: 'Edit', onPress: (threadMessage: IThreadMessage) => {
             setIsEditingMessage(threadMessage);
             setMail(threadMessage.text);
-          } },
-          { text: 'Reply', onPress: () => {} }
+          }},
+          { text: 'Reply', onPress: (threadMessage: IThreadMessage) => { 
+            console.log("-----Reply--->", threadMessage);
+            setReplyTo(threadMessage); }}
         ]
     } else {
       return [
-        { text: 'Reply', onPress: () => {} }
+        { text: 'Reply', onPress: (threadMessage: IThreadMessage) => { 
+          console.log("-----Reply--->", threadMessage);
+          setReplyTo(threadMessage); }}
       ]
     }
   };
@@ -155,8 +160,14 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
     .filter(({ address }) => address !== `${userDetails.user_name}@iinboxx.com`);
 
   const createComposeRequest = (messageText: string): IComposeApiRequest => {
-    const lastFromEndPoint = lastMessageData?.from?.address || "";
+    const lastFromEndPoint = lastMessageData?.from?.address ?? "";
+    console.log("LM data: ---->", lastMessageData);
     const toEndPoints = formatEndPoints(lastMessageData?.to ?? [])?.filter(({ address }) => address !== lastFromEndPoint);
+    if (replyToMessage) {
+      replyToMessage.to?.forEach((contact) => {
+        toEndPoints?.push({ address: contact.address })
+      });
+    }
     if (lastFromEndPoint !== `${userDetails.user_name}@iinboxx.com`) {
       toEndPoints?.push({ address: lastFromEndPoint })
     }
@@ -166,21 +177,24 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
       text: messageText,
       toList: toEndPoints,
       ccList: formatEndPoints(lastMessageData?.cc ?? []),
-      bccList: formatEndPoints(lastMessageData?.bcc || []),
+      bccList: formatEndPoints(lastHeader?.bccList ?? []),
       from: `${userDetails?.user_name}@iinboxx.com`,
       attachments: composeAttachments,
     };
     if (messageToEdit) {
       composeRequest = { ...composeRequest, id: messageToEdit?.messageId }
     }
-    console.log("Compose request" + composeRequest);
+    if (replyToMessage) {
+      composeRequest = { ...composeRequest, replyTo: replyToMessage?.messageId }
+    }
+    console.log("Compose request" + JSON.stringify(composeRequest));
     return composeRequest
   };
 
 
   const uploadAttachments = async () => {
     let attachmentsOfMessage: string[] = [];
-    attachments.forEach(async (asset, index) => {
+    attachments.forEach(async (asset) => {
       let link = await getUploadLinkApi({filename: asset.fileName ?? ""});
           let formData = new FormData();
           const mimeType = mime.getType(asset.fileName ?? "") // => 'application/pdf'
@@ -207,8 +221,6 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
             let createRes = await createAttachment(createAttachmentReq);
             console.log("Create attachment response: ", createRes);
             attachmentsOfMessage.push(createRes.id ?? "");
-          } else {
-
           }
     });
     setComposeAttachments(attachmentsOfMessage);
@@ -225,13 +237,15 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
       return
     }
     try {
-      if (!mail && !attachments && attachments.length == 0) return;
+      if (!mail && !(attachments.length > 0)) return;
       await uploadAttachments();
       setMail("");
+      setReplyTo(undefined);
       const allMessagesCopy = [...allMessages];
       const newMessage = { text: mail?.trim(), messageId: (new Date()).getTime().toString(), notConfirmedNewMessage: true };
       allMessagesCopy.push(newMessage);
       setAllMessages(allMessagesCopy);
+      console.log("Message attachments ======> ", composeAttachments);
       const data = (await composeApi(createComposeRequest(mail?.trim())));
       const newMessageIndex = allMessagesCopy.findIndex((message) => message.messageId === newMessage.messageId);
       if (data) {
@@ -245,7 +259,7 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
         const allMessagesWithoutTheFailed = allMessagesCopy.filter(item => !item?.notConfirmedNewMessage);
         setAllMessages(allMessagesWithoutTheFailed)
         const failedMeessage = { ...newMessage, failedToSend: true };
-        setFailedMessages((prev) => {
+        setFailedMessages(() => {
           const faildMessagesCopy = [...failedMessages]
           faildMessagesCopy.unshift(failedMeessage);
           return faildMessagesCopy
@@ -326,9 +340,11 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
                 data={[...failedMessages, ...allMessages]}
                 renderItem={({ item }) =>
                   <HoldItem 
+                  key={makeid(10)}
                   items={MenuItems(isOwnMessage(item))}
                   actionParams={{
                     Edit: [item],
+                    Reply: [item],
                   }}>
                     <View style={{ marginVertical: 8 }}>
                       {item?.failedToSend ? <FailedMessage item={item}
@@ -370,6 +386,12 @@ const ThreadDetails: React.FC = ({ navigation, options, route }) => {
         </ScrollView>
         </>
         )}
+        {replyToMessage && 
+          <View style={{ height: 80 }}>
+              <Typography type="largeBoldBody" color="chat">
+                {'Replying to: ' + replyToMessage.text.trimEnd()}
+              </Typography>
+          </View>}
         <MailSender
           text={mail}
           onChangeMailContent={onChangeMailContent}
@@ -395,7 +417,7 @@ const styles = StyleSheet.create({
   },
   chatWrapper: {
     flex: 1,
-    marginBottom: 5,
+    marginBottom: 30,
   },
   emptyOrErrorMessageContainer: {
     alignItems: "center",

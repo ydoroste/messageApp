@@ -1,5 +1,5 @@
 import Typography from "@followBack/GenericElements/Typography";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { View, Pressable, Image } from "react-native";
 import { formatMessageDate } from "@followBack/Utils/date";
 import useStylesWithTheme from "@followBack/Hooks/useStylesWithTheme";
@@ -50,6 +50,10 @@ const Message = ({ item }: {item: IThreadMessage}) => {
   const blurhash =
   '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
   
+  useEffect(() => {
+    // console.log("ATTACHMENTS ======> ", item.attachments);
+  });
+
   return (
     <>
       <View
@@ -89,7 +93,6 @@ const Message = ({ item }: {item: IThreadMessage}) => {
           }
         </Pressable>
         {
-        // notConfirmedNewMessage 
         false
         && <View style={styles.activityIndicatorContainer}>
           <UIActivityIndicator color={colors.grey02} size={15} />
@@ -108,7 +111,7 @@ const Message = ({ item }: {item: IThreadMessage}) => {
           ]}
         >
           <Typography type="smallRegularBody" color="secondary">
-            {formatMessageDate(createdAt)}
+            {formatMessageDate(createdAt ?? "")}
           </Typography>
         </View>
       )}

@@ -15,6 +15,8 @@ const Delete = React.lazy(() => import("@followBack/Theme/Icons/Delete"));
 const DownArrow = React.lazy(() => import("@followBack/Theme/Icons/DownArrow"));
 const Drawer = React.lazy(() => import("@followBack/Theme/Icons/Drawer"));
 const Back = React.lazy(() => import("@followBack/Theme/Icons/Back"));
+const Pin = React.lazy(() => import("@followBack/Theme/Icons/Pin"));
+const Attachment = React.lazy(() => import("@followBack/Theme/Icons/Attachment"));
 
 const IconButton: React.FC<IIconButtonProps> = ({
   name,
@@ -57,7 +59,12 @@ const IconButton: React.FC<IIconButtonProps> = ({
       case "back":
         IconElement = Back;
         break;
-
+      case "pin":
+        IconElement = Pin;
+        break;
+      case "attachment":
+        IconElement = Attachment;
+        break;
       default:
         IconElement = Close;
         break;

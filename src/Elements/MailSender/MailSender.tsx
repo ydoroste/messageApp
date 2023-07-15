@@ -8,13 +8,14 @@ import { UIActivityIndicator } from "react-native-indicators";
 import { AssetResponseObject } from "@followBack/Screens/Authorized/ChatScreen/types";
 
 
-const MailSender = ({ onChangeMailContent, onPressCompose, text, isLoading = false, onPressAttachments, tempAttachments }: {
+const MailSender = ({ onChangeMailContent, onPressCompose, text, isLoading = false, onPressAttachments, tempAttachments, isUploading }: {
   tempAttachments: AssetResponseObject[], 
   isLoading?: boolean, 
   onPressCompose: (e: GestureResponderEvent) => void,
   onChangeMailContent: Function,
   text: string,
-  onPressAttachments: (e: GestureResponderEvent) => void
+  onPressAttachments: (e: GestureResponderEvent) => void,
+  isUploading?: boolean
 }) => {
   const { colors } = useTheme();
   const [focused, setFocused] = React.useState(false);
@@ -64,7 +65,7 @@ const MailSender = ({ onChangeMailContent, onPressCompose, text, isLoading = fal
             name="send"
             width={17}
             height={17}
-            color={tempAttachments.length > 0 || text ? colors.grey03 : colors.grey01}
+            color={tempAttachments.length > 0 || text || isUploading ? colors.grey03 : colors.grey01}
           />}
       </View>
     </View>
