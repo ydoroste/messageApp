@@ -1,5 +1,5 @@
-import { IContact } from "../ContactsList/types";
-import { ICreateAttachmentApiResponse } from "../GetAttachmentUploadLink/types";
+import { IContact } from ../ContactsList/types;
+import { ICreateAttachmentApiResponse } from ../GetAttachmentUploadLink/types;
 
 export interface IThreadMessagesAPIResponse {
     data: IThreadMessage[];
@@ -23,4 +23,17 @@ export interface IThreadMessage {
     forwarded?: boolean;
     createdAt?: string; // TODO: Parse to date
     subject?: string
+}
+
+export interface IDeleteMessageRequest {
+    ids: string[];
+}
+
+export interface IDeleteMessageResponse {
+    statusCode: number,
+    message: string,
+    data: {
+        deletedMessages: string[],
+        failedMessages: string[]
+    }
 }

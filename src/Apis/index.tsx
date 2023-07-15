@@ -16,5 +16,7 @@ export enum ApiEndpoints {
   getAttachmentsLink = "attachments/link",
   createAttachment = "attachments",
   editMessage = "messages",
-  bookmarks = "inbox/threads/bookmark"
+  bookmarks = "inbox/threads/bookmark",
+  deleteForAll = "messages/forAll",
+  deleteForMe = "messages/forMe"
 }

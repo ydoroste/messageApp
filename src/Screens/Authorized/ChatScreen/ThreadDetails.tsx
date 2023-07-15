@@ -28,6 +28,7 @@ import { ICreateAttachmentRequest } from "@followBack/Apis/GetAttachmentUploadLi
 import { emailNameParcer } from "@followBack/Utils/email";
 import Typography from "@followBack/GenericElements/Typography";
 import { Thread } from "@followBack/Apis/threadsList/type";
+import { deleteMessagesApi } from "@followBack/Apis/ThreadMessages";
 
 const ThreadDetails: React.FC = ({ navigation, route }) => {
   const { threadInfo } = route.params;
@@ -89,7 +90,12 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
   const MenuItems = (isOwnMessage: boolean) => {
     if (isOwnMessage) {
       return [
-          { text: 'Unsend', onPress: () => {} },
+          { text: 'Unsend for me', onPress: async (threadMessage: IThreadMessage) => {
+            console.log("This is delete for meeeeee");
+            const { data } = await deleteMessagesApi({ids: [threadMessage.messageId ?? ""]}, false);
+            console.log(JSON.stringify(data));
+          }},
+          { text: 'Unsend for all', onPress: async (threadMessage: IThreadMessage) => {await deleteMessagesApi({ids: [threadMessage.messageId ?? ""]}, true)} },
           { text: 'Edit', onPress: (threadMessage: IThreadMessage) => {
             setIsEditingMessage(threadMessage);
             setMail(threadMessage.text);
@@ -345,6 +351,8 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
                   actionParams={{
                     Edit: [item],
                     Reply: [item],
+                    "Unsend for me": [item],
+                    "Unsend for all": [item],
                   }}>
                     <View style={{ marginVertical: 8 }}>
                       {item?.failedToSend ? <FailedMessage item={item}
