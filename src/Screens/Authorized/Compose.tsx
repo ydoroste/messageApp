@@ -36,6 +36,8 @@ import { ICreateAttachmentRequest } from "@followBack/Apis/GetAttachmentUploadLi
 import { createAttachment, getUploadLinkApi } from "@followBack/Apis/GetAttachmentUploadLink";
 import mime from "mime";
 import { makeid } from "@followBack/Utils/messages";
+import {Buffer} from "buffer";
+import * as FileSystem from "expo-file-system";
 
 interface ComposeHeaderProps extends NativeStackHeaderProps {
   handleBackButtonPress?: ()=> void;
@@ -56,6 +58,8 @@ const initialState = {
   text: "",
   showSubject: true,
   showCcBcc: false,
+  attachments: [],
+  attachmentsLocalURI: []
 };
 
 const reducer = (state, { type, payload }) => {
@@ -127,7 +131,6 @@ const Compose: React.FC<ComposeHeaderProps> = ({ navigation }) => {
   };
 
   useFocusEffect(
-
     useCallback(() => {
       if (toFieldRef.current) {
         setTimeout(() => toFieldRef?.current?.focus(), 500);
@@ -191,16 +194,18 @@ const Compose: React.FC<ComposeHeaderProps> = ({ navigation }) => {
         if (asset.fileSize && asset.fileSize > 25*1024*1024) { Alert.alert("Error", "Attachment size is bigger than 25 MB!!!"); }
         else {
           let link = await getUploadLinkApi({filename: asset.fileName ?? ""});
-          let formData = new FormData();
           const mimeType = mime.getType(asset.fileName ?? "") // => 'application/pdf'
-          formData.append('file', { type: mimeType ?? "", uri: asset.uri ?? "", name: asset.fileName ?? ""} );
+          const base64 = await FileSystem.readAsStringAsync(asset.uri, {
+            encoding: FileSystem.EncodingType.Base64});
+          const buffer = Buffer.from(base64 ?? "", "base64");
+          console.log("BASE64 --> ",base64);
           let res = await fetch(
             link.link,
             {
               method: 'PUT',
-              body: formData,
+              body: buffer,
               headers: {
-                'Content-Type': 'multipart/form-data; ',
+                'Content-Type': `${mimeType}`,
               },
             }
           );

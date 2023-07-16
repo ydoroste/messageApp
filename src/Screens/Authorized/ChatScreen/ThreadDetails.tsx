@@ -29,6 +29,8 @@ import { emailNameParcer } from "@followBack/Utils/email";
 import Typography from "@followBack/GenericElements/Typography";
 import { Thread } from "@followBack/Apis/threadsList/type";
 import { deleteMessagesApi } from "@followBack/Apis/ThreadMessages";
+import {Buffer} from "buffer";
+import * as FileSystem from "expo-file-system";
 
 const ThreadDetails: React.FC = ({ navigation, route }) => {
   const { threadInfo } = route.params;
@@ -45,8 +47,9 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
   const [lastMessageData, setLastMessageData] = useState<IThreadMessage>();
   const { data, isError, hasNextPage, fetchNextPage } =
     useFetchThreadMessages({ id, refetchData });
-  const [attachments, setAttachments] = useState<AssetResponseObject[]>([]);
-  const [composeAttachments, setComposeAttachments] = useState<string[]>([]);
+  const [isUploadingAttachment, setIsUploadingAttachment] = useState<boolean>(false);
+  const [attachments, setAttachments] = useState<string[]>([]);
+  const [attachmentsLocalURI, setAttachmentsLocalURI] = useState<string[]>([]);
   const [messageToEdit, setIsEditingMessage] = useState<IThreadMessage | undefined>(undefined);
   const [replyToMessage, setReplyTo] = useState<IThreadMessage| undefined>(undefined);
 
@@ -185,7 +188,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
       ccList: formatEndPoints(lastMessageData?.cc ?? []),
       bccList: formatEndPoints(lastHeader?.bccList ?? []),
       from: `${userDetails?.user_name}@iinboxx.com`,
-      attachments: composeAttachments,
+      attachments: attachments,
     };
     if (messageToEdit) {
       composeRequest = { ...composeRequest, id: messageToEdit?.messageId }
@@ -195,41 +198,6 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
     }
     console.log("Compose request" + JSON.stringify(composeRequest));
     return composeRequest
-  };
-
-
-  const uploadAttachments = async () => {
-    let attachmentsOfMessage: string[] = [];
-    attachments.forEach(async (asset) => {
-      let link = await getUploadLinkApi({filename: asset.fileName ?? ""});
-          let formData = new FormData();
-          const mimeType = mime.getType(asset.fileName ?? "") // => 'application/pdf'
-          formData.append('file', { type: mimeType ?? "", uri:asset.uri ?? "", name:asset.fileName ?? ""} );
-          let res = await fetch(
-            link.link,
-            {
-              method: 'PUT',
-              body: formData,
-              headers: {
-                'Content-Type': 'multipart/form-data; ',
-              },
-            }
-          );
-          console.log(JSON.stringify(res));
-          if (res.status == 200) {
-            let createAttachmentReq: ICreateAttachmentRequest = {
-              headerId: headerId,
-              url: link.link,
-              title: asset.fileName ?? "",
-              type: mimeType ?? "",
-              size: asset.fileSize ?? 0
-            };
-            let createRes = await createAttachment(createAttachmentReq);
-            console.log("Create attachment response: ", createRes);
-            attachmentsOfMessage.push(createRes.id ?? "");
-          }
-    });
-    setComposeAttachments(attachmentsOfMessage);
   };
 
   // MARK: - Send new message in chat/thread
@@ -244,23 +212,20 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
     }
     try {
       if (!mail && !(attachments.length > 0)) return;
-      await uploadAttachments();
+      console.log("attachments localURI", attachmentsLocalURI);
+      console.log("attachments NormalUP", attachments);
+      if (isUploadingAttachment && attachments.length != attachmentsLocalURI.length) {return}
       setMail("");
       setReplyTo(undefined);
       const allMessagesCopy = [...allMessages];
       const newMessage = { text: mail?.trim(), messageId: (new Date()).getTime().toString(), notConfirmedNewMessage: true };
       allMessagesCopy.push(newMessage);
       setAllMessages(allMessagesCopy);
-      console.log("Message attachments ======> ", composeAttachments);
       const data = (await composeApi(createComposeRequest(mail?.trim())));
       const newMessageIndex = allMessagesCopy.findIndex((message) => message.messageId === newMessage.messageId);
       if (data) {
         allMessagesCopy.splice(newMessageIndex, 1, { ...allMessagesCopy[newMessageIndex], notConfirmedNewMessage: false });
         setAllMessages(allMessagesCopy);
-        setAttachments([]);
-        setComposeAttachments([]);
-        scrollViewRef.current?.scrollToEnd();
-        console.log(allMessages);
       } else {
         const allMessagesWithoutTheFailed = allMessagesCopy.filter(item => !item?.notConfirmedNewMessage);
         setAllMessages(allMessagesWithoutTheFailed)
@@ -273,6 +238,10 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
         const newFailedMEssagesObj = { ...failedMessagesData, [id]: [...(failedMessagesData?.[id] ? failedMessagesData?.[id] : []), failedMeessage] }
         setFailedMessagesData && setFailedMessagesData(newFailedMEssagesObj)
       }
+      scrollViewRef.current?.scrollToEnd();
+      setAttachments([]);
+      setAttachmentsLocalURI([]);
+      setIsUploadingAttachment(false);
     } catch (error) {
       console.log("error", error)
     }
@@ -293,7 +262,9 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
 
   // MARK:- add new attachments
   const onPressAttachments = async () => {
-    let attachmentsToUpload: AssetResponseObject[] = attachments.length > 0 ? attachments : [];
+    setIsUploadingAttachment(true);
+    let attachmentsToUpload: string[] = attachments.length > 0 ? attachments : [];
+    let attachmentsToShow: string[] = attachmentsLocalURI.length > 0 ? attachmentsLocalURI : [];
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
       aspect: [4, 3],
@@ -302,12 +273,45 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
       orderedSelection: true,
     });
     if (result) {
+      result.assets?.forEach((asset) => {
+        attachmentsToShow.push(asset.uri);
+      });
+      setAttachmentsLocalURI(attachmentsToShow);
       result.assets?.forEach(async (asset) => {
         if (asset.fileSize && asset.fileSize > 25*1024*1024) { Alert.alert("Error", "Attachment size is bigger than 25 MB!!!"); }
-        else {attachmentsToUpload.push(asset);}
+        else {
+          let link = await getUploadLinkApi({filename: asset.fileName ?? ""});
+          const mimeType = mime.getType(asset.fileName ?? "") // => 'application/pdf'
+          const base64 = await FileSystem.readAsStringAsync(asset.uri, {
+            encoding: FileSystem.EncodingType.Base64});
+          const buffer = Buffer.from(base64 ?? "", "base64");
+          console.log("BASE64 --> ",base64);
+          let res = await fetch(
+            link.link,
+            {
+              method: 'PUT',
+              body: buffer,
+              headers: {
+                'Content-Type': `${mimeType}`,
+              },
+            }
+          );
+          console.log(JSON.stringify(res));
+          if (res.status == 200) {
+            let createAttachmentReq: ICreateAttachmentRequest = {
+              url: link.link,
+              title: asset.fileName ?? "",
+              type: mimeType ?? "",
+              size: asset.fileSize ?? 0
+            };
+            let createRes = await createAttachment(createAttachmentReq);
+            console.log("Create attachment response: ", createRes);
+            attachmentsToUpload.push(createRes.id ?? "");
+          }
+        }
       });
-      setAttachments(attachmentsToUpload);
     }
+    setAttachments(attachmentsToUpload);
   };
 
   if (!hasData || isError) {
@@ -382,12 +386,12 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
         {attachments && attachments.length > 0 && (<>
         <ScrollView horizontal style={{ maxHeight: 95 , marginBottom: 60 }} showsHorizontalScrollIndicator scrollIndicatorInsets={{bottom: 1}}>
           <View style={{ height: 90, flexDirection: "row" }}>
-              {attachments.map((att, index) => {
+              {attachmentsLocalURI.map((att, index) => {
                 return (
                 <Pressable key={makeid(index)} onPress={() => {
-                  attachments.splice(index, 1);
-                  setAttachments(attachments);
-                }}><Image key={makeid(index)} source={{ uri: att.uri }} style={{ width: 80, height: 80, margin: 5, borderRadius: 5 }}/></Pressable>
+                  attachmentsLocalURI.splice(index, 1);
+                  setAttachmentsLocalURI(attachmentsLocalURI);
+                }}><Image key={makeid(index)} source={{ uri: att }} style={{ width: 80, height: 80, margin: 5, borderRadius: 5 }}/></Pressable>
                 )
               })}
           </View>

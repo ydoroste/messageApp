@@ -16,6 +16,7 @@ import { Thread } from "@followBack/Apis/threadsList/type";
 import { Swipeable } from "react-native-gesture-handler";
 import IconButton from "@followBack/GenericElements/IconButton";
 import { editBookmark } from "@followBack/Apis/Bookmarks";
+import { makeid } from "@followBack/Utils/messages";
 
 
 const windowWidth = Dimensions.get('window').width;
@@ -51,7 +52,12 @@ const ThreadList: React.FC = () => {
         };
       }, [])
   );
-
+    
+  // useEffect(() => {
+  //   data?.pages.flatMap((page) => page?.data).forEach((item) => {
+  //     console.log(item?.threadId);
+  //   });
+  // }, [data]);
 
   const onBookmarkPressed = async (item: Thread) => {
     await editBookmark({ threadId: item.threadId, bookmark: !item.favorite })
@@ -109,6 +115,7 @@ const ThreadList: React.FC = () => {
       }
       return 0;
     });
+    flattenData.forEach((item) => {item?.threadId});
     setthreadsList(flattenData);
   }, [data]);
 
@@ -163,7 +170,7 @@ const ThreadList: React.FC = () => {
       {isSuccess && !!threadsList && !isEmptyList && (
         <View style={styles.container}>
           <FlashList
-              keyExtractor={(item, index) => { return item.threadId + "_" + index}}
+              keyExtractor={(item, index) => { return item?.threadId ?? "" + "_" + index}}
               scrollIndicatorInsets={{right:1}}
               data={threadsList}
               renderItem={({ item }: {item : Thread}) => (threadItem(item))}

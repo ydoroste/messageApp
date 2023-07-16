@@ -4,7 +4,7 @@
     "slug": "mobileapp",
     "owner": "omar-salah-elboredy",
     "privacy": "hidden",
-    "version": "1.0.10072023",
+    "version": "1.0.15072023",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -23,7 +23,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.abdulazizmassoud.MobileApp",
-      "buildNumber": "1.0.12072023",
+      "buildNumber": "1.0.15072023",
       "usesIcloudStorage": true
     },
     "android": {
@@ -49,6 +49,11 @@
           "photosPermission": "The app accesses your photos to let you share them with your friends."
         }
       ]
-    ]
+    ],
+    "build": {
+      "preview": {
+        "distribution": "internal"
+      }
+    }
   }
 }

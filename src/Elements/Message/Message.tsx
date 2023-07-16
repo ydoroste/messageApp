@@ -87,7 +87,9 @@ const Message = ({ item }: {item: IThreadMessage}) => {
                   return <Image
                   key={makeid(index)}
                   style={{ width: 80, height: 80, margin: 5, borderRadius: 5 }}
-                  source={{ uri: attachment.url}}/>
+                  source={{ uri: attachment.url}}
+                  resizeMethod="scale"
+                  resizeMode="cover"/>
                 })}
               </ScrollView>
           }

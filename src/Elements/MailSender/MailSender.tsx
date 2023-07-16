@@ -9,7 +9,7 @@ import { AssetResponseObject } from "@followBack/Screens/Authorized/ChatScreen/t
 
 
 const MailSender = ({ onChangeMailContent, onPressCompose, text, isLoading = false, onPressAttachments, tempAttachments, isUploading }: {
-  tempAttachments: AssetResponseObject[], 
+  tempAttachments: string[], 
   isLoading?: boolean, 
   onPressCompose: (e: GestureResponderEvent) => void,
   onChangeMailContent: Function,
