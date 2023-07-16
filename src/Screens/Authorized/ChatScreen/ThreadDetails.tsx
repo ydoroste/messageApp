@@ -194,7 +194,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
       composeRequest = { ...composeRequest, id: messageToEdit?.messageId }
     }
     if (replyToMessage) {
-      composeRequest = { ...composeRequest, replyTo: replyToMessage?.messageId }
+      composeRequest = { ...composeRequest, replyTo: replyToMessage?.headerId }
     }
     console.log("Compose request" + JSON.stringify(composeRequest));
     return composeRequest
