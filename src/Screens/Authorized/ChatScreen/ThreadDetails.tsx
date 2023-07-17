@@ -204,6 +204,17 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
   const onPressCompose = async () => {
     console.log(mail);
     if (messageToEdit != undefined) {
+      const allMessagesCopy = [...allMessages];
+      let index = allMessagesCopy.findIndex((message) => {
+        if (message.messageId == messageToEdit.messageId) {
+          return true
+        }
+      });
+      allMessagesCopy.splice(index, 1);
+      const message = {...messageToEdit};
+      message.text = mail;
+      allMessagesCopy.splice(index, 0, message);
+      await setAllMessages(allMessagesCopy);
       const data = (await editMessageApi(createComposeRequest(mail?.trim())));
       console.log("Edit response ===>", data);
       setMail("");
@@ -362,7 +373,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
                       {item?.failedToSend ? <FailedMessage item={item}
                         createComposeRequest={createComposeRequest}
                         moveFromFailedToSuccess={moveFromFailedToSuccess}
-                      /> : (item.text && <Message item={item} />)}
+                      /> : ((item.text || (item.attachments && item.attachments.length > 0)) && <Message item={item} />)}
                     </View>
                   </HoldItem>
                 }

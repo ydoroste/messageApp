@@ -13,7 +13,7 @@ export const formatMessageDate = ( date: string ) => {
         return momentDate.format("h:mm A");
     }
     if(dateDiff === -1){
-        return "yesterday";
+        return "Yesterday";
     }
  const years = moment().diff(momentDate, 'years', false);
  const format = years > 1 ?  "MMM DD, YYYY" : "MMM DD";
@@ -28,5 +28,5 @@ export const conversationDateTime = (date: string)=>{
 
 const getTimeZoneOffset =()=>{
     const today = momentTimeZone().tz(localization.timezone);
-    return today.utcOffset() / 60 - 2;
+    return (today.utcOffset() / 60);
 };

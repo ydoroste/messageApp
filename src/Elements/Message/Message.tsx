@@ -72,15 +72,14 @@ const Message = ({ item }: {item: IThreadMessage}) => {
           }}
           style={[styles.contentContainer, messageStyle]}
         >
-          <Typography type="largeRegularBody" color="chat">
+          {text && <Typography type="largeRegularBody" color="chat">
             {isGroupChat && !isOwnMessage && (
                 <Typography type="largeBoldBody" color="chat">
                   {userFirstName + " "}
                 </Typography>
             )}
-
             {text}
-          </Typography>
+          </Typography>}
           {item.attachments && item.attachments.length > 0 && 
               <ScrollView horizontal style={{maxHeight: 100}}>
                 {item.attachments.map((attachment, index) => {
