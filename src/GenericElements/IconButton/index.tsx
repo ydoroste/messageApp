@@ -24,7 +24,7 @@ const IconButton: React.FC<IIconButtonProps> = ({
   height,
   color,
   disabled,
-  onPress,
+  onPress
 }) => {
   const getIcon = (
     icon: iconsType

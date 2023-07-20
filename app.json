@@ -41,19 +41,32 @@
         "projectId": "ce3c7ad7-529c-40ca-9877-dc30206a1cd6"
       }
     },
-    "runtimeVersion" : "exposdk:47.0.0",
+    "runtimeVersion": "exposdk:47.0.0",
     "plugins": [
       [
         "expo-image-picker",
         {
           "photosPermission": "The app accesses your photos to let you share them with your friends."
         }
-      ]
+      ],
+      "sentry-expo"
     ],
     "build": {
       "preview": {
         "distribution": "internal"
       }
+    },
+    "hooks": {
+      "postPublish": [
+        {
+          "file": "sentry-expo/upload-sourcemaps",
+          "config": {
+            "organization": "neworganisation",
+            "project": "mail-app",
+            "authToken": false
+          }
+        }
+      ]
     }
   }
 }

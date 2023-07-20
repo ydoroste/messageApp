@@ -14,11 +14,6 @@ export interface IComposeApiRequest {
 }
 
 export interface IComposeApiResponse {
-  status: number;
-  data: IComposeResponseData;
-}
-
-export interface IComposeResponseData {
   topicId: string;
     fromContact: IContact;
     to: IContact[];
@@ -28,4 +23,8 @@ export interface IComposeResponseData {
     text: string;
     headerId: string;
     attachments: string[];
+}
+
+export interface IComposeResponseData {
+  
 }

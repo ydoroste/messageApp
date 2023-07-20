@@ -19,7 +19,7 @@ const ThreadCard: React.FC<IthreadCardProps> = ({ threadItem }) => {
     
     let others = excludeUser({
         users: [threadItem.lastHeader.formContact, ...threadItem.lastHeader.toList, ...threadItem.lastHeader.ccList ?? [], ...threadItem.lastHeader.bccList ?? [] ],
-        userAddress: "tarek@iinboxx.com"
+        userAddress: `${userDetails.user_name}@iinboxx.com`
     });
     
     others = others.length === 0  &&  threadItem?.lastHeader.formContact.address === userDetails.email ?  [threadItem.lastHeader.formContact]  : others;

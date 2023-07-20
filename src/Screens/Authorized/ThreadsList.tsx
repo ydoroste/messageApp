@@ -52,18 +52,13 @@ const ThreadList: React.FC = () => {
         };
       }, [])
   );
-    
-  // useEffect(() => {
-  //   data?.pages.flatMap((page) => page?.data).forEach((item) => {
-  //     console.log(item?.threadId);
-  //   });
-  // }, [data]);
 
   const onBookmarkPressed = async (item: Thread) => {
     await editBookmark({ threadId: item.threadId, bookmark: !item.favorite })
   };
 
-  const renderRightActions = (item: Thread) => {
+  const renderRightActions = (item: Thread | undefined) => {
+    if (!item) return <></>;
     return (
       <View style={{ width: windowWidth/10, justifyContent: "center"}}>
         <IconButton
@@ -77,7 +72,8 @@ const ThreadList: React.FC = () => {
     );
   };
   
-  const threadItem = (item: Thread) => {
+  const threadItem = (item: Thread | undefined) => {
+    if (!item) return <></>;
     return (
       <Swipeable
         renderRightActions={(progress, dragX) => renderRightActions(item)}

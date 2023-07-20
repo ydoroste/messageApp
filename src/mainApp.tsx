@@ -15,8 +15,25 @@ import { getAccessToken } from "./Utils/accessToken";
 import { AUTH_SERVICE_URL, BETA_SERVICE_URL, CORE_SERVICE_URL } from "./Apis/constants";
 import { ApiEndpoints } from "./Apis";
 import { UserProvider } from "./Contexts/UserContext";
+import * as Sentry from "@sentry/react-native";
+import { useEffect } from "react";
 
-const queryClient = new QueryClient();
+Sentry.init({
+  dsn: "https://f41e5438e6ca4afbb49f893e2e7a6a49@o4505546560569344.ingest.sentry.io/4505546564501504",
+  // Set tracesSampleRate to 1.0 to capture 100% of transactions for performance monitoring.
+  // We recommend adjusting this value in production.
+  tracesSampleRate: 1.0,
+  enableNative: false
+});
+
+const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+        staleTime: 2*60*1000,
+      },
+    },
+  });
 
 const getBaseURL = (request: InternalAxiosRequestConfig) => {
     if(request.url == ApiEndpoints.Login || 
@@ -38,7 +55,6 @@ const MainApp: React.FC = () => {
     if (!isAppLoaded) {
         return null;
     }
-    
     axios.interceptors.request.use(request => {
         request.baseURL = getBaseURL(request);
         console.log(request.baseURL);

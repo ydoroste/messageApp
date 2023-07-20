@@ -2,7 +2,6 @@ import React from "react";
 
 import {
   DrawerContentScrollView,
-  DrawerItemList,
   DrawerItem,
 } from "@react-navigation/drawer";
 import useTheme from "@followBack/Hooks/useTheme";
@@ -10,6 +9,9 @@ import { deleteAccessToken } from "@followBack/Utils/accessToken";
 import { useUserDetails } from "@followBack/Hooks/useUserDetails";
 import { AuthorizedScreensEnum } from "../constants";
 import { useQueryClient } from "react-query";
+import { deleteUserData } from "@followBack/Utils/userDetails";
+import { CommonActions } from "@react-navigation/native";
+import UnauthorizedNavigation from "@followBack/Navigation/Unauthorized";
 
 const CustomDrawerContent = (props: any) => {
   const { navigation } = props;
@@ -24,8 +26,9 @@ const CustomDrawerContent = (props: any) => {
 
   const logOut = async () => {
     await queryClient.removeQueries();
-    deleteAccessToken();
     setIsAuthenticated(false);
+    await deleteAccessToken();
+    await deleteUserData();
   };
   
   return (
@@ -69,7 +72,7 @@ const CustomDrawerContent = (props: any) => {
       />
       
       <DrawerItem
-        label="1.0.17072023"
+        label="1.1.17072023"
         onPress={() => {}}
         labelStyle={{ color: "#8c8c8c", position:'absolute' }}
       />

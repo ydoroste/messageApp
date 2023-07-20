@@ -8,7 +8,7 @@ import ThreadDetailsHeader from "@followBack/Elements/Headers/Authorized/ThreadD
 import { excludeUser, makeid } from "@followBack/Utils/messages";
 import { useUserDetails } from "@followBack/Hooks/useUserDetails";
 import { getThreadParticipantsUserName } from "@followBack/Utils/stringUtils";
-import { conversationDateTime } from "@followBack/Utils/date";
+import { conversationDateTime, isTimelimitExceeded } from "@followBack/Utils/date";
 import { useFocusEffect } from "@react-navigation/native";
 import { IComposeApiRequest } from "@followBack/Apis/Compose/types";
 import { HoldItem } from "react-native-hold-menu";
@@ -20,7 +20,6 @@ import { composeApi, editMessageApi } from "@followBack/Apis/Compose";
 import { IThreadMessage } from "@followBack/Apis/ThreadMessages/types";
 import { IContact } from "@followBack/Apis/ContactsList/types";
 import * as ImagePicker from "expo-image-picker";
-import { AssetResponseObject } from "./types";
 import { createAttachment, getUploadLinkApi } from "@followBack/Apis/GetAttachmentUploadLink";
 import { ScrollView } from "react-native-gesture-handler";
 import * as mime from "mime";
@@ -31,6 +30,7 @@ import { Thread } from "@followBack/Apis/threadsList/type";
 import { deleteMessagesApi } from "@followBack/Apis/ThreadMessages";
 import {Buffer} from "buffer";
 import * as FileSystem from "expo-file-system";
+import * as VideoThumbnails from 'expo-video-thumbnails';
 
 const ThreadDetails: React.FC = ({ navigation, route }) => {
   const { threadInfo } = route.params;
@@ -90,29 +90,25 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
     }
   };
 
-  const MenuItems = (isOwnMessage: boolean) => {
-    if (isOwnMessage) {
-      return [
-          { text: 'Unsend for me', onPress: async (threadMessage: IThreadMessage) => {
-            console.log("This is delete for meeeeee");
-            const { data } = await deleteMessagesApi({ids: [threadMessage.messageId ?? ""]}, false);
-            console.log(JSON.stringify(data));
-          }},
-          { text: 'Unsend for all', onPress: async (threadMessage: IThreadMessage) => {await deleteMessagesApi({ids: [threadMessage.messageId ?? ""]}, true)} },
-          { text: 'Edit', onPress: (threadMessage: IThreadMessage) => {
-            setIsEditingMessage(threadMessage);
-            setMail(threadMessage.text);
-          }},
-          { text: 'Reply', onPress: (threadMessage: IThreadMessage) => { 
-            console.log("-----Reply--->", threadMessage);
-            setReplyTo(threadMessage); }}
-        ]
+  const MenuItems = (threadMessage: IThreadMessage) => {
+    let optionsArray = [{ text: 'Reply', onPress: (threadMessage: IThreadMessage) => {
+      setReplyTo(threadMessage); }}];
+    if (isOwnMessage(threadMessage)) {
+      if (!isTimelimitExceeded(threadMessage.createdAt ?? "")) {
+        optionsArray.push({ text: 'Unsend for me', onPress: async (threadMessage: IThreadMessage) => {
+          const { data } = await deleteMessagesApi({ids: [threadMessage.messageId ?? ""]}, false);
+          console.log(JSON.stringify(data));
+        }},
+        { text: 'Unsend for all', onPress: async (threadMessage: IThreadMessage) => {
+          await deleteMessagesApi({ids: [threadMessage.messageId ?? ""]}, true)} },
+        { text: 'Edit', onPress: (threadMessage: IThreadMessage) => {
+          setIsEditingMessage(threadMessage);
+          setMail(threadMessage.text);
+        }});
+      }
+      return optionsArray;
     } else {
-      return [
-        { text: 'Reply', onPress: (threadMessage: IThreadMessage) => { 
-          console.log("-----Reply--->", threadMessage);
-          setReplyTo(threadMessage); }}
-      ]
+      return optionsArray;
     }
   };
 
@@ -278,17 +274,15 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
     let attachmentsToShow: string[] = attachmentsLocalURI.length > 0 ? attachmentsLocalURI : [];
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
-      aspect: [4, 3],
       allowsMultipleSelection: true,
-      selectionLimit: 3,
       orderedSelection: true,
     });
     if (result) {
-      result.assets?.forEach((asset) => {
+      result.assets?.forEach(async (asset) => {
         attachmentsToShow.push(asset.uri);
       });
-      setAttachmentsLocalURI(attachmentsToShow);
-      result.assets?.forEach(async (asset) => {
+      await setAttachmentsLocalURI(attachmentsToShow);
+      await result.assets?.forEach(async (asset) => {
         if (asset.fileSize && asset.fileSize > 25*1024*1024) { Alert.alert("Error", "Attachment size is bigger than 25 MB!!!"); }
         else {
           let link = await getUploadLinkApi({filename: asset.fileName ?? ""});
@@ -296,7 +290,6 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
           const base64 = await FileSystem.readAsStringAsync(asset.uri, {
             encoding: FileSystem.EncodingType.Base64});
           const buffer = Buffer.from(base64 ?? "", "base64");
-          console.log("BASE64 --> ",base64);
           let res = await fetch(
             link.link,
             {
@@ -362,7 +355,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
                 renderItem={({ item }) =>
                   <HoldItem 
                   key={makeid(10)}
-                  items={MenuItems(isOwnMessage(item))}
+                  items={MenuItems(item)}
                   actionParams={{
                     Edit: [item],
                     Reply: [item],
@@ -394,14 +387,18 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
           )}
 
         </View>
-        {attachments && attachments.length > 0 && (<>
+        {attachmentsLocalURI.length > 0 && (<>
         <ScrollView horizontal style={{ maxHeight: 95 , marginBottom: 60 }} showsHorizontalScrollIndicator scrollIndicatorInsets={{bottom: 1}}>
           <View style={{ height: 90, flexDirection: "row" }}>
               {attachmentsLocalURI.map((att, index) => {
                 return (
                 <Pressable key={makeid(index)} onPress={() => {
-                  attachmentsLocalURI.splice(index, 1);
-                  setAttachmentsLocalURI(attachmentsLocalURI);
+                  var currentToCompare = attachmentsLocalURI.slice();
+                  currentToCompare.splice(index, 1);
+                  setAttachmentsLocalURI(currentToCompare);
+                  var newAttachments = attachments.slice();
+                  newAttachments.splice(index, 1);
+                  setAttachments(newAttachments);
                 }}><Image key={makeid(index)} source={{ uri: att }} style={{ width: 80, height: 80, margin: 5, borderRadius: 5 }}/></Pressable>
                 )
               })}

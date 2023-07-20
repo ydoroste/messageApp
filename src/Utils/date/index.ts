@@ -28,5 +28,13 @@ export const conversationDateTime = (date: string)=>{
 
 const getTimeZoneOffset =()=>{
     const today = momentTimeZone().tz(localization.timezone);
-    return (today.utcOffset() / 60);
+    return (today.utcOffset() / 60) + 2;
+};
+
+export const isTimelimitExceeded = (date: string) => {
+    const dateDiff = moment.utc(date).add(2, 'hours').diff(moment.utc(Date.now()), 'minutes');
+    if(Math.abs(dateDiff) < 10 || isNaN(Math.abs(dateDiff))) {
+        return false;
+    }
+    return true;
 };

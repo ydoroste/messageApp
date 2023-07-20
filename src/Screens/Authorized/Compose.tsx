@@ -29,7 +29,7 @@ import { TextInput } from "react-native-gesture-handler";
 import { NativeStackHeaderProps } from "@react-navigation/native-stack";
 import { useFetchthreadsList } from "@followBack/Hooks/Apis/ThreadsList";
 import { useSearch } from "@followBack/Hooks/useSearch";
-import { Thread } from "@followBack/Apis/threadsList/type";
+import { IthreadsListAPIResponse, Thread } from "@followBack/Apis/threadsList/type";
 import * as ImagePicker from "expo-image-picker";
 import { AssetResponseObject } from "@followBack/Screens/Authorized/ChatScreen/types";
 import { ICreateAttachmentRequest } from "@followBack/Apis/GetAttachmentUploadLink/types";
@@ -38,6 +38,7 @@ import mime from "mime";
 import { makeid } from "@followBack/Utils/messages";
 import {Buffer} from "buffer";
 import * as FileSystem from "expo-file-system";
+import { getThreadListApi } from "@followBack/Apis/threadsList";
 
 interface ComposeHeaderProps extends NativeStackHeaderProps {
   handleBackButtonPress?: ()=> void;
@@ -139,35 +140,44 @@ const Compose: React.FC<ComposeHeaderProps> = ({ navigation }) => {
         reset();
         setIsSentMessageLoading(false);
         setAttachments([]);
+        setAttachmentsLocalURI([]);
       };
     }, [])
   );
 
   const { refetch } = useCompose(composeRequest);
   const { inboxThread } = useMailBoxes();
-  const { searchValue } = useSearch();
   const id = inboxThread?.id ?? "";
-  const [refetchData, setRefetchData] = useState(false);
-  const [composeThread, setComposeThread] = useState<Thread>();
-  const [topicId, setTopicId] = useState<string>("");
-  const { data: threadsListData } =
-    useFetchthreadsList({ id, searchValue, refetchData });
-    
+
   const onPressCompose = async () => {
     console.log("attachments localURI", attachmentsLocalURI);
     console.log("attachments NormalUP", attachments);
     if (isUploadingAttachment && attachments.length != attachmentsLocalURI.length) {return}
     try {
-      if (toList.length < 0 || (!subject && !text)) return;
-      setIsSentMessageLoading(true);
-      Keyboard.dismiss();
-      await refetch().then(() => {
+        if (toList.length < 0 || (!subject && !text)) return;
+        setIsSentMessageLoading(true);
+        Keyboard.dismiss();
+        const { data } = await refetch();
         setIsSentMessageLoading(false);
         setAttachments([]);
         setAttachmentsLocalURI([]);
         setIsUploadingAttachment(false);
-        navigation.goBack();
-    });
+        if (data) {
+          const topicId = data?.topicId;
+          const threadsListResponse: IthreadsListAPIResponse = await getThreadListApi({
+            id: id,
+            searchValue: "",
+            pageParam: 1
+          });
+          threadsListResponse.data.forEach((thread) => {
+            if (thread.topicId == topicId) {
+              navigation.navigate(AuthorizedScreensEnum.threadsListStack, {
+                screen: AuthorizedScreensEnum.threadDetails,
+                params: { threadInfo: thread }
+              })
+            }
+          });
+        }
     } catch {
       setIsSentMessageLoading(false);
     }
@@ -180,17 +190,15 @@ const Compose: React.FC<ComposeHeaderProps> = ({ navigation }) => {
     let attachmentsToShow: string[] = attachmentsLocalURI.length > 0 ? attachmentsLocalURI : [];
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
-      aspect: [4, 3],
       allowsMultipleSelection: true,
-      selectionLimit: 3,
       orderedSelection: true,
     });
     if (result) {
       result.assets?.forEach((asset) => {
         attachmentsToShow.push(asset.uri);
       });
-      setAttachmentsLocalURI(attachmentsToShow);
-      result.assets?.forEach(async (asset) => {
+      await setAttachmentsLocalURI(attachmentsToShow);
+      await result.assets?.forEach(async (asset) => {
         if (asset.fileSize && asset.fileSize > 25*1024*1024) { Alert.alert("Error", "Attachment size is bigger than 25 MB!!!"); }
         else {
           let link = await getUploadLinkApi({filename: asset.fileName ?? ""});
@@ -198,7 +206,6 @@ const Compose: React.FC<ComposeHeaderProps> = ({ navigation }) => {
           const base64 = await FileSystem.readAsStringAsync(asset.uri, {
             encoding: FileSystem.EncodingType.Base64});
           const buffer = Buffer.from(base64 ?? "", "base64");
-          console.log("BASE64 --> ",base64);
           let res = await fetch(
             link.link,
             {
@@ -226,16 +233,6 @@ const Compose: React.FC<ComposeHeaderProps> = ({ navigation }) => {
     }
     setAttachments(attachmentsToUpload);
   };
-
-  useEffect(() => {
-    if (typeof threadsListData === typeof undefined) return;
-
-    let flattenData = !!threadsListData?.pages
-      ? threadsListData.pages.flatMap((page) => page?.data)
-      : [];
-    let composeThread = flattenData.find(thread => thread?.topicId == topicId);
-    setComposeThread(composeThread);
-  }, [threadsListData]);
 
   const onChangeMailContent = ({ value }: { value: any }) => {
     setKeyValue({ key: "text", value });
@@ -381,8 +378,12 @@ const Compose: React.FC<ComposeHeaderProps> = ({ navigation }) => {
               {attachmentsLocalURI.map((att, index) => {
                 return (
                 <Pressable key={makeid(index)} onPress={() => {
-                  attachments.splice(index, 1);
-                  setAttachmentsLocalURI(attachmentsLocalURI);
+                  var currentToCompare = attachmentsLocalURI.slice();
+                  currentToCompare.splice(index, 1);
+                  setAttachmentsLocalURI(currentToCompare);
+                  var newAttachments = attachments.slice();
+                  newAttachments.splice(index, 1);
+                  setAttachments(newAttachments);
                 }}><Image key={makeid(index)} source={{ uri: att }} style={{ width: 80, height: 80, margin: 5, borderRadius: 5 }}/></Pressable>
                 )
               })}
