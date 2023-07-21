@@ -1,41 +1,62 @@
-import IconButton from "@followBack/GenericElements/IconButton";
-import React, { useCallback, useReducer } from "react";
-import { GestureResponderEvent, StyleSheet, View } from "react-native";
-import InputField from "@followBack/GenericElements/InputField";
-import useTheme from "@followBack/Hooks/useTheme";
-import useKeyboardOpenListner from "@followBack/Hooks/useKeyboardOpenListner";
-import { UIActivityIndicator } from "react-native-indicators";
-import { AssetResponseObject } from "@followBack/Screens/Authorized/ChatScreen/types";
+import IconButton from '@followBack/GenericElements/IconButton';
+import React, { useCallback, useEffect, useReducer, useRef } from 'react';
+import {
+  GestureResponderEvent,
+  StyleSheet,
+  TextInput,
+  View,
+} from 'react-native';
+import InputField from '@followBack/GenericElements/InputField';
+import useTheme from '@followBack/Hooks/useTheme';
+import useKeyboardOpenListner from '@followBack/Hooks/useKeyboardOpenListner';
+import { UIActivityIndicator } from 'react-native-indicators';
+import { AssetResponseObject } from '@followBack/Screens/Authorized/ChatScreen/types';
 
-
-const MailSender = ({ onChangeMailContent, onPressCompose, text, isLoading = false, onPressAttachments, tempAttachments, isUploading }: {
-  tempAttachments: string[], 
-  isLoading?: boolean, 
-  onPressCompose: (e: GestureResponderEvent) => void,
-  onChangeMailContent: Function,
-  text: string,
-  onPressAttachments: (e: GestureResponderEvent) => void,
-  isUploading?: boolean
+const MailSender = ({
+  onChangeMailContent,
+  onPressCompose,
+  text,
+  isLoading = false,
+  onPressAttachments,
+  tempAttachments,
+  isUploading,
+  isFocus,
+}: {
+  tempAttachments: string[];
+  isLoading?: boolean;
+  onPressCompose: (e: GestureResponderEvent) => void;
+  onChangeMailContent: Function;
+  text: string;
+  onPressAttachments: (e: GestureResponderEvent) => void;
+  isUploading?: boolean;
+  isFocus?: boolean;
 }) => {
   const { colors } = useTheme();
-  const [focused, setFocused] = React.useState(false);
+  const [focused, setFocused] = React.useState(true);
   const isKeyboardOpen = useKeyboardOpenListner();
-  const inputMaxHeight = focused ? 300 : (isKeyboardOpen ? 100 : 200);
+  const inputMaxHeight = focused ? 300 : isKeyboardOpen ? 100 : 200;
+
+  const ref = useRef<TextInput | null>(null);
+  useEffect(() => {
+    if (isFocus) {
+      ref.current?.focus();
+    }
+  }, []);
 
   const onFocus = () => {
     setFocused(true);
   };
 
   const onBlur = () => {
-    setFocused(false)
-  }
+    setFocused(false);
+  };
 
   return (
     <View style={styles.flexCenter}>
       <View style={styles.iconContainer}>
         <IconButton
           onPress={onPressAttachments}
-          name="add"
+          name='add'
           width={17}
           height={17}
           color={colors.grey02}
@@ -43,6 +64,7 @@ const MailSender = ({ onChangeMailContent, onPressCompose, text, isLoading = fal
       </View>
       <View style={styles.input}>
         <InputField
+          ref={ref}
           focused={focused}
           onFocus={onFocus}
           onBlur={onBlur}
@@ -51,22 +73,28 @@ const MailSender = ({ onChangeMailContent, onPressCompose, text, isLoading = fal
           textColor={colors.white}
           onChangeText={(text: string) => onChangeMailContent({ value: text })}
           multiline
-          mode="outlined"
-          placeholder="write a message..."
+          mode='outlined'
+          placeholder='Write a message...'
         />
       </View>
       <View style={styles.iconContainer}>
-        {isLoading ?
+        {isLoading ? (
           <View style={styles.loadingIconContainer}>
             <UIActivityIndicator color={colors.grey02} size={22} />
-          </View> :
+          </View>
+        ) : (
           <IconButton
             onPress={onPressCompose}
-            name="send"
+            name='send'
             width={17}
             height={17}
-            color={tempAttachments.length > 0 || text || isUploading ? colors.grey03 : colors.grey01}
-          />}
+            color={
+              tempAttachments.length > 0 || text || isUploading
+                ? colors.grey03
+                : colors.grey01
+            }
+          />
+        )}
       </View>
     </View>
   );
@@ -77,26 +105,27 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   flexCenter: {
-    flexDirection: "row",
-    alignItems: "flex-end",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'space-between',
     marginBottom: 0,
     zIndex: 10,
-    position: "absolute",
+    position: 'absolute',
     bottom: 10,
-    backgroundColor: "black",
+    backgroundColor: 'black',
     left: 20,
-    width: "100%",
+    width: '100%',
   },
   iconContainer: {
-    marginBottom: 4
+    marginBottom: 4,
   },
   loadingIconContainer: {
-    justifyContent: "center",
-    alignItems: "center",
-    height: 30, width: 33,
-    marginBottom: 2
-  }
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 30,
+    width: 33,
+    marginBottom: 2,
+  },
 });
 
 export default MailSender;
