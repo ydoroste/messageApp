@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "MobileApp",
-    "slug": "mobileapp",
-    "owner": "omar-salah-elboredy",
+    "name": "MailApp",
+    "slug": "mailapp",
+    "owner": "shared_developer",
     "privacy": "hidden",
     "version": "1.0.17072023",
     "orientation": "portrait",
@@ -15,7 +15,7 @@
     },
     "updates": {
       "fallbackToCacheTimeout": 0,
-      "url": "https://u.expo.dev/ce3c7ad7-529c-40ca-9877-dc30206a1cd6"
+      "url": "https://u.expo.dev/2195ca69-0c1f-4508-a5dc-ca5392fe90b1"
     },
     "assetBundlePatterns": [
       "**/*"
@@ -31,14 +31,17 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#000000"
       },
-      "package": "mail.app.v1"
+      "package": "mail.app.v1",
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "extra": {
       "eas": {
-        "projectId": "ce3c7ad7-529c-40ca-9877-dc30206a1cd6"
+        "projectId": "2195ca69-0c1f-4508-a5dc-ca5392fe90b1"
       }
     },
     "runtimeVersion": "exposdk:47.0.0",
