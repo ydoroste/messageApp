@@ -127,7 +127,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
     }
   };
 
-  const MenuItems = (threadMessage: IThreadMessage) => {
+  const MenuItems = (threadMessage: IThreadMessage, index: number) => {
     let optionsArray = [
       {
         text: 'Reply',
@@ -140,6 +140,9 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
       optionsArray.push({
         text: 'Unsend for me',
         onPress: async (threadMessage: IThreadMessage) => {
+          let newMessages = allMessages.slice();
+          newMessages.splice(index, 1);
+          setAllMessages(newMessages);
           await deleteMessagesApi(
             { ids: [threadMessage.messageId ?? ''] },
             false
@@ -151,6 +154,9 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
           {
             text: 'Unsend for all',
             onPress: async (threadMessage: IThreadMessage) => {
+              let newMessages = allMessages.slice();
+              newMessages.splice(index, 1);
+              setAllMessages(newMessages);
               await deleteMessagesApi(
                 { ids: [threadMessage.messageId ?? ''] },
                 true
@@ -159,7 +165,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
           },
           {
             text: 'Edit',
-            onPress: (threadMessage: IThreadMessage) => {
+            onPress: async (threadMessage: IThreadMessage) => {
               setIsEditingMessage(threadMessage);
               setMail(threadMessage.text);
             },
@@ -298,10 +304,9 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
       message.text = mail;
       allMessagesCopy.splice(index, 0, message);
       await setAllMessages(allMessagesCopy);
-      const data = await editMessageApi(createComposeRequest(mail?.trim()));
-      console.log('Edit response ===>', data);
       setMail('');
       setIsEditingMessage(undefined);
+      await editMessageApi(createComposeRequest(mail?.trim()));
       return;
     }
     try {
@@ -477,10 +482,10 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
                 <View style={{ minHeight: 2 }}>
                   <FlashList
                     data={[...failedMessages, ...allMessages]}
-                    renderItem={({ item }) => (
+                    renderItem={({ item, index }) => (
                       <HoldItem
                         key={makeid(10)}
-                        items={MenuItems(item)}
+                        items={MenuItems(item, index)}
                         actionParams={{
                           Edit: [item],
                           Reply: [item],
