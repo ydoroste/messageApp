@@ -1,30 +1,38 @@
-import Typography from "@followBack/GenericElements/Typography";
-import React, {memo, useCallback, useEffect, useState} from "react";
-import { KeyboardAvoidingView, Platform, Pressable, StyleSheet, View, Dimensions } from "react-native";
+import Typography from '@followBack/GenericElements/Typography';
+import React, { memo, useCallback, useEffect, useState } from 'react';
+import {
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  StyleSheet,
+  View,
+  Dimensions,
+} from 'react-native';
 
-import useTheme from "@followBack/Hooks/useTheme";
-import { FlashList } from "@shopify/flash-list";
-import ThreadCard from "@followBack/Elements/ThreadCard";
-import { useFetchthreadsList } from "@followBack/Hooks/Apis/ThreadsList";
-import { useSearch } from "@followBack/Hooks/useSearch";
-import { AuthorizedScreensEnum } from "@followBack/Navigation/Authorized/constants";
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import { authorizedStackNavigationProps} from "@followBack/Navigation/Authorized/types";
-import {useMailBoxes} from "@followBack/Hooks/useMailboxes";
-import LoadingScreen from "@followBack/Elements/LoadingScreen/LoadingScreen.index";
-import { Thread } from "@followBack/Apis/threadsList/type";
-import { Swipeable } from "react-native-gesture-handler";
-import IconButton from "@followBack/GenericElements/IconButton";
-import { editBookmark } from "@followBack/Apis/Bookmarks";
-import { makeid } from "@followBack/Utils/messages";
-
+import useTheme from '@followBack/Hooks/useTheme';
+import { FlashList } from '@shopify/flash-list';
+import ThreadCard from '@followBack/Elements/ThreadCard';
+import { useFetchthreadsList } from '@followBack/Hooks/Apis/ThreadsList';
+import { useSearch } from '@followBack/Hooks/useSearch';
+import { AuthorizedScreensEnum } from '@followBack/Navigation/Authorized/constants';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { authorizedStackNavigationProps } from '@followBack/Navigation/Authorized/types';
+import { useMailBoxes } from '@followBack/Hooks/useMailboxes';
+import LoadingScreen from '@followBack/Elements/LoadingScreen/LoadingScreen.index';
+import { Thread } from '@followBack/Apis/threadsList/type';
+import { Swipeable } from 'react-native-gesture-handler';
+import IconButton from '@followBack/GenericElements/IconButton';
+import { editBookmark } from '@followBack/Apis/Bookmarks';
+import { makeid } from '@followBack/Utils/messages';
 
 const windowWidth = Dimensions.get('window').width;
 
 const ThreadList: React.FC = () => {
   const nav = useNavigation<authorizedStackNavigationProps['navigation']>();
-  const {data: mail} = useMailBoxes();
-  const {id} = mail?.data.mailboxes?.find(t => t.mailbox.toLowerCase() === "inbox") ?? {id: ""};
+  const { data: mail } = useMailBoxes();
+  const { id } = mail?.data.mailboxes?.find(
+    (t) => t.mailbox.toLowerCase() === 'inbox'
+  ) ?? { id: '' };
   const { colors } = useTheme();
   const { searchValue } = useSearch();
   const [isInitialLoading, setIsInitialLoading] = useState(true);
@@ -45,51 +53,57 @@ const ThreadList: React.FC = () => {
   }, [isLoading]);
 
   useFocusEffect(
-      useCallback(() => {
-        setRefetchData(true);
-        return () => {
-          setRefetchData(false);
-        };
-      }, [])
+    useCallback(() => {
+      setRefetchData(true);
+      return () => {
+        setRefetchData(false);
+      };
+    }, [])
   );
 
   const onBookmarkPressed = async (item: Thread) => {
-    await editBookmark({ threadId: item.threadId, bookmark: !item.favorite })
+    await editBookmark({ threadId: item.threadId, bookmark: !item.favorite });
   };
 
   const renderRightActions = (item: Thread | undefined) => {
     if (!item) return <></>;
     return (
-      <View style={{ width: windowWidth/10, justifyContent: "center"}}>
+      <View style={{ width: windowWidth / 10, justifyContent: 'center' }}>
         <IconButton
-            onPress={() => {onBookmarkPressed(item)}}
-            name="pin"
-            width={25}
-            height={31}
-            color={item.favorite ? colors.white : colors.grey01}
-          />
+          onPress={() => {
+            onBookmarkPressed(item);
+          }}
+          name='pin'
+          width={25}
+          height={31}
+          color={item.favorite ? colors.white : colors.grey01}
+        />
       </View>
     );
   };
-  
+
   const threadItem = (item: Thread | undefined) => {
     if (!item) return <></>;
     return (
       <Swipeable
         renderRightActions={(progress, dragX) => renderRightActions(item)}
         // onSwipeableOpen={() => closeRow(index)}
-        rightThreshold={windowWidth/10}
+        rightThreshold={windowWidth / 10}
       >
-      <Pressable
-      style={({pressed})=>({ opacity: pressed ? 0.7 : 1, marginVertical: 10 })}
-      onPress={() => {
-        nav.navigate(AuthorizedScreensEnum.threadsListStack, {
-          screen: AuthorizedScreensEnum.threadDetails,
-          params: { threadInfo: item }
-        })
-      }}>
-        <ThreadCard threadItem={item} />
-      </Pressable>
+        <Pressable
+          style={({ pressed }) => ({
+            opacity: pressed ? 0.7 : 1,
+            marginVertical: 10,
+          })}
+          onPress={() => {
+            nav.navigate(AuthorizedScreensEnum.threadsListStack, {
+              screen: AuthorizedScreensEnum.threadDetails,
+              params: { threadInfo: item },
+            });
+          }}
+        >
+          <ThreadCard threadItem={item} />
+        </Pressable>
       </Swipeable>
     );
   };
@@ -100,51 +114,53 @@ const ThreadList: React.FC = () => {
     let flattenData = !!data?.pages
       ? data.pages.flatMap((page) => page?.data)
       : [];
-    flattenData = flattenData.sort(function(a, b) {
-      var dateA = new Date(a?.createdAt || "");
-      var dateB = new Date(b?.createdAt || "");
-      if (dateA < dateB ) {
+    flattenData = flattenData.sort(function (a, b) {
+      var dateA = new Date(a?.createdAt || '');
+      var dateB = new Date(b?.createdAt || '');
+      if (dateA < dateB) {
         return 1;
       }
-      if (dateA > dateB ) {
+      if (dateA > dateB) {
         return -1;
       }
       return 0;
     });
-    flattenData.forEach((item) => {item?.threadId});
+    flattenData.forEach((item) => {
+      item?.threadId;
+    });
     setthreadsList(flattenData);
   }, [data]);
 
-  if (isLoading){
-    return (
-      <LoadingScreen loadingText={"Loading"} loadingIndecatorSize={20}/>
-    );
+  if (isLoading) {
+    return <LoadingScreen loadingText={'Loading'} loadingIndecatorSize={20} />;
   }
   if (isError)
     return (
-        <View style={styles.emptyOrErrorMessageContainer}>
-      <Typography color="secondary" type="largeRegularBody">
-        An error occurred while fetching data
-      </Typography>
-        </View>
+      <View style={styles.emptyOrErrorMessageContainer}>
+        <Typography color='secondary' type='largeRegularBody'>
+          An error occurred while fetching data
+        </Typography>
+      </View>
     );
 
   const isEmptyList = threadsList.length === 0;
-  if(isEmptyList){
-   return <View style={styles.emptyOrErrorMessageContainer}>
-    <Typography color="secondary" type="largeRegularBody">
-      no results
-    </Typography>
-    </View>
+  if (isEmptyList) {
+    return (
+      <View style={styles.emptyOrErrorMessageContainer}>
+        <Typography color='secondary' type='largeRegularBody'>
+          no results
+        </Typography>
+      </View>
+    );
   }
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       keyboardVerticalOffset={100}
       style={{ flex: 1, backgroundColor: colors.black }}
     >
       {isLoading && (
-        <Typography color="secondary" type="smallBoldBody">
+        <Typography color='secondary' type='smallBoldBody'>
           Loading...
         </Typography>
       )}
@@ -156,9 +172,9 @@ const ThreadList: React.FC = () => {
             : styles.searchCountWrapper
         }
       >
-      {isSuccess && !!searchValue && (
-          <Typography type="largeRegularBody" color="secondary">
-            {threadsList.length} search results{" "}
+        {isSuccess && !!searchValue && (
+          <Typography type='largeRegularBody' color='secondary'>
+            {threadsList.length} search results{' '}
           </Typography>
         )}
       </View>
@@ -166,10 +182,12 @@ const ThreadList: React.FC = () => {
       {isSuccess && !!threadsList && !isEmptyList && (
         <View style={styles.container}>
           <FlashList
-              keyExtractor={(item, index) => { return item?.threadId ?? "" + "_" + index}}
-              scrollIndicatorInsets={{right:1}}
-              data={threadsList}
-              renderItem={({ item }: {item : Thread}) => (threadItem(item))}
+            keyExtractor={(item, index) => {
+              return item?.threadId ?? '' + '_' + index;
+            }}
+            scrollIndicatorInsets={{ right: 1 }}
+            data={threadsList}
+            renderItem={({ item }: { item: Thread }) => threadItem(item)}
             estimatedItemSize={100}
             onEndReached={loadNextPageData}
             onEndReachedThreshold={0.2}
@@ -185,19 +203,19 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 20,
-    backgroundColor: "black"
+    backgroundColor: 'black',
   },
   searchCountWrapper: {
-    alignSelf: "center",
+    alignSelf: 'center',
   },
   moveSearchCounter: {
     marginTop: 50,
   },
   emptyOrErrorMessageContainer: {
-    alignItems: "center",
+    alignItems: 'center',
     flex: 1,
-    height: "100%",
-    backgroundColor: "black",
-    paddingTop: 50
-  }
+    height: '100%',
+    backgroundColor: 'black',
+    paddingTop: 50,
+  },
 });

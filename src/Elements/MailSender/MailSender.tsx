@@ -1,5 +1,5 @@
 import IconButton from '@followBack/GenericElements/IconButton';
-import React, { useCallback, useEffect, useReducer, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   GestureResponderEvent,
   StyleSheet,
@@ -10,7 +10,6 @@ import InputField from '@followBack/GenericElements/InputField';
 import useTheme from '@followBack/Hooks/useTheme';
 import useKeyboardOpenListner from '@followBack/Hooks/useKeyboardOpenListner';
 import { UIActivityIndicator } from 'react-native-indicators';
-import { AssetResponseObject } from '@followBack/Screens/Authorized/ChatScreen/types';
 
 const MailSender = ({
   onChangeMailContent,
@@ -32,7 +31,7 @@ const MailSender = ({
   isFocus?: boolean;
 }) => {
   const { colors } = useTheme();
-  const [focused, setFocused] = React.useState(true);
+  const [focused, setFocused] = useState(true);
   const isKeyboardOpen = useKeyboardOpenListner();
   const inputMaxHeight = focused ? 300 : isKeyboardOpen ? 100 : 200;
 

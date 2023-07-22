@@ -1,8 +1,9 @@
-import { useInfiniteQuery, useQuery } from 'react-query';
-import { AxiosError } from 'axios';
+import { useInfiniteQuery } from 'react-query';
 
 import { getThreadListApi } from '@followBack/Apis/threadsList';
-import { IBookmarkRequest } from '@followBack/Apis/Bookmarks/types';
+import { IthreadsListAPIResponse } from '@followBack/Apis/threadsList/type';
+
+export const THREADS_LIMIT = 10;
 
 export const useFetchthreadsList = ({
   id,
@@ -15,15 +16,20 @@ export const useFetchthreadsList = ({
 }) => {
   return useInfiniteQuery(
     [`threadsList-${id}`, searchValue],
-    ({ pageParam }) => getThreadListApi({ id, searchValue, pageParam }),
+    ({ pageParam = 0 }) => getThreadListApi({ id, searchValue, pageParam }),
     {
       getNextPageParam: (lastPage) => {
-        if (lastPage?.data?.length < 100) return undefined;
-        return lastPage?.nextPage;
+        const lastPageData = lastPage as IthreadsListAPIResponse;
+        const totalPages = Math.ceil(lastPageData.totalCount / THREADS_LIMIT);
+        const nextPage =
+          lastPageData.page < totalPages
+            ? Number(lastPageData.page) + 1
+            : undefined;
+        return nextPage;
       },
       keepPreviousData: true,
       enabled: refetchData,
-      refetchInterval: 2000,
+      refetchInterval: 1500,
       refetchOnWindowFocus: true,
       refetchOnReconnect: true,
       refetchOnMount: true,

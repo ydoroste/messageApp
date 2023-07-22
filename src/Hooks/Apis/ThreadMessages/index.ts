@@ -1,23 +1,36 @@
-import { useInfiniteQuery, useQuery } from "react-query";
-import { AxiosError } from "axios";
+import { useInfiniteQuery } from 'react-query';
 
-import { getThreadMessagesApi } from "@followBack/Apis/ThreadMessages";
+import { getThreadMessagesApi } from '@followBack/Apis/ThreadMessages';
+import { IThreadMessagesAPIResponse } from '@followBack/Apis/ThreadMessages/types';
 
-export const useFetchThreadMessages = ({ id, refetchData }: { id: string, refetchData: boolean }) => {
+export const MESSAGES_LIMIT = 10;
+
+export const useFetchThreadMessages = ({
+  id,
+  refetchData,
+}: {
+  id: string;
+  refetchData: boolean;
+}) => {
   return useInfiniteQuery(
     [`threadMessages`, id],
-    ({ pageParam }) => getThreadMessagesApi({ id, pageParam }),
+    ({ pageParam = 0 }) => getThreadMessagesApi({ id, pageParam }),
     {
       getNextPageParam: (lastPage) => {
-        if (lastPage?.data?.length < 100) return undefined;
-        return lastPage?.nextPage;
+        const lastPageData = lastPage as IThreadMessagesAPIResponse;
+        const totalPages = Math.ceil(lastPageData.totalCount / MESSAGES_LIMIT);
+        const nextPage =
+          lastPageData.page < totalPages
+            ? Number(lastPageData.page) - 1
+            : undefined;
+        return nextPage;
       },
       keepPreviousData: true,
       enabled: refetchData,
-      refetchInterval: 5000,
+      refetchInterval: 15000,
       refetchOnWindowFocus: true,
       refetchOnReconnect: true,
-      refetchOnMount: true
+      refetchOnMount: true,
     }
   );
 };

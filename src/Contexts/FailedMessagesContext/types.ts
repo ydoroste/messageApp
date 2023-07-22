@@ -1,15 +1,15 @@
-
-
-
 export interface IFailedMessagesContext {
-    failedMessagesData: FailedMessagesDictionary;
-    setFailedMessagesData?:  React.Dispatch<React.SetStateAction<FailedMessagesDictionary>>
-};
+  failedMessagesData: FailedMessagesDictionary;
+  setFailedMessagesData?: React.Dispatch<
+    React.SetStateAction<FailedMessagesDictionary>
+  >;
+}
 
 export interface IFailedMEssage {
-    text: string
-};
+  text: string;
+  messageId?: string;
+}
 
 export interface FailedMessagesDictionary {
-    [key: number] : IFailedMEssage[]
+  [key: string]: IFailedMEssage[];
 }

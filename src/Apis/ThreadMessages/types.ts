@@ -21,8 +21,12 @@ export interface IThreadMessage {
     replyTo?: [],
     edited?: boolean;
     forwarded?: boolean;
-    createdAt?: string; // TODO: Parse to date
-    subject?: string
+    createdAt?: string;
+    subject?: string;
+    // For sake of determining if the message failed to be sent or not
+    // Moved to failed message list, not received from API, it's local one
+    notConfirmedNewMessage?: boolean;
+    failedToSend: boolean;
 }
 
 export interface IDeleteMessageRequest {
