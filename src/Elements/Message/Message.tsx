@@ -1,5 +1,5 @@
 import Typography from '@followBack/GenericElements/Typography';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { View, Pressable, Image } from 'react-native';
 import { formatMessageDate } from '@followBack/Utils/date';
 import useStylesWithTheme from '@followBack/Hooks/useStylesWithTheme';
@@ -10,8 +10,18 @@ import useTheme from '@followBack/Hooks/useTheme';
 import { UIActivityIndicator } from 'react-native-indicators';
 import { IThreadMessage } from '@followBack/Apis/ThreadMessages/types';
 import { ScrollView } from 'react-native-gesture-handler';
+import { HoldItem } from 'react-native-hold-menu';
+import { MenuItemProps } from 'react-native-hold-menu/lib/typescript/components/menu/types';
 
-const Message = ({ item }: { item: IThreadMessage }) => {
+const Message = ({
+  item,
+  senderMenu,
+  receiverMenu,
+}: {
+  item: IThreadMessage;
+  senderMenu: (item: string) => MenuItemProps[];
+  receiverMenu: MenuItemProps[];
+}) => {
   const { styles } = useStyles();
   const { text, to, from, cc, bcc, createdAt } = item;
   const { userDetails } = useUserDetails();
@@ -52,82 +62,94 @@ const Message = ({ item }: { item: IThreadMessage }) => {
   const blurhash =
     '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
 
-  useEffect(() => {
-    // console.log("ATTACHMENTS ======> ", item.attachments);
-  });
+  const actionParamsProps = useMemo(() => {
+    return {
+      Edit: [item],
+      Reply: [item],
+      'Unsend for me': [item],
+      'Unsend for all': [item],
+    };
+  }, [item]);
 
   return (
     <>
-      <View
-        onLayout={(event) => {
-          const { height } = event.nativeEvent.layout;
-          itemPosition.current = height / 2 - 4;
-        }}
-        style={{
-          ...styles.container,
-          ...(isOwnMessage ? { marginLeft: 'auto' } : { marginRight: 'auto' }),
-        }}
+      <HoldItem
+        key={`message-${item.messageId}`}
+        items={isOwnMessage ? senderMenu(item.createdAt ?? '') : receiverMenu}
+        actionParams={actionParamsProps}
+        containerStyles={{ justifyContent: 'center' }}
       >
-        <Pressable
-          onPress={() => {
-            setShowDate((prevState) => !prevState);
+        <View
+          onLayout={(event) => {
+            const { height } = event.nativeEvent.layout;
+            itemPosition.current = height / 2 - 4;
           }}
-          style={[styles.contentContainer, messageStyle]}
+          style={{
+            ...styles.container,
+            ...(isOwnMessage
+              ? { marginLeft: 'auto' }
+              : { marginRight: 'auto' }),
+          }}
         >
-          {text && (
-            <Typography type='largeRegularBody' color='chat'>
-              {isGroupChat && !isOwnMessage && (
-                <Typography type='largeBoldBody' color='chat'>
-                  {userFirstName + ' '}
-                </Typography>
-              )}
-              {text}
+          <Pressable
+            onPress={() => {
+              setShowDate((prevState) => !prevState);
+            }}
+            style={[styles.contentContainer, messageStyle]}
+          >
+            {text && (
+              <Typography type='largeRegularBody' color='chat'>
+                {isGroupChat && !isOwnMessage && (
+                  <Typography type='largeBoldBody' color='chat'>
+                    {userFirstName + ' '}
+                  </Typography>
+                )}
+                {text}
+              </Typography>
+            )}
+            {item.attachments && item.attachments.length > 0 && (
+              <ScrollView horizontal style={{ maxHeight: 100 }}>
+                {item.attachments.map((attachment, index) => {
+                  return (
+                    <Image
+                      key={makeid(index)}
+                      style={{
+                        width: 80,
+                        height: 80,
+                        margin: 5,
+                        borderRadius: 5,
+                      }}
+                      source={{ uri: attachment.url, cache: 'force-cache' }}
+                      resizeMethod='scale'
+                      resizeMode='cover'
+                    />
+                  );
+                })}
+              </ScrollView>
+            )}
+          </Pressable>
+          {false && (
+            <View style={styles.activityIndicatorContainer}>
+              <UIActivityIndicator color={colors.grey02} size={15} />
+            </View>
+          )}
+        </View>
+
+        {showDate && (
+          <View
+            style={[
+              styles.date,
+              {
+                alignSelf: isOwnMessage ? 'flex-start' : 'flex-end',
+              },
+            ]}
+          >
+            <Typography type='smallRegularBody' color='secondary'>
+              {formatMessageDate(createdAt ?? '')}
             </Typography>
-          )}
-          {item.attachments && item.attachments.length > 0 && (
-            <ScrollView horizontal style={{ maxHeight: 100 }}>
-              {item.attachments.map((attachment, index) => {
-                return (
-                  <Image
-                    key={makeid(index)}
-                    style={{
-                      width: 80,
-                      height: 80,
-                      margin: 5,
-                      borderRadius: 5,
-                    }}
-                    source={{ uri: attachment.url }}
-                    resizeMethod='scale'
-                    resizeMode='cover'
-                  />
-                );
-              })}
-            </ScrollView>
-          )}
-        </Pressable>
-        {false && (
-          <View style={styles.activityIndicatorContainer}>
-            <UIActivityIndicator color={colors.grey02} size={15} />
           </View>
         )}
-      </View>
-
-      {showDate && (
-        <View
-          style={[
-            styles.date,
-            {
-              top: itemPosition.current,
-              left: isOwnMessage ? 0 : undefined,
-              right: !isOwnMessage ? 0 : undefined,
-            },
-          ]}
-        >
-          <Typography type='smallRegularBody' color='secondary'>
-            {formatMessageDate(createdAt ?? '')}
-          </Typography>
-        </View>
-      )}
+      </HoldItem>
     </>
   );
 };

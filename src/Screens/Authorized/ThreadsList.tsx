@@ -55,9 +55,7 @@ const ThreadList: React.FC = () => {
   useFocusEffect(
     useCallback(() => {
       setRefetchData(true);
-      return () => {
-        setRefetchData(false);
-      };
+      return () => {};
     }, [])
   );
 

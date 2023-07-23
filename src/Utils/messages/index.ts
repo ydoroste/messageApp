@@ -6,7 +6,10 @@ export const excludeUser = ({
 }: {
   users: IContact[];
   userAddress: string;
-}) => users.filter((user) => user.address !== userAddress);
+}) =>
+  users.filter(
+    (user) => user.address.toLowerCase() !== userAddress.toLowerCase()
+  );
 
 export const sortUsers = (users: IContact[], initiator = undefined) => {
   return users.sort((a, b) => {

@@ -13,7 +13,7 @@ export const getThreadMessagesApi = async ({
   pageParam,
 }: {
   id: string;
-  pageParam: any;
+  pageParam: number;
 }) => {
   return GetApi<IThreadMessagesAPIResponse>(
     `${CORE_SERVICE_URL}${ApiEndpoints.threadMessages}?threadId=${id}&pageNumber=${pageParam}&pageSize=${MESSAGES_LIMIT}`

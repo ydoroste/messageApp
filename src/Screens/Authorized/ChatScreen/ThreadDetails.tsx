@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  useMemo,
+} from 'react';
 import {
   View,
   KeyboardAvoidingView,
@@ -46,18 +52,11 @@ import { Thread } from '@followBack/Apis/threadsList/type';
 import { deleteMessagesApi } from '@followBack/Apis/ThreadMessages';
 import { Buffer } from 'buffer';
 import * as FileSystem from 'expo-file-system';
-import * as VideoThumbnails from 'expo-video-thumbnails';
-import InputField from '@followBack/GenericElements/InputField';
+import _ from 'lodash';
 
 const ThreadDetails: React.FC = ({ navigation, route }) => {
   const { threadInfo } = route.params;
-  const {
-    threadId: id,
-    topicId,
-    subject,
-    headerId,
-    lastHeader,
-  } = threadInfo as Thread;
+  const { threadId: id, topicId, subject, lastHeader } = threadInfo as Thread;
   const params = route.params;
   const [allMessages, setAllMessages] = useState<IThreadMessage[]>([]);
   const [failedMessages, setFailedMessages] = useState([]);
@@ -82,6 +81,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
   const [replyToMessage, setReplyTo] = useState<IThreadMessage | undefined>(
     undefined
   );
+  const [render, rerender] = useState(false);
 
   const scrollViewRef = useRef<ScrollView | null>(null);
   const hasData = allMessages?.length > 0;
@@ -97,11 +97,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
   const to = lastMessageData?.to ?? composeTo;
   const cc = lastMessageData?.cc ?? composeCc;
   const bcc = lastHeader?.bccList ?? composeBcc;
-  const isOwnMessage = (item: IThreadMessage) => {
-    return !item?.from?.address
-      ? true
-      : userDetails.user_name === emailNameParcer(item?.from?.address);
-  };
+
   let others = hasData
     ? excludeUser({
         users: [sender, ...to, ...cc, ...bcc],
@@ -127,65 +123,11 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
     }
   };
 
-  const MenuItems = (threadMessage: IThreadMessage, index: number) => {
-    let optionsArray = [
-      {
-        text: 'Reply',
-        onPress: (threadMessage: IThreadMessage) => {
-          setReplyTo(threadMessage);
-        },
-      },
-    ];
-    if (isOwnMessage(threadMessage)) {
-      optionsArray.push({
-        text: 'Unsend for me',
-        onPress: async (threadMessage: IThreadMessage) => {
-          let newMessages = allMessages.slice();
-          newMessages.splice(index, 1);
-          setAllMessages(newMessages);
-          await deleteMessagesApi(
-            { ids: [threadMessage.messageId ?? ''] },
-            false
-          );
-        },
-      });
-      if (!isTimelimitExceeded(threadMessage.createdAt ?? '')) {
-        optionsArray.push(
-          {
-            text: 'Unsend for all',
-            onPress: async (threadMessage: IThreadMessage) => {
-              let newMessages = allMessages.slice();
-              newMessages.splice(index, 1);
-              setAllMessages(newMessages);
-              await deleteMessagesApi(
-                { ids: [threadMessage.messageId ?? ''] },
-                true
-              );
-            },
-          },
-          {
-            text: 'Edit',
-            onPress: async (threadMessage: IThreadMessage) => {
-              setIsEditingMessage(threadMessage);
-              setMail(threadMessage.text);
-            },
-          }
-        );
-      }
-      return optionsArray;
-    } else {
-      return optionsArray;
-    }
-  };
-
   // MARK: - Load thread messages from API
   useEffect(() => {
+    if (typeof data === typeof undefined) return;
     if (failedMessagesData[id]) {
       setFailedMessages(failedMessagesData[id].reverse());
-    }
-
-    if (!data || !data?.pages || data?.pages?.[0] === undefined) {
-      return;
     }
 
     let flattenData =
@@ -205,25 +147,15 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
     });
     setAllMessages(flattenData);
     setLastMessageData(flattenData[0]);
-    scrollViewRef.current?.scrollToEnd();
   }, [data]);
-
-  // Test temp solution
-  useEffect(() => {
-    setRefetchData(false);
-    const stopFetchingTimer = setTimeout(() => {
-      setRefetchData(true);
-    }, 5000);
-    return () => {
-      clearTimeout(stopFetchingTimer);
-    };
-  }, [mail]);
 
   useFocusEffect(
     useCallback(() => {
       setRefetchData(true);
+      setReplyTo(undefined);
       return () => {
         setRefetchData(false);
+        setReplyTo(undefined);
       };
     }, [])
   );
@@ -445,6 +377,93 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
     setAttachments(attachmentsToUpload);
   };
 
+  const unsendForMe = async (threadMessage: IThreadMessage) => {
+    console.log(JSON.stringify(threadMessage));
+    let newMessages = allMessages
+      .slice()
+      .filter((message, i) => message.messageId !== threadMessage.messageId);
+    setAllMessages(newMessages);
+    await deleteMessagesApi({ ids: [threadMessage.messageId ?? ''] }, false);
+  };
+
+  useEffect(() => {
+    console.log('replyToMessage chaned to:', replyToMessage?.text);
+    rerender(!render);
+  }, [replyToMessage]);
+
+  const onPressReplyToMessage = (threadMessage: IThreadMessage) => {
+    setReplyTo(threadMessage);
+  };
+
+  const senderMenu = (thread: string) =>
+    !isTimelimitExceeded(thread)
+      ? [
+          {
+            text: 'Unsend for all',
+            onPress: async (threadMessage: IThreadMessage) => {
+              await deleteMessagesApi(
+                { ids: [threadMessage.messageId ?? ''] },
+                true
+              );
+            },
+          },
+          {
+            text: 'Edit',
+            onPress: async (threadMessage: IThreadMessage) => {
+              setIsEditingMessage(threadMessage);
+              setMail(threadMessage.text);
+            },
+          },
+          {
+            text: 'Reply',
+            onPress: onPressReplyToMessage,
+          },
+          {
+            text: 'Unsend for me',
+            onPress: unsendForMe,
+          },
+        ]
+      : [
+          {
+            text: 'Reply',
+            onPress: onPressReplyToMessage,
+          },
+          {
+            text: 'Unsend for me',
+            onPress: unsendForMe,
+          },
+        ];
+
+  const receiverMenu = [
+    {
+      text: 'Reply',
+      onPress: onPressReplyToMessage,
+    },
+  ];
+
+  const renderMessageItem = useCallback(
+    ({ item }: { item: IThreadMessage }) => (
+      <View style={{ marginVertical: 8 }}>
+        {item?.failedToSend ? (
+          <FailedMessage
+            item={item}
+            createComposeRequest={createComposeRequest}
+            moveFromFailedToSuccess={moveFromFailedToSuccess}
+          />
+        ) : (
+          (item.text || (item.attachments && item.attachments.length > 0)) && (
+            <Message
+              item={item}
+              senderMenu={senderMenu}
+              receiverMenu={receiverMenu}
+            />
+          )
+        )}
+      </View>
+    ),
+    [senderMenu, receiverMenu]
+  );
+
   if (!hasData || isError) {
     return (
       <LoadingScreen
@@ -475,42 +494,14 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
             <>
               <ScrollView
                 ref={scrollViewRef}
-                showsVerticalScrollIndicator={false}
-                showsHorizontalScrollIndicator={false}
-                nestedScrollEnabled
+                showsVerticalScrollIndicator={true}
+                indicatorStyle='white'
               >
                 <View style={{ minHeight: 2 }}>
                   <FlashList
                     data={[...failedMessages, ...allMessages]}
-                    renderItem={({ item, index }) => (
-                      <HoldItem
-                        key={makeid(10)}
-                        items={MenuItems(item, index)}
-                        actionParams={{
-                          Edit: [item],
-                          Reply: [item],
-                          'Unsend for me': [item],
-                          'Unsend for all': [item],
-                        }}
-                      >
-                        <View style={{ marginVertical: 8 }}>
-                          {item?.failedToSend ? (
-                            <FailedMessage
-                              item={item}
-                              createComposeRequest={createComposeRequest}
-                              moveFromFailedToSuccess={moveFromFailedToSuccess}
-                            />
-                          ) : (
-                            (item.text ||
-                              (item.attachments &&
-                                item.attachments.length > 0)) && (
-                              <Message item={item} />
-                            )
-                          )}
-                        </View>
-                      </HoldItem>
-                    )}
-                    keyExtractor={(item, _) => item?.messageId ?? makeid(10)}
+                    renderItem={renderMessageItem}
+                    keyExtractor={(item, _) => `message-${item?.messageId}`}
                     onEndReachedThreshold={0.2}
                     estimatedItemSize={100}
                     scrollIndicatorInsets={{ right: 1 }}
@@ -539,7 +530,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
                 {attachmentsLocalURI.map((att, index) => {
                   return (
                     <Pressable
-                      key={makeid(index)}
+                      key={`attachment-${index}`}
                       onPress={() => {
                         var currentToCompare = attachmentsLocalURI.slice();
                         currentToCompare.splice(index, 1);
@@ -566,7 +557,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
             </ScrollView>
           </>
         )}
-        {replyToMessage && (
+        {replyToMessage !== undefined && (
           <View style={{ height: 80 }}>
             <Typography type='largeBoldBody' color='chat'>
               {'Replying to: ' + replyToMessage.text.trimEnd()}

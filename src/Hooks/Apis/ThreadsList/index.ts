@@ -3,7 +3,7 @@ import { useInfiniteQuery } from 'react-query';
 import { getThreadListApi } from '@followBack/Apis/threadsList';
 import { IthreadsListAPIResponse } from '@followBack/Apis/threadsList/type';
 
-export const THREADS_LIMIT = 10;
+export const THREADS_LIMIT = 100;
 
 export const useFetchthreadsList = ({
   id,
@@ -29,7 +29,7 @@ export const useFetchthreadsList = ({
       },
       keepPreviousData: true,
       enabled: refetchData,
-      refetchInterval: 1500,
+      refetchInterval: 1000,
       refetchOnWindowFocus: true,
       refetchOnReconnect: true,
       refetchOnMount: true,
