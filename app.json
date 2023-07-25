@@ -17,9 +17,7 @@
       "fallbackToCacheTimeout": 0,
       "url": "https://u.expo.dev/2195ca69-0c1f-4508-a5dc-ca5392fe90b1"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.abdulazizmassoud.MobileApp",
@@ -32,9 +30,7 @@
         "backgroundColor": "#000000"
       },
       "package": "mail.app.v1",
-      "permissions": [
-        "android.permission.RECORD_AUDIO"
-      ]
+      "permissions": ["android.permission.RECORD_AUDIO"]
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -55,11 +51,6 @@
       "sentry-expo",
       "expo-localization"
     ],
-    "build": {
-      "preview": {
-        "distribution": "internal"
-      }
-    },
     "hooks": {
       "postPublish": [
         {

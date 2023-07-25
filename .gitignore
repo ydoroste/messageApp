@@ -49,6 +49,7 @@ local.properties
 *.iml
 *.hprof
 .cxx/
+android/
 
 # node.js
 #
@@ -67,6 +68,7 @@ buck-out/
 
 # CocoaPods
 /ios/Pods/
+ios/
 
 # Expo
 .expo/
