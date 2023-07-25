@@ -2,8 +2,8 @@ import { IContact } from '@followBack/Apis/ContactsList/types';
 import { sortUsers } from '@followBack/Utils/messages';
 
 export const getThreadParticipantsUserName = (users: IContact[]) => {
-  console.log('------------ THREAD USERS ----------------');
-  console.log(users);
+  // console.log('------------ THREAD USERS ----------------');
+  // console.log(users);
   const sortedUsers = sortUsers(users);
   if (!sortedUsers || sortedUsers?.length === 0) return '';
   const firstUserName = sortedUsers[0]?.name ?? sortedUsers[0]?.address;

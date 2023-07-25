@@ -1,6 +1,6 @@
 import Typography from '@followBack/GenericElements/Typography';
 import React, { useMemo, useRef, useState } from 'react';
-import { View, Pressable, Image } from 'react-native';
+import { View, Pressable, Image, Text } from 'react-native';
 import { formatMessageDate } from '@followBack/Utils/date';
 import useStylesWithTheme from '@followBack/Hooks/useStylesWithTheme';
 import { useUserDetails } from '@followBack/Hooks/useUserDetails';
@@ -10,8 +10,17 @@ import useTheme from '@followBack/Hooks/useTheme';
 import { UIActivityIndicator } from 'react-native-indicators';
 import { IThreadMessage } from '@followBack/Apis/ThreadMessages/types';
 import { ScrollView } from 'react-native-gesture-handler';
-import { HoldItem, HoldMenuProvider } from 'react-native-hold-menu';
-import { MenuItemProps } from 'react-native-hold-menu/lib/typescript/components/menu/types';
+import {
+  Menu as MaterialMenu,
+  MenuItem,
+  MenuDivider,
+} from 'react-native-material-menu';
+import {
+  Menu,
+  MenuOptions,
+  MenuOption,
+  MenuTrigger,
+} from 'react-native-popup-menu';
 
 const Message = ({
   item,
@@ -19,8 +28,8 @@ const Message = ({
   receiverMenu,
 }: {
   item: IThreadMessage;
-  senderMenu: (messageDate: string) => MenuItemProps[];
-  receiverMenu: MenuItemProps[];
+  senderMenu: (messageDate: string) => [];
+  receiverMenu: [];
 }) => {
   const { styles } = useStyles();
   const { text, to, from, cc, bcc, createdAt } = item;
@@ -41,6 +50,9 @@ const Message = ({
   const chatUsers = [...toList, ...ccList, ...bccList, sender];
   const itemPosition = useRef<number>(0);
   const [showDate, setShowDate] = useState(false);
+  const [visible, setVisible] = useState(false);
+  const hideMenu = () => setVisible(false);
+  const showMenu = () => setVisible(true);
 
   const others = excludeUser({
     users: chatUsers,
@@ -72,92 +84,112 @@ const Message = ({
   }, [item]);
 
   return (
-    <>
-      <HoldItem
-        key={`message-${item.messageId}`}
-        items={isOwnMessage ? senderMenu(item.createdAt ?? '') : receiverMenu}
-        actionParams={actionParamsProps}
-        containerStyles={{ justifyContent: 'center' }}
+    <View style={{ justifyContent: 'center' }}>
+      {/* <MaterialMenu
+        visible={visible}
+        anchor={
+          <Text style={{ color: 'white' }} onPress={showMenu}>
+            Show menu
+          </Text>
+        }
+        onRequestClose={hideMenu}
       >
-        <View
-          onLayout={(event) => {
-            const { height } = event.nativeEvent.layout;
-            itemPosition.current = height / 2 - 4;
+        <MenuItem onPress={hideMenu}>Menu item 1</MenuItem>
+        <MenuItem onPress={hideMenu}>Menu item 2</MenuItem>
+        <MenuItem disabled>Disabled item</MenuItem>
+        <MenuDivider />
+        <MenuItem onPress={hideMenu}>Menu item 4</MenuItem>
+      </MaterialMenu>
+      <Menu>
+        <MenuTrigger text='Select action' />
+        <MenuOptions>
+          <MenuOption onSelect={() => alert(`Save`)} text='Save' />
+          <MenuOption onSelect={() => alert(`Delete`)}>
+            <Text style={{ color: 'red' }}>Delete</Text>
+          </MenuOption>
+          <MenuOption
+            onSelect={() => alert(`Not called`)}
+            disabled={true}
+            text='Disabled'
+          />
+        </MenuOptions>
+      </Menu> */}
+      <View
+        onLayout={(event) => {
+          const { height } = event.nativeEvent.layout;
+          itemPosition.current = height / 2 - 4;
+        }}
+        style={{
+          ...styles.container,
+          ...(isOwnMessage ? { marginLeft: 'auto' } : { marginRight: 'auto' }),
+        }}
+      >
+        <Pressable
+          onPress={() => {
+            setShowDate((prevState) => !prevState);
           }}
-          style={{
-            ...styles.container,
-            ...(isOwnMessage
-              ? { marginLeft: 'auto' }
-              : { marginRight: 'auto' }),
+          style={[styles.contentContainer, messageStyle]}
+          onLongPress={() => {
+            console.log('Long pressed');
           }}
         >
-          <Pressable
-            onPress={() => {
-              setShowDate((prevState) => !prevState);
-            }}
-            style={[styles.contentContainer, messageStyle]}
-          >
-            {text && (
-              <Typography type='largeRegularBody' color='chat'>
-                {isGroupChat && !isOwnMessage && (
-                  <Typography type='largeBoldBody' color='chat'>
-                    {userFirstName + ' '}
-                  </Typography>
-                )}
-                {text}
-              </Typography>
-            )}
-            {item.attachments && item.attachments.length > 0 && (
-              <ScrollView horizontal style={{ maxHeight: 100 }}>
-                {item.attachments.map((attachment, index) => {
-                  return (
-                    <Image
-                      key={makeid(index)}
-                      style={{
-                        width: 80,
-                        height: 80,
-                        margin: 5,
-                        borderRadius: 5,
-                      }}
-                      source={{ uri: attachment.url, cache: 'force-cache' }}
-                      resizeMethod='scale'
-                      resizeMode='cover'
-                    />
-                  );
-                })}
-              </ScrollView>
-            )}
-          </Pressable>
-          {false && (
-            <View style={styles.activityIndicatorContainer}>
-              <UIActivityIndicator color={colors.grey02} size={15} />
-            </View>
-          )}
-        </View>
-
-        {showDate && (
-          <View
-            style={[
-              styles.date,
-              {
-                alignSelf: isOwnMessage ? 'flex-start' : 'flex-end',
-              },
-            ]}
-          >
-            <Typography type='smallRegularBody' color='secondary'>
-              {formatMessageDate(createdAt ?? '')}
+          {text && (
+            <Typography type='largeRegularBody' color='chat'>
+              {isGroupChat && !isOwnMessage && (
+                <Typography type='largeBoldBody' color='chat'>
+                  {userFirstName + ' '}
+                </Typography>
+              )}
+              {text}
             </Typography>
+          )}
+          {item.attachments && item.attachments.length > 0 && (
+            <ScrollView horizontal style={{ maxHeight: 100 }}>
+              {item.attachments.map((attachment, index) => {
+                return (
+                  <Image
+                    key={makeid(index)}
+                    style={{
+                      width: 80,
+                      height: 80,
+                      margin: 5,
+                      borderRadius: 5,
+                    }}
+                    source={{ uri: attachment.url, cache: 'force-cache' }}
+                    resizeMethod='scale'
+                    resizeMode='cover'
+                  />
+                );
+              })}
+            </ScrollView>
+          )}
+        </Pressable>
+        {false && (
+          <View style={styles.activityIndicatorContainer}>
+            <UIActivityIndicator color={colors.grey02} size={15} />
           </View>
         )}
-      </HoldItem>
-    </>
+      </View>
+      {showDate && (
+        <View
+          style={[
+            {
+              alignSelf: isOwnMessage ? 'flex-start' : 'flex-end',
+              position: 'absolute',
+            },
+          ]}
+        >
+          <Typography type='smallRegularBody' color='secondary'>
+            {formatMessageDate(createdAt ?? '')}
+          </Typography>
+        </View>
+      )}
+    </View>
   );
 };
 
 const useStyles = useStylesWithTheme((theme) => ({
-  container: {
-    position: 'relative',
-  },
+  container: {},
   date: {
     marginBottom: 12,
     flexDirection: 'row',

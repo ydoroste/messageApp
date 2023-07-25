@@ -30,7 +30,6 @@ import {
 } from '@followBack/Utils/date';
 import { useFocusEffect } from '@react-navigation/native';
 import { IComposeApiRequest } from '@followBack/Apis/Compose/types';
-import { HoldItem } from 'react-native-hold-menu';
 import LoadingScreen from '@followBack/Elements/LoadingScreen/LoadingScreen.index';
 import { FlashList } from '@shopify/flash-list';
 import { useFailedMessages } from '@followBack/Hooks/useFailedMessages';
@@ -494,8 +493,9 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
                 ref={scrollViewRef}
                 showsVerticalScrollIndicator={true}
                 indicatorStyle='white'
+                style={{ minHeight: 2, minWidth: 2 }}
               >
-                <View style={{ minHeight: 2 }}>
+                <View style={{ minHeight: 2, minWidth: 2 }}>
                   <FlashList
                     data={[...failedMessages, ...allMessages]}
                     renderItem={renderMessageItem}
@@ -509,6 +509,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
                     }}
                     indicatorStyle='white'
                     showsVerticalScrollIndicator={true}
+                    contentContainerStyle={{ padding: 0 }}
                   />
                 </View>
                 <View style={{ height: 20 }} />
