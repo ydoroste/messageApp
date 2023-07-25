@@ -2,8 +2,6 @@ import * as React from 'react';
 import { UserProvider } from '@followBack/Contexts/UserContext';
 import MainApp from '@followBack/mainApp';
 import { HoldMenuProvider } from 'react-native-hold-menu';
-import { useEffect } from 'react';
-import { useKeyboardHeight } from '@followBack/Hooks/useKeyboardHeight';
 import { Dimensions } from 'react-native';
 
 const App: React.FC = () => {
