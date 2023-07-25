@@ -81,7 +81,6 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
   const [replyToMessage, setReplyTo] = useState<IThreadMessage | undefined>(
     undefined
   );
-  const [render, rerender] = useState(false);
 
   const scrollViewRef = useRef<ScrollView | null>(null);
   const hasData = allMessages?.length > 0;
@@ -386,26 +385,25 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
     await deleteMessagesApi({ ids: [threadMessage.messageId ?? ''] }, false);
   };
 
-  useEffect(() => {
-    console.log('replyToMessage chaned to:', replyToMessage?.text);
-    rerender(!render);
-  }, [replyToMessage]);
-
   const onPressReplyToMessage = (threadMessage: IThreadMessage) => {
     setReplyTo(threadMessage);
   };
 
-  const senderMenu = (thread: string) =>
-    !isTimelimitExceeded(thread)
+  const unsendForAll = useCallback(async (threadMessage: IThreadMessage) => {
+    console.log(JSON.stringify(threadMessage));
+    let newMessages = allMessages
+      .slice()
+      .filter((message, i) => message.messageId !== threadMessage.messageId);
+    setAllMessages(newMessages);
+    await deleteMessagesApi({ ids: [threadMessage.messageId ?? ''] }, true);
+  }, []);
+
+  const senderMenu = (messageDate: string) =>
+    !isTimelimitExceeded(messageDate)
       ? [
           {
             text: 'Unsend for all',
-            onPress: async (threadMessage: IThreadMessage) => {
-              await deleteMessagesApi(
-                { ids: [threadMessage.messageId ?? ''] },
-                true
-              );
-            },
+            onPress: unsendForAll,
           },
           {
             text: 'Edit',
@@ -476,7 +474,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 100}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 35 : 100}
       style={{ flex: 1, backgroundColor: colors.black }}
     >
       <View style={styles.container}>

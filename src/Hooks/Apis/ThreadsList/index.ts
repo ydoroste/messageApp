@@ -19,6 +19,7 @@ export const useFetchthreadsList = ({
     ({ pageParam = 0 }) => getThreadListApi({ id, searchValue, pageParam }),
     {
       getNextPageParam: (lastPage) => {
+        if (!lastPage) return undefined;
         const lastPageData = lastPage as IthreadsListAPIResponse;
         const totalPages = Math.ceil(lastPageData.totalCount / THREADS_LIMIT);
         const nextPage =

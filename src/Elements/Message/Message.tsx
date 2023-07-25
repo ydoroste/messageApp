@@ -10,7 +10,7 @@ import useTheme from '@followBack/Hooks/useTheme';
 import { UIActivityIndicator } from 'react-native-indicators';
 import { IThreadMessage } from '@followBack/Apis/ThreadMessages/types';
 import { ScrollView } from 'react-native-gesture-handler';
-import { HoldItem } from 'react-native-hold-menu';
+import { HoldItem, HoldMenuProvider } from 'react-native-hold-menu';
 import { MenuItemProps } from 'react-native-hold-menu/lib/typescript/components/menu/types';
 
 const Message = ({
@@ -19,7 +19,7 @@ const Message = ({
   receiverMenu,
 }: {
   item: IThreadMessage;
-  senderMenu: (item: string) => MenuItemProps[];
+  senderMenu: (messageDate: string) => MenuItemProps[];
   receiverMenu: MenuItemProps[];
 }) => {
   const { styles } = useStyles();

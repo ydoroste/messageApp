@@ -1,148 +1,155 @@
-import {
-    StyleSheet,
-    View,
-} from "react-native";
-import React, {} from "react";
-import {IthreadCardProps} from "@followBack/Elements/ThreadCard/types";
-import Typography from "@followBack/GenericElements/Typography";
-import Avatar from "@followBack/Elements/Avatar";
-import {useUserDetails} from "@followBack/Hooks/useUserDetails";
-import {excludeUser} from "@followBack/Utils/messages";
-import {getThreadParticipantsUserName} from "@followBack/Utils/stringUtils";
-import { formatMessageDate } from "@followBack/Utils/date";
-import IconButton from "@followBack/GenericElements/IconButton";
-import useTheme from "@followBack/Hooks/useTheme";
+import { StyleSheet, View } from 'react-native';
+import React from 'react';
+import { IthreadCardProps } from '@followBack/Elements/ThreadCard/types';
+import Typography from '@followBack/GenericElements/Typography';
+import Avatar from '@followBack/Elements/Avatar';
+import { useUserDetails } from '@followBack/Hooks/useUserDetails';
+import { excludeUser } from '@followBack/Utils/messages';
+import { getThreadParticipantsUserName } from '@followBack/Utils/stringUtils';
+import { formatMessageDate } from '@followBack/Utils/date';
+import IconButton from '@followBack/GenericElements/IconButton';
+import useTheme from '@followBack/Hooks/useTheme';
 
 const ThreadCard: React.FC<IthreadCardProps> = ({ threadItem }) => {
-    const {userDetails} = useUserDetails();
-    const {colors} = useTheme();
-    
-    let others = excludeUser({
-        users: [threadItem.lastHeader.formContact, ...threadItem.lastHeader.toList, ...threadItem.lastHeader.ccList ?? [], ...threadItem.lastHeader.bccList ?? [] ],
-        userAddress: `${userDetails.user_name}@iinboxx.com`
-    });
-    
-    others = others.length === 0  &&  threadItem?.lastHeader.formContact.address === userDetails.email ?  [threadItem.lastHeader.formContact]  : others;
-    const message = threadItem.text?.trim() && threadItem.text?.trim() !== "" ? threadItem.text?.trim() : "\<no message\>";
-    const subject = threadItem.subject?.trim() && threadItem.subject?.trim() !== "" ? threadItem.subject?.trim() : "\<no subject\>";
-    const isMessageSeen = threadItem.seen;
-    const textColor = isMessageSeen ? "secondary" : "chat";
-    
-    return (
-        <View style={styles.container}>
-            <View style={{...styles.avatar}}>
-                <Avatar users={others}/>
-            </View>
+  const { userDetails } = useUserDetails();
+  const { colors } = useTheme();
 
-            <View style={[styles.content, {flex: 3.5}]}>
-                <View >
-                    <Typography
-                        type={isMessageSeen ? "mediumRegularTitle" : "mediumBoldTitle"}
-                        color={textColor}
-                        ellipsizeMode="tail"
-                        numberOfLines={1}
+  let others = excludeUser({
+    users: [
+      threadItem.lastHeader.formContact,
+      ...threadItem.lastHeader.toList,
+      ...(threadItem.lastHeader.ccList ?? []),
+      ...(threadItem.lastHeader.bccList ?? []),
+    ],
+    userAddress: `${userDetails.user_name}@iinboxx.com`,
+  });
 
-                    >
-                        {getThreadParticipantsUserName(others)}
-                    </Typography>
-                </View>
+  others =
+    others.length === 0 &&
+    threadItem?.lastHeader.formContact.address ===
+      `${userDetails.user_name}@iinboxx.com`
+      ? [
+          {
+            name: userDetails.user_name,
+            address: `${userDetails.user_name}@iinboxx.com`,
+          },
+        ]
+      : others;
 
-                <View style={{marginBottom: 3, flexDirection: "row"}}>
-                    <Typography
-                        type={isMessageSeen ? "largeRegularBody" : "largeBoldBody"}
-                        color={textColor}
-                        ellipsizeMode="tail"
-                        numberOfLines={1}
-                    >
-                        {subject}
-                    </Typography>
-                    {threadItem.lastHeader.attachments.length > 0 && <IconButton
-                            onPress={() => {}}
-                            name="attachment"
-                            width={12}
-                            height={20}
-                            color={colors.grey01}
-                    />}
-                </View>
-                <View>
-                    <Typography
-                        type={isMessageSeen ? "mediumRegularBody" : "mediumBoldBody"}
-                        color={textColor}
-                        ellipsizeMode="tail"
-                        numberOfLines={1}
-                    >
-                        {message}
-                    </Typography>
-                </View>
-            </View>
-            <View style={styles.content}>
-                <View >
-                    <Typography
-                        type={isMessageSeen ? "mediumRegularTitle" : "mediumBoldTitle"}
-                        color={"black"}
-                        ellipsizeMode="tail"
-                        numberOfLines={1}
+  const message =
+    threadItem.text?.trim() && threadItem.text?.trim() !== ''
+      ? threadItem.text?.trim()
+      : '<no message>';
+  const subject =
+    threadItem.subject?.trim() && threadItem.subject?.trim() !== ''
+      ? threadItem.subject?.trim()
+      : '<no subject>';
+  const isMessageSeen = threadItem.seen;
+  const textColor = isMessageSeen ? 'secondary' : 'chat';
 
-                    >
-                        {getThreadParticipantsUserName(others)}
-                    </Typography>
-                </View>
+  return (
+    <View style={styles.container}>
+      <View style={{ ...styles.avatar }}>
+        <Avatar users={others} />
+      </View>
 
-                <View style={{marginBottom: 3}}>
-                    <Typography
-                        type={isMessageSeen ? "largeRegularBody" : "largeBoldBody"}
-                        color={"black"}
-                        ellipsizeMode="tail"
-                        numberOfLines={1}
-                    >
-                        {subject}
-                    </Typography>
-                </View>
-                <View style={{justifyContent: "center"}}>
-                    <Typography
-                        type={isMessageSeen ? "smallRegularBody" : "smallBoldBody"}
-                        color={textColor}
-                        ellipsizeMode="tail"
-                        numberOfLines={1}
-                        lineHeight={17}
-                        textAlign="center"
-                    >
-                        {formatMessageDate(threadItem.createdAt)}
-                    </Typography>
-                </View>
-            </View>
+      <View style={[styles.content, { flex: 3.5 }]}>
+        <View>
+          <Typography
+            type={isMessageSeen ? 'mediumRegularTitle' : 'mediumBoldTitle'}
+            color={textColor}
+            ellipsizeMode='tail'
+            numberOfLines={1}
+          >
+            {getThreadParticipantsUserName(others)}
+          </Typography>
         </View>
-    );
+
+        <View style={{ marginBottom: 3, flexDirection: 'row' }}>
+          <Typography
+            type={isMessageSeen ? 'largeRegularBody' : 'largeBoldBody'}
+            color={textColor}
+            ellipsizeMode='tail'
+            numberOfLines={1}
+          >
+            {subject}
+          </Typography>
+          {threadItem.lastHeader.attachments.length > 0 && (
+            <IconButton
+              onPress={() => {}}
+              name='attachment'
+              width={12}
+              height={20}
+              color={colors.grey01}
+            />
+          )}
+        </View>
+        <View>
+          <Typography
+            type={isMessageSeen ? 'mediumRegularBody' : 'mediumBoldBody'}
+            color={textColor}
+            ellipsizeMode='tail'
+            numberOfLines={1}
+          >
+            {message}
+          </Typography>
+        </View>
+      </View>
+      <View style={styles.content}>
+        <View>
+          <Typography
+            type={isMessageSeen ? 'mediumRegularTitle' : 'mediumBoldTitle'}
+            color={'black'}
+            ellipsizeMode='tail'
+            numberOfLines={1}
+          >
+            {getThreadParticipantsUserName(others)}
+          </Typography>
+        </View>
+
+        <View style={{ marginBottom: 3 }}>
+          <Typography
+            type={isMessageSeen ? 'largeRegularBody' : 'largeBoldBody'}
+            color={'black'}
+            ellipsizeMode='tail'
+            numberOfLines={1}
+          >
+            {subject}
+          </Typography>
+        </View>
+        <View style={{ justifyContent: 'center' }}>
+          <Typography
+            type={isMessageSeen ? 'smallRegularBody' : 'smallBoldBody'}
+            color={textColor}
+            ellipsizeMode='tail'
+            numberOfLines={1}
+            lineHeight={17}
+            textAlign='center'
+          >
+            {formatMessageDate(threadItem.createdAt)}
+          </Typography>
+        </View>
+      </View>
+    </View>
+  );
 };
 export default ThreadCard;
 
 const styles = StyleSheet.create({
-    container: {
-        height: 80,
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "flex-start",
-        flex: 1,
-       // position: "relative",
-    },
+  container: {
+    height: 80,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    flex: 1,
+  },
 
-    avatar: {
-        marginRight: 10,
-        width: 52
-    },
-    content: {
-       // gap: 3,
-        flex: 1,
-        width: "100%",
-    },
-    date: {
-      //  alignSelf: "flex-end",
-
-     //   paddingBottom: 10,
-      //  marginLeft: 10
-/**/        //flex: 1
-        // position: "absolute",
-        //  right: 0,
-        //bottom: 8,
-    },
+  avatar: {
+    marginRight: 10,
+    width: 52,
+  },
+  content: {
+    flex: 1,
+    width: '100%',
+  },
 });
