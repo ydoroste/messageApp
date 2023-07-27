@@ -3,7 +3,6 @@ import React, {
   useEffect,
   useCallback,
   useRef,
-  useMemo,
 } from 'react';
 import {
   View,
@@ -14,7 +13,6 @@ import {
   Image,
   Pressable,
   Keyboard,
-  TextInput,
 } from 'react-native';
 import useTheme from '@followBack/Hooks/useTheme';
 import { useFetchThreadMessages } from '@followBack/Hooks/Apis/ThreadMessages';
@@ -45,19 +43,17 @@ import {
 import { ScrollView } from 'react-native-gesture-handler';
 import * as mime from 'mime';
 import { ICreateAttachmentRequest } from '@followBack/Apis/GetAttachmentUploadLink/types';
-import { emailNameParcer } from '@followBack/Utils/email';
 import Typography from '@followBack/GenericElements/Typography';
 import { Thread } from '@followBack/Apis/threadsList/type';
 import { deleteMessagesApi } from '@followBack/Apis/ThreadMessages';
 import { Buffer } from 'buffer';
 import * as FileSystem from 'expo-file-system';
-import _ from 'lodash';
 
 const ThreadDetails: React.FC = ({ navigation, route }) => {
   const { threadInfo } = route.params;
   const { threadId: id, topicId, subject, lastHeader } = threadInfo as Thread;
   const params = route.params;
-  const [allMessages, setAllMessages] = useState<IThreadMessage[]>([]);
+  const [allMessages, setAllMessages] = useState<(IThreadMessage | undefined)[]>([]);
   const [failedMessages, setFailedMessages] = useState([]);
   const { colors } = useTheme();
   const [mail, setMail] = useState('');
@@ -82,13 +78,12 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
   );
 
   const scrollViewRef = useRef<ScrollView | null>(null);
-  const hasData = allMessages?.length > 0;
-  const firstMessage = allMessages?.[0];
+  const hasData = allMessages.length > 0;
+  const firstMessage = allMessages[0];
   const sender = lastMessageData?.from ?? {
     name: userDetails.user_name,
     address: `${userDetails.user_name}@iinboxx.com`,
   };
-  const initiator = data?.pages?.[0]?.initiator;
   const composeTo = params.to ?? [];
   const composeCc = params.cc ?? [];
   const composeBcc = params.bcc ?? [];
@@ -109,10 +104,10 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
       : others;
 
   const receiver = hasData
-    ? getThreadParticipantsUserName(others, initiator)
+    ? getThreadParticipantsUserName(others)
     : '';
   const firstMessageDate = hasData
-    ? conversationDateTime(firstMessage.createdAt ?? '')
+    ? conversationDateTime(firstMessage?.createdAt ?? '')
     : '';
 
   const loadNextPageData = async () => {
@@ -133,8 +128,8 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
         ? data?.pages.flatMap((page) => page?.data)
         : [];
     flattenData = flattenData.sort(function (a, b) {
-      var dateA = new Date(a?.createdAt || '');
-      var dateB = new Date(b?.createdAt || '');
+      let dateA = new Date(a?.createdAt ?? '');
+      let dateB = new Date(b?.createdAt ?? '');
       if (dateA < dateB) {
         return -1;
       }

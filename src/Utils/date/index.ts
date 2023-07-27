@@ -19,11 +19,11 @@ export const formatMessageDate = ( date: string ) => {
  const format = years > 1 ?  "MMM DD, YYYY" : "MMM DD";
   return  momentDate.format(format);
 };
-export const conversationDateTime = (date: string)=>{
+export const conversationDateTime = (date: string) => {
+    if (date.length == 0) { return ''; }
     const offset = getTimeZoneOffset();
     const momentDate = moment(date, 'YYYY-MM-DD h:mm A').add(offset, "hours");
     return  momentDate.format("MMM DD");
-
 };
 
 const getTimeZoneOffset =()=>{
