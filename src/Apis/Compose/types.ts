@@ -1,4 +1,4 @@
-import { IContact } from "../ContactsList/types";
+import { IContact } from "@followBack/Apis/Contacts/types";
 
 export interface IComposeApiRequest {
   [key: string]: string | IContact[] | undefined | string[]
@@ -23,8 +23,4 @@ export interface IComposeApiResponse {
     text: string;
     headerId: string;
     attachments: string[];
-}
-
-export interface IComposeResponseData {
-  
 }

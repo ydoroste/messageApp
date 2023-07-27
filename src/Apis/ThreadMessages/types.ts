@@ -1,5 +1,5 @@
-import { IContact } from ../ContactsList/types;
-import { ICreateAttachmentApiResponse } from ../GetAttachmentUploadLink/types;
+import { IContact } from '@followBack/Apis/Contacts/types';
+import { ICreateAttachmentApiResponse } from '@followBack/Apis/GetAttachmentUploadLink/types';
 
 export interface IThreadMessagesAPIResponse {
     data: IThreadMessage[];

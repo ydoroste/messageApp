@@ -1,4 +1,4 @@
-import { IContact } from "../ContactsList/types";
+import { IContact } from "../Contacts/types";
 
 
 export interface IthreadsListAPIRequest { 

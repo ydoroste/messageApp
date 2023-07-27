@@ -1,6 +1,3 @@
-import { IApiError } from "../types";
-
-
 export interface IContact {
     address: string;
     name?: string
@@ -14,4 +11,8 @@ export interface IContactListApiResponse {
 
 export interface ContactsData {
     contacts: IContact[];
+}
+
+export interface IGetUsernameReponse {
+    data: IContact
 }

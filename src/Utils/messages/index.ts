@@ -1,4 +1,4 @@
-import { IContact } from '@followBack/Apis/ContactsList/types';
+import { IContact } from '@followBack/Apis/Contacts/types';
 
 export const excludeUser = ({
   users,

@@ -99,7 +99,7 @@ const SignInForm: React.FC = () => {
                 wildduck_user_id: signedinUser.wildduck_user_id
             };
             setUserDetails(userInfo);
-            await setUserData(JSON.stringify(userInfo));
+            // await setUserData(JSON.stringify(userInfo));
             setIsAuthenticated(true);
         }
     };

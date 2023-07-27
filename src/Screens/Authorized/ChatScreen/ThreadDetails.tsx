@@ -36,7 +36,7 @@ import { useFailedMessages } from '@followBack/Hooks/useFailedMessages';
 import FailedMessage from '@followBack/Elements/FailedMessage/FailedMessage.index';
 import { composeApi, editMessageApi } from '@followBack/Apis/Compose';
 import { IThreadMessage } from '@followBack/Apis/ThreadMessages/types';
-import { IContact } from '@followBack/Apis/ContactsList/types';
+import { IContact } from '@followBack/Apis/Contacts/types';
 import * as ImagePicker from 'expo-image-picker';
 import {
   createAttachment,

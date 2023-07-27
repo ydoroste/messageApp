@@ -5,7 +5,6 @@ import { Dimensions } from 'react-native';
 import { MenuProvider } from 'react-native-popup-menu';
 
 const App: React.FC = () => {
-  const { width, height } = Dimensions.get('window');
   return (
     <UserProvider>
       <MenuProvider>
