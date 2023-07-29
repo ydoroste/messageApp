@@ -2,20 +2,17 @@ import { IContact } from '@followBack/Apis/Contacts/types';
 
 export const excludeUser = ({
   users,
-  userAddress,
+  userAddress
 }: {
-  users: IContact[];
-  userAddress: string;
+  users: IContact[],
+  userAddress: string
 }) =>
   users.filter(
     (user) => user.address.toLowerCase() !== userAddress.toLowerCase()
   );
 
-export const sortUsers = (users: IContact[], initiator = undefined) => {
+export const sortUsers = (users: IContact[]) => {
   return users.sort((a, b) => {
-    if (initiator) {
-      return a.address < b.address || a.address === initiator ? -1 : 1;
-    }
     return a.address > b.address ? 1 : -1;
   });
 };

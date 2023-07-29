@@ -6,7 +6,8 @@ import {
   IDeleteMessageResponse,
   IThreadMessagesAPIResponse,
 } from './types';
-import { MESSAGES_LIMIT } from '@followBack/Hooks/Apis/ThreadMessages';
+
+export const MESSAGES_LIMIT = 10;
 
 export const getThreadMessagesApi = async ({
   id,

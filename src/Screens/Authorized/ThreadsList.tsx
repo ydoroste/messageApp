@@ -57,6 +57,25 @@ const ThreadList: React.FC = () => {
       setRefetchData(true);
     }, [])
   );
+  
+  useEffect(() => {
+    if (typeof data === typeof undefined) return;
+    let flattenData = !!data?.pages
+      ? data.pages.flatMap((page) => page?.data)
+      : [];
+    flattenData = flattenData.sort(function (a, b) {
+      var dateA = new Date(a?.createdAt || '');
+      var dateB = new Date(b?.createdAt || '');
+      if (dateA < dateB) {
+        return 1;
+      }
+      if (dateA > dateB) {
+        return -1;
+      }
+      return 0;
+    });
+    setthreadsList(flattenData);
+  }, [data]);
 
   const onBookmarkPressed = async (item: Thread) => {
     await editBookmark({ threadId: item.threadId, bookmark: !item.favorite });
@@ -79,15 +98,10 @@ const ThreadList: React.FC = () => {
     );
   };
 
-  const threadItem = (item: Thread | undefined) => {
+  const RenderedThreadItem = ({item} : {item: Thread | undefined}) => {
     if (!item) return <></>;
     return (
-      <Swipeable
-        renderRightActions={(progress, dragX) => renderRightActions(item)}
-        // onSwipeableOpen={() => closeRow(index)}
-        rightThreshold={windowWidth / 10}
-      >
-        <Pressable
+      <Pressable
           style={({ pressed }) => ({
             opacity: pressed ? 0.7 : 1,
             marginVertical: 10,
@@ -99,34 +113,15 @@ const ThreadList: React.FC = () => {
             });
           }}
         >
-          <ThreadCard threadItem={item} />
-        </Pressable>
+      <Swipeable
+        renderRightActions={(progress, dragX) => renderRightActions(item)}
+        rightThreshold={windowWidth / 10}
+      >
+        <ThreadCard threadItem={item} />
       </Swipeable>
+      </Pressable>
     );
   };
-
-  useEffect(() => {
-    if (typeof data === typeof undefined) return;
-
-    let flattenData = !!data?.pages
-      ? data.pages.flatMap((page) => page?.data)
-      : [];
-    flattenData = flattenData.sort(function (a, b) {
-      var dateA = new Date(a?.createdAt || '');
-      var dateB = new Date(b?.createdAt || '');
-      if (dateA < dateB) {
-        return 1;
-      }
-      if (dateA > dateB) {
-        return -1;
-      }
-      return 0;
-    });
-    flattenData.forEach((item) => {
-      item?.threadId;
-    });
-    setthreadsList(flattenData);
-  }, [data]);
 
   if (isLoading) {
     return <LoadingScreen loadingText={'Loading'} loadingIndecatorSize={20} />;
@@ -184,7 +179,7 @@ const ThreadList: React.FC = () => {
             }}
             scrollIndicatorInsets={{ right: 1 }}
             data={threadsList}
-            renderItem={({ item }: { item: Thread }) => threadItem(item)}
+            renderItem={({ item }: { item: Thread }) => <RenderedThreadItem item={item}/>}
             estimatedItemSize={100}
             onEndReached={loadNextPageData}
             onEndReachedThreshold={0.2}

@@ -2,7 +2,8 @@ import { GetApi } from '@followBack/Utils/httpApis/apis';
 import { BETA_SERVICE_URL, CORE_SERVICE_URL } from '@followBack/Apis/constants';
 import { ApiEndpoints } from '@followBack/Apis';
 import { IthreadsListAPIRequest, IthreadsListAPIResponse } from './type';
-import { THREADS_LIMIT } from '@followBack/Hooks/Apis/ThreadsList';
+
+export const THREADS_LIMIT = 100;
 
 export const getThreadListApi = async (req: IthreadsListAPIRequest) => {
   return GetApi<IthreadsListAPIResponse>(

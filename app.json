@@ -48,20 +48,7 @@
           "photosPermission": "The app accesses your photos to let you share them with your friends."
         }
       ],
-      "sentry-expo",
       "expo-localization"
-    ],
-    "hooks": {
-      "postPublish": [
-        {
-          "file": "sentry-expo/upload-sourcemaps",
-          "config": {
-            "organization": "neworganisation",
-            "project": "mail-app",
-            "authToken": false
-          }
-        }
-      ]
-    }
+    ]
   }
 }

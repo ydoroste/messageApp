@@ -67,7 +67,6 @@ export const UserProvider: React.FC<IUserProviderProp> = ({ children }) => {
         }
       );
       setUserDetails(data.data);
-      console.log("Setting user Details from context" + JSON.stringify(data.data));
     } catch (e) {
       setIsAuthenticated(false);
     }
@@ -77,10 +76,6 @@ export const UserProvider: React.FC<IUserProviderProp> = ({ children }) => {
     if (!isAuthenticated) return;
     getUserDetails();
   }, [isAuthenticated]);
-
-  useEffect(() => {
-    console.log('s changed to: ABC', userDetails);
-  }, [userDetails])
 
   return (
     <UserContext.Provider

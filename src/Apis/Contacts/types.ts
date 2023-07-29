@@ -14,5 +14,6 @@ export interface ContactsData {
 }
 
 export interface IGetUsernameReponse {
-    data: IContact
+    name: string,
+    address: string
 }

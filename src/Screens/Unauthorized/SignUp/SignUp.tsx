@@ -59,10 +59,8 @@ export default function SignIn() {
           isFirstStep={val => setIsFirstStep(val)}
           isLastStep={val => setIsLastStep(val)}
           onNext={() => {
-            console.log("Next Step Called")
           }}
           onPrev={() => {
-            console.log("Previous Step Called")
           }}
           currentStep={({ currentStep, isLastStep, isFirstStep }) => {
             setCurrentStep(currentStep)

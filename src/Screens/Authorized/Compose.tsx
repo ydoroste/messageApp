@@ -153,8 +153,6 @@ const Compose: React.FC<ComposeHeaderProps> = ({ navigation }) => {
   const id = inboxThread?.id ?? '';
 
   const onPressCompose = async () => {
-    console.log('attachments localURI', attachmentsLocalURI);
-    console.log('attachments NormalUP', attachments);
     if (
       isUploadingAttachment &&
       attachments.length != attachmentsLocalURI.length
@@ -226,7 +224,6 @@ const Compose: React.FC<ComposeHeaderProps> = ({ navigation }) => {
               'Content-Type': `${mimeType}`,
             },
           });
-          console.log(JSON.stringify(res));
           if (res.status == 200) {
             let createAttachmentReq: ICreateAttachmentRequest = {
               url: link.link,
@@ -235,7 +232,6 @@ const Compose: React.FC<ComposeHeaderProps> = ({ navigation }) => {
               size: asset.fileSize ?? 0,
             };
             let createRes = await createAttachment(createAttachmentReq);
-            console.log('Create attachment response: ', createRes);
             attachmentsToUpload.push(createRes.id ?? '');
           }
         }

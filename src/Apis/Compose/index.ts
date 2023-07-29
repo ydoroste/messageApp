@@ -5,7 +5,6 @@ import {
   IComposeApiResponse,
 } from "@followBack/Apis/Compose/types";
 import { CORE_SERVICE_URL } from "@followBack/Apis/constants";
-import * as Sentry from "@sentry/react-native";
 
 export const snatizeComposeApi = (request: IComposeApiRequest) => {
   const toBeSnatizedKeys = ["ccList", "bccList"];
@@ -18,8 +17,6 @@ export const snatizeComposeApi = (request: IComposeApiRequest) => {
 };
 
 export const composeApi = async (request: IComposeApiRequest) => {
-  console.log("-------REQUEST------->", JSON.stringify(request));
-  Sentry.captureMessage(`This is compose request message: ===> ${JSON.stringify(request)}`);
   return PostApi<IComposeApiRequest, IComposeApiResponse>(
     `${CORE_SERVICE_URL}${ApiEndpoints.compose}`,
     snatizeComposeApi(request)

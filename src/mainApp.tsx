@@ -19,16 +19,6 @@ import {
 } from './Apis/constants';
 import { ApiEndpoints } from './Apis';
 import { UserProvider } from './Contexts/UserContext';
-import * as Sentry from '@sentry/react-native';
-import { useEffect } from 'react';
-
-Sentry.init({
-  dsn: 'https://f41e5438e6ca4afbb49f893e2e7a6a49@o4505546560569344.ingest.sentry.io/4505546564501504',
-  // Set tracesSampleRate to 1.0 to capture 100% of transactions for performance monitoring.
-  // We recommend adjusting this value in production.
-  tracesSampleRate: 1.0,
-  enableNative: false,
-});
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -63,11 +53,11 @@ const MainApp: React.FC = () => {
   }
   axios.interceptors.request.use(
     (request) => {
+      // console.log(JSON.stringify(request));
       request.baseURL = getBaseURL(request);
       return request;
     },
     (error) => {
-      console.log(error);
       return Promise.reject(error);
     }
   );
@@ -80,7 +70,6 @@ const MainApp: React.FC = () => {
       return config;
     },
     (error) => {
-      console.log(error);
       return Promise.reject(error);
     }
   );

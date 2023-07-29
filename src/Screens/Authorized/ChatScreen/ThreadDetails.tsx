@@ -3,6 +3,7 @@ import React, {
   useEffect,
   useCallback,
   useRef,
+  memo,
 } from 'react';
 import {
   View,
@@ -54,7 +55,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
   const { threadId: id, topicId, subject, lastHeader } = threadInfo as Thread;
   const params = route.params;
   const [allMessages, setAllMessages] = useState<(IThreadMessage | undefined)[]>([]);
-  const [failedMessages, setFailedMessages] = useState([]);
+  const [failedMessages, setFailedMessages] = useState<(IThreadMessage | undefined)[]>([]);
   const { colors } = useTheme();
   const [mail, setMail] = useState('');
   const { userDetails } = useUserDetails();
@@ -76,6 +77,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
   const [replyToMessage, setReplyTo] = useState<IThreadMessage | undefined>(
     undefined
   );
+  const [lastMessages, setLastMessages] = useState<string | undefined>(undefined);
 
   const scrollViewRef = useRef<ScrollView | null>(null);
   const hasData = allMessages.length > 0;
@@ -138,8 +140,12 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
       }
       return 0;
     });
-    setAllMessages(flattenData);
-    setLastMessageData(flattenData[0]);
+    let currentMessages = JSON.stringify(flattenData);
+    if (!(currentMessages == lastMessages)) {
+      setLastMessages(JSON.stringify(currentMessages));
+      setAllMessages(flattenData);
+      setLastMessageData(flattenData[0]);
+    }
   }, [data]);
 
   useFocusEffect(
@@ -153,26 +159,6 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
     }, [])
   );
 
-  useEffect(() => {
-    const keyboardDidShowListener = Keyboard.addListener(
-      'keyboardDidShow',
-      () => {
-        scrollViewRef.current?.scrollToEnd();
-      }
-    );
-    const keyboardDidHideListener = Keyboard.addListener(
-      'keyboardDidHide',
-      () => {
-        scrollViewRef.current?.scrollToEnd();
-      }
-    );
-
-    return () => {
-      keyboardDidHideListener.remove();
-      keyboardDidShowListener.remove();
-    };
-  }, []);
-
   const formatEndPoints = (endPoint: IContact[]) =>
     endPoint
       ?.map((obj) => ({ address: obj?.address?.trim() }))
@@ -182,7 +168,6 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
 
   const createComposeRequest = (messageText: string): IComposeApiRequest => {
     const lastFromEndPoint = lastMessageData?.from?.address ?? '';
-    console.log('LM data: ---->', lastMessageData);
     const toEndPoints = formatEndPoints(lastMessageData?.to ?? [])?.filter(
       ({ address }) => address !== lastFromEndPoint
     );
@@ -210,17 +195,15 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
     if (replyToMessage) {
       composeRequest = { ...composeRequest, replyTo: replyToMessage?.headerId };
     }
-    console.log('Compose request' + JSON.stringify(composeRequest));
     return composeRequest;
   };
 
   // MARK: - Send new message in chat/thread
   const onPressCompose = async () => {
-    console.log(mail);
     if (messageToEdit != undefined) {
       const allMessagesCopy = [...allMessages];
       let index = allMessagesCopy.findIndex((message) => {
-        if (message.messageId == messageToEdit.messageId) {
+        if (message?.messageId == messageToEdit.messageId) {
           return true;
         }
       });
@@ -254,7 +237,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
       setAllMessages(allMessagesCopy);
       const data = await composeApi(createComposeRequest(mail?.trim()));
       const newMessageIndex = allMessagesCopy.findIndex(
-        (message) => message.messageId === newMessage.messageId
+        (message) => message?.messageId === newMessage.messageId
       );
       if (data) {
         allMessagesCopy.splice(newMessageIndex, 1, {
@@ -262,6 +245,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
           notConfirmedNewMessage: false,
         });
         setAllMessages(allMessagesCopy);
+        scrollViewRef.current?.scrollToEnd();
       } else {
         const allMessagesWithoutTheFailed = allMessagesCopy.filter(
           (item) => !item?.notConfirmedNewMessage
@@ -286,17 +270,15 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
       setAttachments([]);
       setAttachmentsLocalURI([]);
       setIsUploadingAttachment(false);
-    } catch (error) {
-      console.log('error', error);
-    }
+    } catch (error) {}
   };
 
-  const moveFromFailedToSuccess = (messageTempId) => {
+  const moveFromFailedToSuccess = (messageTempId: string) => {
     const clickedFailedMessage = failedMessages.find(
-      (message) => message.messageId === messageTempId
+      (message) => message?.messageId === messageTempId
     );
     const allFailedMessagesWithoutClicked = failedMessages.filter(
-      (message) => message.messageId !== messageTempId
+      (message) => message?.messageId !== messageTempId
     );
     setFailedMessages(allFailedMessagesWithoutClicked);
     const allsuccessMessagesCopy = [...allMessages];
@@ -352,7 +334,6 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
               'Content-Type': `${mimeType}`,
             },
           });
-          console.log(JSON.stringify(res));
           if (res.status == 200) {
             let createAttachmentReq: ICreateAttachmentRequest = {
               url: link.link,
@@ -361,7 +342,6 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
               size: asset.fileSize ?? 0,
             };
             let createRes = await createAttachment(createAttachmentReq);
-            console.log('Create attachment response: ', createRes);
             attachmentsToUpload.push(createRes.id ?? '');
           }
         }
@@ -371,10 +351,9 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
   };
 
   const unsendForMe = async (threadMessage: IThreadMessage) => {
-    console.log(JSON.stringify(threadMessage));
     let newMessages = allMessages
       .slice()
-      .filter((message, i) => message.messageId !== threadMessage.messageId);
+      .filter((message, i) => message?.messageId !== threadMessage.messageId);
     setAllMessages(newMessages);
     await deleteMessagesApi({ ids: [threadMessage.messageId ?? ''] }, false);
   };
@@ -384,10 +363,9 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
   };
 
   const unsendForAll = useCallback(async (threadMessage: IThreadMessage) => {
-    console.log(JSON.stringify(threadMessage));
     let newMessages = allMessages
       .slice()
-      .filter((message, i) => message.messageId !== threadMessage.messageId);
+      .filter((message, i) => message?.messageId !== threadMessage.messageId);
     setAllMessages(newMessages);
     await deleteMessagesApi({ ids: [threadMessage.messageId ?? ''] }, true);
   }, []);
@@ -433,8 +411,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
     },
   ];
 
-  const renderMessageItem = useCallback(
-    ({ item }: { item: IThreadMessage }) => (
+  const renderMessageItem = ({ item }: { item: IThreadMessage }) => (
       <View style={{ marginVertical: 8 }}>
         {item?.failedToSend ? (
           <FailedMessage
@@ -444,17 +421,11 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
           />
         ) : (
           (item.text || (item.attachments && item.attachments.length > 0)) && (
-            <Message
-              item={item}
-              senderMenu={senderMenu}
-              receiverMenu={receiverMenu}
-            />
+            <Message item={item} />
           )
         )}
       </View>
-    ),
-    [senderMenu, receiverMenu]
-  );
+    );
 
   if (!hasData || isError) {
     return (
@@ -484,18 +455,12 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
         <View style={styles.chatWrapper}>
           {hasData && (
             <>
-              <ScrollView
-                ref={scrollViewRef}
-                showsVerticalScrollIndicator={true}
-                indicatorStyle='white'
-                style={{ minHeight: 2, minWidth: 2 }}
-              >
-                <View style={{ minHeight: 2, minWidth: 2 }}>
+              <View style={{ minHeight: 2, minWidth: 2, flex: 1 }}>
                   <FlashList
                     data={[...failedMessages, ...allMessages]}
                     renderItem={renderMessageItem}
                     keyExtractor={(item, _) => `message-${item?.messageId}`}
-                    onEndReachedThreshold={0.2}
+                    onEndReachedThreshold={0.75}
                     estimatedItemSize={100}
                     scrollIndicatorInsets={{ right: 1 }}
                     inverted={false}
@@ -504,11 +469,10 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
                     }}
                     indicatorStyle='white'
                     showsVerticalScrollIndicator={true}
-                    contentContainerStyle={{ padding: 0 }}
+                    initialScrollIndex={allMessages.length - 1}
                   />
                 </View>
                 <View style={{ height: 20 }} />
-              </ScrollView>
             </>
           )}
         </View>

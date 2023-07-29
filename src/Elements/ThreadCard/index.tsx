@@ -1,20 +1,22 @@
 import { StyleSheet, View } from 'react-native';
-import React from 'react';
+import React, { memo, useCallback, useEffect } from 'react';
 import { IthreadCardProps } from '@followBack/Elements/ThreadCard/types';
 import Typography from '@followBack/GenericElements/Typography';
 import Avatar from '@followBack/Elements/Avatar';
 import { useUserDetails } from '@followBack/Hooks/useUserDetails';
 import { excludeUser } from '@followBack/Utils/messages';
-import { getThreadParticipantsUserName } from '@followBack/Utils/stringUtils';
+import { getThreadParticipantsUserName, getUserName } from '@followBack/Utils/stringUtils';
 import { formatMessageDate } from '@followBack/Utils/date';
 import IconButton from '@followBack/GenericElements/IconButton';
 import useTheme from '@followBack/Hooks/useTheme';
+import { IContact } from '@followBack/Apis/Contacts/types';
 
 const ThreadCard: React.FC<IthreadCardProps> = ({ threadItem }) => {
   const { userDetails } = useUserDetails();
   const { colors } = useTheme();
-
-  let others = excludeUser({
+  let others: IContact[] = [];
+  
+  others = excludeUser({
     users: [
       threadItem.lastHeader.formContact,
       ...threadItem.lastHeader.toList,
@@ -35,6 +37,28 @@ const ThreadCard: React.FC<IthreadCardProps> = ({ threadItem }) => {
           },
         ]
       : others;
+
+  // useCallback(() => {
+  //   const getFinalUsers = () => { 
+  //     others.forEach(async (user) => {
+  //       if(!user.name) {
+  //         user.name = await getUserName(user.address);
+  //       }
+  //     });
+  //     return others;
+  //   }
+  //   others =
+  //   others.length === 0 &&
+  //   threadItem?.lastHeader.formContact.address ===
+  //     `${userDetails.user_name}@iinboxx.com`
+  //     ? [
+  //         {
+  //           name: userDetails.user_name,
+  //           address: `${userDetails.user_name}@iinboxx.com`,
+  //         },
+  //       ]
+  //     : getFinalUsers();
+  // }, []);
 
   const message =
     threadItem.text?.trim() && threadItem.text?.trim() !== ''
@@ -95,28 +119,6 @@ const ThreadCard: React.FC<IthreadCardProps> = ({ threadItem }) => {
           </Typography>
         </View>
       </View>
-      <View style={styles.content}>
-        <View>
-          <Typography
-            type={isMessageSeen ? 'mediumRegularTitle' : 'mediumBoldTitle'}
-            color={'black'}
-            ellipsizeMode='tail'
-            numberOfLines={1}
-          >
-            {getThreadParticipantsUserName(others)}
-          </Typography>
-        </View>
-
-        <View style={{ marginBottom: 3 }}>
-          <Typography
-            type={isMessageSeen ? 'largeRegularBody' : 'largeBoldBody'}
-            color={'black'}
-            ellipsizeMode='tail'
-            numberOfLines={1}
-          >
-            {subject}
-          </Typography>
-        </View>
         <View style={{ justifyContent: 'center' }}>
           <Typography
             type={isMessageSeen ? 'smallRegularBody' : 'smallBoldBody'}
@@ -129,11 +131,11 @@ const ThreadCard: React.FC<IthreadCardProps> = ({ threadItem }) => {
             {formatMessageDate(threadItem.createdAt)}
           </Typography>
         </View>
-      </View>
     </View>
   );
 };
-export default ThreadCard;
+
+export default memo(ThreadCard);
 
 const styles = StyleSheet.create({
   container: {

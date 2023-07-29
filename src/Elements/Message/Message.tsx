@@ -23,13 +23,11 @@ import {
 } from 'react-native-popup-menu';
 
 const Message = ({
-  item,
-  senderMenu,
-  receiverMenu,
+  item
 }: {
   item: IThreadMessage;
-  senderMenu: (messageDate: string) => [];
-  receiverMenu: [];
+  senderMenu?: (messageDate: string) => [];
+  receiverMenu?: [];
 }) => {
   const { styles } = useStyles();
   const { text, to, from, cc, bcc, createdAt } = item;
@@ -56,17 +54,17 @@ const Message = ({
 
   const others = excludeUser({
     users: chatUsers,
-    userAddress: userDetails.email,
+    userAddress: `${userDetails.user_name}@iinboxx.com`,
   });
 
   const isGroupChat = others.length > 1;
   const messageSender = sender;
   const userFirstName =
-    messageSender.name.length > 0
-      ? messageSender.name.split(' ')?.[0]
+    messageSender?.name?.length ?? -1 > 0
+      ? messageSender?.name?.split(' ')?.[0]
       : messageSender.address;
   const messageSenderLabel =
-    messageSender.name.length > 0 ? messageSender.name : messageSender.address;
+    messageSender?.name?.length ?? -1 > 0 ? messageSender.name : messageSender.address;
 
   const messageStyle = isOwnMessage
     ? styles.ownMessageStyle

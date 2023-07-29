@@ -22,7 +22,7 @@ const ComposeStack = () => {
   const Stack = createNativeStackNavigator();
 
   return (
-    <Stack.Navigator initialRouteName={AuthorizedScreensEnum.compose}>
+    <Stack.Navigator initialRouteName={AuthorizedScreensEnum.compose} screenOptions={{ animation: 'none'}}>
       <Stack.Screen
         name={AuthorizedScreensEnum.compose}
         component={Compose}
@@ -39,11 +39,11 @@ const ThreadsListStack = () => {
   const Stack = createNativeStackNavigator<AuthorizedParams>();
 
   return (
-    <Stack.Navigator initialRouteName={AuthorizedScreensEnum.threadsList}>
+    <Stack.Navigator initialRouteName={AuthorizedScreensEnum.threadsList} screenOptions={{animation: 'none'}}>
       <Stack.Screen
         name={AuthorizedScreensEnum.threadsList}
         component={ThreadsList}
-        options={{ header: (props) => <MailBoxHeader hideSearch {...props} /> }}
+        options={{ animation: 'none', header: (props) => <MailBoxHeader hideSearch {...props} /> }}
       />
 
       <Stack.Screen
@@ -71,6 +71,7 @@ const Authorized = () => {
               drawerContent={(props) => (
                 <CustomDrawerContent {...props} />
               )}
+              screenOptions={{ drawerStatusBarAnimation: 'none' }}
             >
               <Drawer.Screen
                 options={{ headerShown: false }}

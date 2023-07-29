@@ -1,41 +1,40 @@
 import { IContact } from '@followBack/Apis/Contacts/types';
 import { sortUsers } from '@followBack/Utils/messages';
-import { getContacts, setContacts } from './contactDetails';
+import { deleteContacts, getContacts, setContacts } from './contactDetails';
 import { useGetUsername } from '@followBack/Hooks/Apis/Username';
+import { getUsernameAPI } from '@followBack/Apis/Contacts';
 
-const getUserName = (userAddress: string) => {
-  getContacts().then((contactsString) => {
+export const getUserName = async (userAddress: string) => {
+  let localContactsList: IContact[] = [];
+  const contactsString = await getContacts();
     if (contactsString) {
-      const localContactsList: IContact[] = <IContact[]>JSON.parse(contactsString);
+      localContactsList = <IContact[]>JSON.parse(contactsString);
       let userIndex = localContactsList.findIndex((contact, index) => {
-        if(contact.address == userAddress) {
-          return index;
-        }
-        return -1;
+        return contact.address == userAddress;
       });
       if (userIndex >= 0) {
         return localContactsList[userIndex].name;
       } else {
-        const { data } = useGetUsername({forAddress: userAddress});
-        const userName = data?.data.name;
-        console.log(userName);
+        await deleteContacts();
+        const { name } = await getUsernameAPI({forAddress: userAddress});
+        const userName = name;
         localContactsList.push({ address: userAddress, name: userName});
-        setContacts(JSON.stringify(localContactsList));
+        await setContacts(JSON.stringify(localContactsList));
         return userName;
       }
+    } else {
+      await deleteContacts();
+        const { name } = await getUsernameAPI({forAddress: userAddress});
+        const userName = name;
+        localContactsList.push({ address: userAddress, name: userName});
+        await setContacts(JSON.stringify(localContactsList));
+        return userName;
     }
-  });
-  return undefined;
 }
 
 export const getThreadParticipantsUserName = (users: IContact[]) => {
   let  sortedUsers = sortUsers(users);
   if (!sortedUsers || sortedUsers?.length === 0) return '';
-  sortedUsers.forEach((user, index) => {
-    if(!user.name) {
-      user.name = getUserName(user.address);
-    }
-  });
   const firstUserName = sortedUsers[0]?.name ?? sortedUsers[0]?.address;
   if (sortedUsers.length === 1) return firstUserName;
   const secondUserName = sortedUsers[1]?.name ?? sortedUsers[1]?.address;

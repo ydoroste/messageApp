@@ -12,8 +12,11 @@ export const getContactsListApi = async ({ searchValue }: {searchValue: string})
 };
 
 export const getUsernameAPI = async ({ forAddress }: {forAddress: string}) => {
+
+  let re = /\@/gi;
+  let result = forAddress.replace(re, "%40");
   return GetApi<IGetUsernameReponse>(
-    `${CORE_SERVICE_URL}${ApiEndpoints.contactsList}/${forAddress}`
+    `${CORE_SERVICE_URL}${ApiEndpoints.contactsList}/details/${result}`
   ).then((res) => {
     return res.data;
   });

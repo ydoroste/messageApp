@@ -16,7 +16,6 @@
     "@react-navigation/drawer": "^6.5.8",
     "@react-navigation/native": "^6.0.13",
     "@react-navigation/native-stack": "^6.9.0",
-    "@sentry/react-native": "4.15.2",
     "@shopify/flash-list": "1.4.0",
     "@stream-io/flat-list-mvcp": "^0.10.2",
     "@types/react-native": "^0.72.2",
@@ -70,8 +69,7 @@
     "react-native-svg": "13.4.0",
     "react-native-web": "~0.18.7",
     "react-native-wizard": "^2.1.0",
-    "react-query": "^3.39.2",
-    "sentry-expo": "~6.2.0"
+    "react-query": "^3.39.2"
   },
   "devDependencies": {
     "@babel/core": "^7.19.3",
