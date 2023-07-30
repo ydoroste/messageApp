@@ -12,11 +12,7 @@ import { useUserDetails } from '@followBack/Hooks/useUserDetails';
 import { MailBoxesProvider } from './Contexts/MailboxesContext';
 import axios, { InternalAxiosRequestConfig } from 'axios';
 import { getAccessToken } from './Utils/accessToken';
-import {
-  AUTH_SERVICE_URL,
-  BETA_SERVICE_URL,
-  CORE_SERVICE_URL,
-} from './Apis/constants';
+import { AUTH_SERVICE_URL, CORE_SERVICE_URL } from './Apis/constants';
 import { ApiEndpoints } from './Apis';
 import { UserProvider } from './Contexts/UserContext';
 
@@ -51,23 +47,14 @@ const MainApp: React.FC = () => {
   if (!isAppLoaded) {
     return null;
   }
-  axios.interceptors.request.use(
-    (request) => {
-      // console.log(JSON.stringify(request));
-      request.baseURL = getBaseURL(request);
-      return request;
-    },
-    (error) => {
-      return Promise.reject(error);
-    }
-  );
 
   axios.interceptors.request.use(
-    async function (config) {
-      if (!isAuthenticated) return config;
+    async function (request) {
+      request.baseURL = getBaseURL(request);
+      if (!isAuthenticated) return request;
       const token = await getAccessToken();
-      config.headers['Authorization'] = `Bearer ${token}`;
-      return config;
+      request.headers['Authorization'] = `Bearer ${token}`;
+      return request;
     },
     (error) => {
       return Promise.reject(error);

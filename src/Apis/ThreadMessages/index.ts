@@ -7,7 +7,7 @@ import {
   IThreadMessagesAPIResponse,
 } from './types';
 
-export const MESSAGES_LIMIT = 10;
+export const MESSAGES_LIMIT = 1000;
 
 export const getThreadMessagesApi = async ({
   id,

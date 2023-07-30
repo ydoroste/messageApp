@@ -1,10 +1,4 @@
-import React, {
-  useState,
-  useEffect,
-  useCallback,
-  useRef,
-  memo,
-} from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   View,
   KeyboardAvoidingView,
@@ -49,13 +43,18 @@ import { Thread } from '@followBack/Apis/threadsList/type';
 import { deleteMessagesApi } from '@followBack/Apis/ThreadMessages';
 import { Buffer } from 'buffer';
 import * as FileSystem from 'expo-file-system';
+import { ActivityIndicator } from 'react-native-paper';
 
 const ThreadDetails: React.FC = ({ navigation, route }) => {
   const { threadInfo } = route.params;
   const { threadId: id, topicId, subject, lastHeader } = threadInfo as Thread;
   const params = route.params;
-  const [allMessages, setAllMessages] = useState<(IThreadMessage | undefined)[]>([]);
-  const [failedMessages, setFailedMessages] = useState<(IThreadMessage | undefined)[]>([]);
+  const [allMessages, setAllMessages] = useState<
+    (IThreadMessage | undefined)[]
+  >([]);
+  const [failedMessages, setFailedMessages] = useState<
+    (IThreadMessage | undefined)[]
+  >([]);
   const { colors } = useTheme();
   const [mail, setMail] = useState('');
   const { userDetails } = useUserDetails();
@@ -77,9 +76,11 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
   const [replyToMessage, setReplyTo] = useState<IThreadMessage | undefined>(
     undefined
   );
-  const [lastMessages, setLastMessages] = useState<string | undefined>(undefined);
+  const [lastMessages, setLastMessages] = useState<string | undefined>(
+    undefined
+  );
 
-  const scrollViewRef = useRef<ScrollView | null>(null);
+  const scrollViewRef = useRef<FlashList<IThreadMessage[]> | undefined>(null);
   const hasData = allMessages.length > 0;
   const firstMessage = allMessages[0];
   const sender = lastMessageData?.from ?? {
@@ -105,9 +106,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
       ? [sender]
       : others;
 
-  const receiver = hasData
-    ? getThreadParticipantsUserName(others)
-    : '';
+  const receiver = hasData ? getThreadParticipantsUserName(others) : '';
   const firstMessageDate = hasData
     ? conversationDateTime(firstMessage?.createdAt ?? '')
     : '';
@@ -140,11 +139,14 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
       }
       return 0;
     });
-    let currentMessages = JSON.stringify(flattenData);
+    let currentMessages = flattenData[flattenData.length - 1]?.messageId ?? '';
     if (!(currentMessages == lastMessages)) {
-      setLastMessages(JSON.stringify(currentMessages));
+      console.log('lastMessages ==>', lastMessages);
+      console.log('Current messages ==>', currentMessages);
+      setLastMessages(currentMessages);
       setAllMessages(flattenData);
       setLastMessageData(flattenData[0]);
+      scrollViewRef.current?.scrollToEnd();
     }
   }, [data]);
 
@@ -158,6 +160,26 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
       };
     }, [])
   );
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      'keyboardDidShow',
+      () => {
+        scrollViewRef.current?.scrollToEnd({ animated: false });
+      }
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      'keyboardDidHide',
+      () => {
+        scrollViewRef.current?.scrollToEnd({ animated: false });
+      }
+    );
+
+    return () => {
+      keyboardDidHideListener.remove();
+      keyboardDidShowListener.remove();
+    };
+  }, []);
 
   const formatEndPoints = (endPoint: IContact[]) =>
     endPoint
@@ -245,7 +267,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
           notConfirmedNewMessage: false,
         });
         setAllMessages(allMessagesCopy);
-        scrollViewRef.current?.scrollToEnd();
+        scrollViewRef.current?.scrollToEnd({ animated: false });
       } else {
         const allMessagesWithoutTheFailed = allMessagesCopy.filter(
           (item) => !item?.notConfirmedNewMessage
@@ -412,20 +434,20 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
   ];
 
   const renderMessageItem = ({ item }: { item: IThreadMessage }) => (
-      <View style={{ marginVertical: 8 }}>
-        {item?.failedToSend ? (
-          <FailedMessage
-            item={item}
-            createComposeRequest={createComposeRequest}
-            moveFromFailedToSuccess={moveFromFailedToSuccess}
-          />
-        ) : (
-          (item.text || (item.attachments && item.attachments.length > 0)) && (
-            <Message item={item} />
-          )
-        )}
-      </View>
-    );
+    <View style={{ marginVertical: 8 }}>
+      {item?.failedToSend ? (
+        <FailedMessage
+          item={item}
+          createComposeRequest={createComposeRequest}
+          moveFromFailedToSuccess={moveFromFailedToSuccess}
+        />
+      ) : (
+        (item.text || (item.attachments && item.attachments.length > 0)) && (
+          <Message item={item} />
+        )
+      )}
+    </View>
+  );
 
   if (!hasData || isError) {
     return (
@@ -435,6 +457,15 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
       />
     );
   }
+
+  const getChatData = () => {
+    return [...failedMessages, ...allMessages];
+  };
+
+  const getChatLength = () => {
+    const lastItemIndex = [...failedMessages, ...allMessages].length - 1;
+    return lastItemIndex;
+  };
 
   return (
     <KeyboardAvoidingView
@@ -456,79 +487,92 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
           {hasData && (
             <>
               <View style={{ minHeight: 2, minWidth: 2, flex: 1 }}>
-                  <FlashList
-                    data={[...failedMessages, ...allMessages]}
-                    renderItem={renderMessageItem}
-                    keyExtractor={(item, _) => `message-${item?.messageId}`}
-                    onEndReachedThreshold={0.75}
-                    estimatedItemSize={100}
-                    scrollIndicatorInsets={{ right: 1 }}
-                    inverted={false}
-                    onEndReached={async () => {
-                      await loadNextPageData();
-                    }}
-                    indicatorStyle='white'
-                    showsVerticalScrollIndicator={true}
-                    initialScrollIndex={allMessages.length - 1}
-                  />
-                </View>
-                <View style={{ height: 20 }} />
+                <FlashList
+                  ref={scrollViewRef}
+                  data={getChatData()}
+                  renderItem={renderMessageItem}
+                  keyExtractor={(item, _) => `message-${item?.messageId}`}
+                  onEndReachedThreshold={0.1}
+                  estimatedItemSize={100}
+                  scrollIndicatorInsets={{ right: 1 }}
+                  inverted={false}
+                  onEndReached={async () => {
+                    await loadNextPageData();
+                  }}
+                  indicatorStyle='white'
+                  showsVerticalScrollIndicator={true}
+                  scrollsToTop={false}
+                  initialScrollIndex={getChatLength()}
+                  contentContainerStyle={{ paddingHorizontal: 5 }}
+                />
+              </View>
+              <View style={{ height: 20 }} />
             </>
           )}
-        </View>
-        {attachmentsLocalURI.length > 0 && (
-          <>
-            <ScrollView
-              horizontal
-              style={{ maxHeight: 95, marginBottom: 60 }}
-              showsHorizontalScrollIndicator
-              scrollIndicatorInsets={{ bottom: 1 }}
-            >
-              <View style={{ height: 90, flexDirection: 'row' }}>
-                {attachmentsLocalURI.map((att, index) => {
-                  return (
-                    <Pressable
-                      key={`attachment-${index}`}
-                      onPress={() => {
-                        var currentToCompare = attachmentsLocalURI.slice();
-                        currentToCompare.splice(index, 1);
-                        setAttachmentsLocalURI(currentToCompare);
-                        var newAttachments = attachments.slice();
-                        newAttachments.splice(index, 1);
-                        setAttachments(newAttachments);
-                      }}
-                    >
-                      <Image
-                        key={makeid(index)}
-                        source={{ uri: att }}
-                        style={{
-                          width: 80,
-                          height: 80,
-                          margin: 5,
-                          borderRadius: 5,
+          {attachmentsLocalURI.length > 0 && (
+            <>
+              <ScrollView
+                horizontal
+                style={{ maxHeight: 95, marginBottom: 60 }}
+                showsHorizontalScrollIndicator
+                scrollIndicatorInsets={{ bottom: 1 }}
+              >
+                <View style={{ height: 90, flexDirection: 'row' }}>
+                  {attachmentsLocalURI.map((att, index) => {
+                    return (
+                      <Pressable
+                        key={`attachment-${att}`}
+                        onPress={() => {
+                          var currentToCompare = attachmentsLocalURI.slice();
+                          currentToCompare.splice(index, 1);
+                          setAttachmentsLocalURI(currentToCompare);
+                          var newAttachments = attachments.slice();
+                          newAttachments.splice(index, 1);
+                          setAttachments(newAttachments);
                         }}
-                      />
-                    </Pressable>
-                  );
-                })}
-              </View>
-            </ScrollView>
-          </>
-        )}
-        {replyToMessage !== undefined && (
-          <View style={{ height: 80 }}>
-            <Typography type='largeBoldBody' color='chat'>
-              {'Replying to: ' + replyToMessage.text.trimEnd()}
-            </Typography>
-          </View>
-        )}
+                        style={{ justifyContent: 'center' }}
+                      >
+                        <Image
+                          key={makeid(index)}
+                          source={{ uri: att }}
+                          style={{
+                            width: 80,
+                            height: 80,
+                            margin: 5,
+                            borderRadius: 5,
+                          }}
+                        />
+                        {attachments.length < attachmentsLocalURI.length && (
+                          <ActivityIndicator
+                            size='small'
+                            color={colors.white}
+                            style={{
+                              position: 'absolute',
+                              alignSelf: 'center',
+                            }}
+                          />
+                        )}
+                      </Pressable>
+                    );
+                  })}
+                </View>
+              </ScrollView>
+            </>
+          )}
+          {replyToMessage !== undefined && (
+            <View style={{ height: 80 }}>
+              <Typography type='largeBoldBody' color='chat'>
+                {'Replying to: ' + replyToMessage.text.trimEnd()}
+              </Typography>
+            </View>
+          )}
+        </View>
         <MailSender
           text={mail}
           onChangeMailContent={onChangeMailContent}
           onPressCompose={onPressCompose}
           onPressAttachments={onPressAttachments}
           tempAttachments={attachments}
-          isFocus={true}
         />
       </View>
     </KeyboardAvoidingView>
@@ -539,7 +583,6 @@ export default ThreadDetails;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 20,
     marginTop: Platform.OS === 'ios' ? 20 : 0,
   },
   titleText: {

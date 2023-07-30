@@ -57,7 +57,7 @@ const ThreadList: React.FC = () => {
       setRefetchData(true);
     }, [])
   );
-  
+
   useEffect(() => {
     if (typeof data === typeof undefined) return;
     let flattenData = !!data?.pages
@@ -98,27 +98,27 @@ const ThreadList: React.FC = () => {
     );
   };
 
-  const RenderedThreadItem = ({item} : {item: Thread | undefined}) => {
+  const RenderedThreadItem = ({ item }: { item: Thread | undefined }) => {
     if (!item) return <></>;
     return (
       <Pressable
-          style={({ pressed }) => ({
-            opacity: pressed ? 0.7 : 1,
-            marginVertical: 10,
-          })}
-          onPress={() => {
-            nav.navigate(AuthorizedScreensEnum.threadsListStack, {
-              screen: AuthorizedScreensEnum.threadDetails,
-              params: { threadInfo: item },
-            });
-          }}
-        >
-      <Swipeable
-        renderRightActions={(progress, dragX) => renderRightActions(item)}
-        rightThreshold={windowWidth / 10}
+        style={({ pressed }) => ({
+          opacity: pressed ? 0.7 : 1,
+          marginVertical: 10,
+        })}
+        onPress={() => {
+          nav.navigate(AuthorizedScreensEnum.threadsListStack, {
+            screen: AuthorizedScreensEnum.threadDetails,
+            params: { threadInfo: item },
+          });
+        }}
       >
-        <ThreadCard threadItem={item} />
-      </Swipeable>
+        <Swipeable
+          renderRightActions={(progress, dragX) => renderRightActions(item)}
+          rightThreshold={windowWidth / 10}
+        >
+          <ThreadCard threadItem={item} />
+        </Swipeable>
       </Pressable>
     );
   };
@@ -179,7 +179,9 @@ const ThreadList: React.FC = () => {
             }}
             scrollIndicatorInsets={{ right: 1 }}
             data={threadsList}
-            renderItem={({ item }: { item: Thread }) => <RenderedThreadItem item={item}/>}
+            renderItem={({ item }: { item: Thread }) => (
+              <RenderedThreadItem item={item} />
+            )}
             estimatedItemSize={100}
             onEndReached={loadNextPageData}
             onEndReachedThreshold={0.2}

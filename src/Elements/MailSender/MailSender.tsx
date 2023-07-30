@@ -112,7 +112,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 10,
     backgroundColor: 'black',
-    left: 20,
     width: '100%',
   },
   iconContainer: {
