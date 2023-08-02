@@ -19,7 +19,7 @@ const MailSender = ({
   onPressAttachments,
   tempAttachments,
   isUploading,
-  isFocus,
+  isFocus = false,
 }: {
   tempAttachments: string[];
   isLoading?: boolean;

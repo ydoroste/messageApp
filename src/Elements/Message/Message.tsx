@@ -21,13 +21,16 @@ import {
   MenuOption,
   MenuTrigger,
 } from 'react-native-popup-menu';
+import { HoldItem } from 'react-native-hold-menu';
 
 const Message = ({
-  item
+  item,
+  senderMenu,
+  receiverMenu,
 }: {
   item: IThreadMessage;
-  senderMenu?: (messageDate: string) => [];
-  receiverMenu?: [];
+  senderMenu: any;
+  receiverMenu: any;
 }) => {
   const { styles } = useStyles();
   const { text, to, from, cc, bcc, createdAt } = item;
@@ -64,7 +67,9 @@ const Message = ({
       ? messageSender?.name?.split(' ')?.[0]
       : messageSender.address;
   const messageSenderLabel =
-    messageSender?.name?.length ?? -1 > 0 ? messageSender.name : messageSender.address;
+    messageSender?.name?.length ?? -1 > 0
+      ? messageSender.name
+      : messageSender.address;
 
   const messageStyle = isOwnMessage
     ? styles.ownMessageStyle
@@ -82,36 +87,12 @@ const Message = ({
   }, [item]);
 
   return (
-    <View style={{ justifyContent: 'center' }}>
-      {/* <MaterialMenu
-        visible={visible}
-        anchor={
-          <Text style={{ color: 'white' }} onPress={showMenu}>
-            Show menu
-          </Text>
-        }
-        onRequestClose={hideMenu}
-      >
-        <MenuItem onPress={hideMenu}>Menu item 1</MenuItem>
-        <MenuItem onPress={hideMenu}>Menu item 2</MenuItem>
-        <MenuItem disabled>Disabled item</MenuItem>
-        <MenuDivider />
-        <MenuItem onPress={hideMenu}>Menu item 4</MenuItem>
-      </MaterialMenu>
-      <Menu>
-        <MenuTrigger text='Select action' />
-        <MenuOptions>
-          <MenuOption onSelect={() => alert(`Save`)} text='Save' />
-          <MenuOption onSelect={() => alert(`Delete`)}>
-            <Text style={{ color: 'red' }}>Delete</Text>
-          </MenuOption>
-          <MenuOption
-            onSelect={() => alert(`Not called`)}
-            disabled={true}
-            text='Disabled'
-          />
-        </MenuOptions>
-      </Menu> */}
+    <HoldItem
+      key={`message-${item.messageId}`}
+      items={isOwnMessage ? senderMenu(item.createdAt ?? '') : receiverMenu}
+      actionParams={actionParamsProps}
+      containerStyles={{ justifyContent: 'center' }}
+    >
       <View
         onLayout={(event) => {
           const { height } = event.nativeEvent.layout;
@@ -182,7 +163,7 @@ const Message = ({
           </Typography>
         </View>
       )}
-    </View>
+    </HoldItem>
   );
 };
 

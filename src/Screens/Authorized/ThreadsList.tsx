@@ -40,6 +40,7 @@ const ThreadList: React.FC = () => {
   const [refetchData, setRefetchData] = useState(false);
   const { data, isLoading, isError, isSuccess, hasNextPage, fetchNextPage } =
     useFetchthreadsList({ id, searchValue, refetchData });
+  const [lastThread, setLastThread] = useState<Thread | undefined>(undefined);
 
   const loadNextPageData = () => {
     if (hasNextPage) {
@@ -74,7 +75,11 @@ const ThreadList: React.FC = () => {
       }
       return 0;
     });
-    setthreadsList(flattenData);
+    let currentLastThread = flattenData[flattenData.length - 1];
+    if (!(currentLastThread == lastThread)) {
+      setLastThread(currentLastThread);
+      setthreadsList(flattenData);
+    }
   }, [data]);
 
   const onBookmarkPressed = async (item: Thread) => {

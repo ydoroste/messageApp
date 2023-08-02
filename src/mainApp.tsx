@@ -15,6 +15,8 @@ import { getAccessToken } from './Utils/accessToken';
 import { AUTH_SERVICE_URL, CORE_SERVICE_URL } from './Apis/constants';
 import { ApiEndpoints } from './Apis';
 import { UserProvider } from './Contexts/UserContext';
+import { HoldMenuProvider } from 'react-native-hold-menu';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -44,6 +46,7 @@ const getBaseURL = (request: InternalAxiosRequestConfig) => {
 const MainApp: React.FC = () => {
   const [isAppLoaded] = useInitialLoading();
   const { isAuthenticated } = useUserDetails();
+  const safeAreaInsets = useSafeAreaInsets();
   if (!isAppLoaded) {
     return null;
   }
@@ -62,26 +65,28 @@ const MainApp: React.FC = () => {
   );
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <PaperProvider>
-          <View style={{ flex: 1 }}>
-            <NavigationContainer>
-              <StatusBar style='light' />
-              {isAuthenticated ? (
-                <UserProvider>
-                  <MailBoxesProvider>
-                    <AuthorizedNavigation />
-                  </MailBoxesProvider>
-                </UserProvider>
-              ) : (
-                <UnauthorizedNavigation />
-              )}
-            </NavigationContainer>
-          </View>
-        </PaperProvider>
-      </ThemeProvider>
-    </QueryClientProvider>
+    <HoldMenuProvider theme='dark' safeAreaInsets={safeAreaInsets}>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider>
+          <PaperProvider>
+            <View style={{ flex: 1 }}>
+              <NavigationContainer>
+                <StatusBar style='light' />
+                {isAuthenticated ? (
+                  <UserProvider>
+                    <MailBoxesProvider>
+                      <AuthorizedNavigation />
+                    </MailBoxesProvider>
+                  </UserProvider>
+                ) : (
+                  <UnauthorizedNavigation />
+                )}
+              </NavigationContainer>
+            </View>
+          </PaperProvider>
+        </ThemeProvider>
+      </QueryClientProvider>
+    </HoldMenuProvider>
   );
 };
 export default MainApp;

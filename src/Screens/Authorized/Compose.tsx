@@ -446,7 +446,7 @@ export default Compose;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 20,
+    paddingHorizontal: 7,
     justifyContent: 'space-between',
     position: 'relative',
   },

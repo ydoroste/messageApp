@@ -1,21 +1,27 @@
 import { StyleSheet, View } from 'react-native';
-import React, { memo, useCallback, useEffect } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { IthreadCardProps } from '@followBack/Elements/ThreadCard/types';
 import Typography from '@followBack/GenericElements/Typography';
 import Avatar from '@followBack/Elements/Avatar';
 import { useUserDetails } from '@followBack/Hooks/useUserDetails';
 import { excludeUser } from '@followBack/Utils/messages';
-import { getThreadParticipantsUserName, getUserName } from '@followBack/Utils/stringUtils';
+import {
+  getThreadParticipantsUserName,
+  getUserName,
+} from '@followBack/Utils/stringUtils';
 import { formatMessageDate } from '@followBack/Utils/date';
 import IconButton from '@followBack/GenericElements/IconButton';
 import useTheme from '@followBack/Hooks/useTheme';
 import { IContact } from '@followBack/Apis/Contacts/types';
+import _ from 'lodash';
 
 const ThreadCard: React.FC<IthreadCardProps> = ({ threadItem }) => {
   const { userDetails } = useUserDetails();
   const { colors } = useTheme();
+  const [usernames, setUsernames] = useState<string | undefined>('');
+
   let others: IContact[] = [];
-  
+
   others = excludeUser({
     users: [
       threadItem.lastHeader.formContact,
@@ -38,27 +44,35 @@ const ThreadCard: React.FC<IthreadCardProps> = ({ threadItem }) => {
         ]
       : others;
 
-  // useCallback(() => {
-  //   const getFinalUsers = () => { 
-  //     others.forEach(async (user) => {
-  //       if(!user.name) {
-  //         user.name = await getUserName(user.address);
-  //       }
-  //     });
-  //     return others;
-  //   }
-  //   others =
-  //   others.length === 0 &&
-  //   threadItem?.lastHeader.formContact.address ===
-  //     `${userDetails.user_name}@iinboxx.com`
-  //     ? [
-  //         {
-  //           name: userDetails.user_name,
-  //           address: `${userDetails.user_name}@iinboxx.com`,
-  //         },
-  //       ]
-  //     : getFinalUsers();
-  // }, []);
+  useEffect(() => {
+    const getFinalUsers = () => {
+      others.forEach(async (user) => {
+        if (!user.name) {
+          user.name = await getUserName(user.address);
+        }
+      });
+      return others;
+    };
+    others =
+      others.length === 0 &&
+      threadItem?.lastHeader.formContact.address ===
+        `${userDetails.user_name}@iinboxx.com`
+        ? [
+            {
+              name: userDetails.user_name,
+              address: `${userDetails.user_name}@iinboxx.com`,
+            },
+          ]
+        : getFinalUsers();
+  }, [others]);
+
+  useEffect(() => {
+    const getFullData = async () => {
+      const data = await getThreadParticipantsUserName(others);
+      setUsernames(data);
+    };
+    getFullData();
+  }, [others]);
 
   const message =
     threadItem.text?.trim() && threadItem.text?.trim() !== ''
@@ -85,7 +99,7 @@ const ThreadCard: React.FC<IthreadCardProps> = ({ threadItem }) => {
             ellipsizeMode='tail'
             numberOfLines={1}
           >
-            {getThreadParticipantsUserName(others)}
+            {usernames}
           </Typography>
         </View>
 
@@ -119,18 +133,18 @@ const ThreadCard: React.FC<IthreadCardProps> = ({ threadItem }) => {
           </Typography>
         </View>
       </View>
-        <View style={{ justifyContent: 'center' }}>
-          <Typography
-            type={isMessageSeen ? 'smallRegularBody' : 'smallBoldBody'}
-            color={textColor}
-            ellipsizeMode='tail'
-            numberOfLines={1}
-            lineHeight={17}
-            textAlign='center'
-          >
-            {formatMessageDate(threadItem.createdAt)}
-          </Typography>
-        </View>
+      <View style={{ justifyContent: 'flex-start' }}>
+        <Typography
+          type={isMessageSeen ? 'smallRegularBody' : 'smallBoldBody'}
+          color={textColor}
+          ellipsizeMode='tail'
+          numberOfLines={1}
+          lineHeight={17}
+          textAlign='center'
+        >
+          {formatMessageDate(threadItem.createdAt)}
+        </Typography>
+      </View>
     </View>
   );
 };

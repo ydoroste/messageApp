@@ -8,6 +8,7 @@ import {
   Image,
   Pressable,
   Keyboard,
+  Dimensions,
 } from 'react-native';
 import useTheme from '@followBack/Hooks/useTheme';
 import { useFetchThreadMessages } from '@followBack/Hooks/Apis/ThreadMessages';
@@ -16,7 +17,10 @@ import MailSender from '@followBack/Elements/MailSender/MailSender';
 import ThreadDetailsHeader from '@followBack/Elements/Headers/Authorized/ThreadDetailsHeader/threadDetailsHeader.index';
 import { excludeUser, makeid } from '@followBack/Utils/messages';
 import { useUserDetails } from '@followBack/Hooks/useUserDetails';
-import { getThreadParticipantsUserName } from '@followBack/Utils/stringUtils';
+import {
+  getThreadParticipantsUserName,
+  getUserName,
+} from '@followBack/Utils/stringUtils';
 import {
   conversationDateTime,
   isTimelimitExceeded,
@@ -79,34 +83,22 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
   const [lastMessages, setLastMessages] = useState<string | undefined>(
     undefined
   );
+  const [usernames, setUsernames] = useState<string | undefined>('');
 
   const scrollViewRef = useRef<FlashList<IThreadMessage[]> | undefined>(null);
   const hasData = allMessages.length > 0;
   const firstMessage = allMessages[0];
-  const sender = lastMessageData?.from ?? {
-    name: userDetails.user_name,
-    address: `${userDetails.user_name}@iinboxx.com`,
-  };
-  const composeTo = params.to ?? [];
-  const composeCc = params.cc ?? [];
-  const composeBcc = params.bcc ?? [];
-  const to = lastMessageData?.to ?? composeTo;
-  const cc = lastMessageData?.cc ?? composeCc;
-  const bcc = lastHeader?.bccList ?? composeBcc;
 
-  let others = hasData
-    ? excludeUser({
-        users: [sender, ...to, ...cc, ...bcc],
-        userAddress: `${userDetails.user_name}@iinboxx.com`,
-      })
-    : [];
-  others =
-    others.length === 0 &&
-    sender.address === `${userDetails.user_name}@iinboxx.com`
-      ? [sender]
-      : others;
+  let others = excludeUser({
+    users: [
+      threadInfo.lastHeader.formContact,
+      ...threadInfo.lastHeader.toList,
+      ...(threadInfo.lastHeader.ccList ?? []),
+      ...(threadInfo.lastHeader.bccList ?? []),
+    ],
+    userAddress: `${userDetails.user_name}@iinboxx.com`,
+  });
 
-  const receiver = hasData ? getThreadParticipantsUserName(others) : '';
   const firstMessageDate = hasData
     ? conversationDateTime(firstMessage?.createdAt ?? '')
     : '';
@@ -116,6 +108,36 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
       fetchNextPage();
     }
   };
+
+  useEffect(() => {
+    const getFinalUsers = () => {
+      others.forEach(async (user) => {
+        if (!user.name) {
+          user.name = await getUserName(user.address);
+        }
+      });
+      return others;
+    };
+    others =
+      others.length === 0 &&
+      threadInfo?.lastHeader.formContact.address ===
+        `${userDetails.user_name}@iinboxx.com`
+        ? [
+            {
+              name: userDetails.user_name,
+              address: `${userDetails.user_name}@iinboxx.com`,
+            },
+          ]
+        : getFinalUsers();
+  }, [others]);
+
+  useEffect(() => {
+    const getFullData = async () => {
+      const data = await getThreadParticipantsUserName(others);
+      setUsernames(data);
+    };
+    getFullData();
+  }, [others]);
 
   // MARK: - Load thread messages from API
   useEffect(() => {
@@ -146,7 +168,6 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
       setLastMessages(currentMessages);
       setAllMessages(flattenData);
       setLastMessageData(flattenData[0]);
-      scrollViewRef.current?.scrollToEnd();
     }
   }, [data]);
 
@@ -160,6 +181,10 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
       };
     }, [])
   );
+
+  useEffect(() => {
+    scrollViewRef.current?.scrollToEnd();
+  }, [lastMessages]);
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
@@ -443,7 +468,11 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
         />
       ) : (
         (item.text || (item.attachments && item.attachments.length > 0)) && (
-          <Message item={item} />
+          <Message
+            item={item}
+            senderMenu={senderMenu}
+            receiverMenu={receiverMenu}
+          />
         )
       )}
     </View>
@@ -476,7 +505,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
       <View style={styles.container}>
         {hasData && (
           <ThreadDetailsHeader
-            receiver={receiver}
+            receiver={usernames ?? ''}
             subject={subject}
             firtMessageDate={firstMessageDate}
             navigation={navigation}
@@ -485,7 +514,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
 
         <View style={styles.chatWrapper}>
           {hasData && (
-            <>
+            <View style={{ flex: 1 }}>
               <View style={{ minHeight: 2, minWidth: 2, flex: 1 }}>
                 <FlashList
                   ref={scrollViewRef}
@@ -493,7 +522,6 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
                   renderItem={renderMessageItem}
                   keyExtractor={(item, _) => `message-${item?.messageId}`}
                   onEndReachedThreshold={0.1}
-                  estimatedItemSize={100}
                   scrollIndicatorInsets={{ right: 1 }}
                   inverted={false}
                   onEndReached={async () => {
@@ -504,10 +532,11 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
                   scrollsToTop={false}
                   initialScrollIndex={getChatLength()}
                   contentContainerStyle={{ paddingHorizontal: 5 }}
+                  estimatedItemSize={300}
                 />
               </View>
-              <View style={{ height: 20 }} />
-            </>
+              <View style={{ height: 35 }} />
+            </View>
           )}
           {attachmentsLocalURI.length > 0 && (
             <>
@@ -573,6 +602,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
           onPressCompose={onPressCompose}
           onPressAttachments={onPressAttachments}
           tempAttachments={attachments}
+          isFocus
         />
       </View>
     </KeyboardAvoidingView>

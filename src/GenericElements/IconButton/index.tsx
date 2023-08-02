@@ -1,22 +1,24 @@
 import {
   iconsType,
   IIconButtonProps,
-} from "@followBack/GenericElements/IconButton/types";
-import * as React from "react";
-import { IIconProps } from "@followBack/Theme/Icons/types/IconTypes";
-import { IconButton as CustomIconButton } from "react-native-paper";
+} from '@followBack/GenericElements/IconButton/types';
+import * as React from 'react';
+import { IIconProps } from '@followBack/Theme/Icons/types/IconTypes';
+import { IconButton as CustomIconButton } from 'react-native-paper';
 
-const Close = React.lazy(() => import("@followBack/Theme/Icons/Close"));
-const Hidden = React.lazy(() => import("@followBack/Theme/Icons/Hidden"));
-const Shown = React.lazy(() => import("@followBack/Theme/Icons/Shown"));
-const Send = React.lazy(() => import("@followBack/Theme/Icons/Send"));
-const Add = React.lazy(() => import("@followBack/Theme/Icons/Add"));
-const Delete = React.lazy(() => import("@followBack/Theme/Icons/Delete"));
-const DownArrow = React.lazy(() => import("@followBack/Theme/Icons/DownArrow"));
-const Drawer = React.lazy(() => import("@followBack/Theme/Icons/Drawer"));
-const Back = React.lazy(() => import("@followBack/Theme/Icons/Back"));
-const Pin = React.lazy(() => import("@followBack/Theme/Icons/Pin"));
-const Attachment = React.lazy(() => import("@followBack/Theme/Icons/Attachment"));
+const Close = React.lazy(() => import('@followBack/Theme/Icons/Close'));
+const Hidden = React.lazy(() => import('@followBack/Theme/Icons/Hidden'));
+const Shown = React.lazy(() => import('@followBack/Theme/Icons/Shown'));
+const Send = React.lazy(() => import('@followBack/Theme/Icons/Send'));
+const Add = React.lazy(() => import('@followBack/Theme/Icons/Add'));
+const Delete = React.lazy(() => import('@followBack/Theme/Icons/Delete'));
+const DownArrow = React.lazy(() => import('@followBack/Theme/Icons/DownArrow'));
+const Drawer = React.lazy(() => import('@followBack/Theme/Icons/Drawer'));
+const Back = React.lazy(() => import('@followBack/Theme/Icons/Back'));
+const Pin = React.lazy(() => import('@followBack/Theme/Icons/Pin'));
+const Attachment = React.lazy(
+  () => import('@followBack/Theme/Icons/Attachment')
+);
 
 const IconButton: React.FC<IIconButtonProps> = ({
   name,
@@ -24,7 +26,7 @@ const IconButton: React.FC<IIconButtonProps> = ({
   height,
   color,
   disabled,
-  onPress
+  onPress,
 }) => {
   const getIcon = (
     icon: iconsType
@@ -32,37 +34,37 @@ const IconButton: React.FC<IIconButtonProps> = ({
     let IconElement: React.FC<IIconProps>;
 
     switch (icon) {
-      case "close":
+      case 'close':
         IconElement = Close;
         break;
-      case "hidden":
+      case 'hidden':
         IconElement = Hidden;
         break;
-      case "shown":
+      case 'shown':
         IconElement = Shown;
         break;
-      case "add":
+      case 'add':
         IconElement = Add;
         break;
-      case "delete":
+      case 'delete':
         IconElement = Delete;
         break;
-      case "send":
+      case 'send':
         IconElement = Send;
         break;
-      case "downArrow":
+      case 'downArrow':
         IconElement = DownArrow;
         break;
-      case "drawer":
+      case 'drawer':
         IconElement = Drawer;
         break;
-      case "back":
+      case 'back':
         IconElement = Back;
         break;
-      case "pin":
+      case 'pin':
         IconElement = Pin;
         break;
-      case "attachment":
+      case 'attachment':
         IconElement = Attachment;
         break;
       default:
@@ -78,7 +80,7 @@ const IconButton: React.FC<IIconButtonProps> = ({
 
   return (
     <CustomIconButton
-      style={{ margin: 0 }}
+      style={{ margin: 0, padding: -10 }}
       // animated
       rippleColor={color}
       size={width}
