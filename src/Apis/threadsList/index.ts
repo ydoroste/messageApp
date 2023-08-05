@@ -2,8 +2,9 @@ import { GetApi } from '@followBack/Utils/httpApis/apis';
 import { BETA_SERVICE_URL, CORE_SERVICE_URL } from '@followBack/Apis/constants';
 import { ApiEndpoints } from '@followBack/Apis';
 import { IthreadsListAPIRequest, IthreadsListAPIResponse } from './type';
+import { sortDataSet } from '@followBack/Utils/sortedDataUponDate';
 
-export const THREADS_LIMIT = 100;
+export const THREADS_LIMIT = 5;
 
 export const getThreadListApi = async (req: IthreadsListAPIRequest) => {
   return GetApi<IthreadsListAPIResponse>(
@@ -13,6 +14,12 @@ export const getThreadListApi = async (req: IthreadsListAPIRequest) => {
       req.pageParam
     )}&pageSize=${THREADS_LIMIT}&searchText=${req.searchValue}`
   )
-    .then((res) => res.data)
+    .then((res) => {
+      return {
+        totalCount: res.data.totalCount,
+        data: sortDataSet(res.data.data),
+        page: res.data.page,
+      };
+    })
     .catch((e) => console.log(e.response.data));
 };

@@ -3,8 +3,6 @@ module.exports = function (api) {
     return {
         presets: ['babel-preset-expo', 'module:metro-react-native-babel-preset'],
         plugins: [
-            'react-native-reanimated/plugin',
-
             [
                 'module-resolver',
                 {
@@ -13,6 +11,7 @@ module.exports = function (api) {
                     },
                 },
             ],
+            'react-native-reanimated/plugin',
         ],
         env: {
             production: {

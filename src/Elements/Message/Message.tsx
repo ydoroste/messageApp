@@ -51,9 +51,6 @@ const Message = ({
   const chatUsers = [...toList, ...ccList, ...bccList, sender];
   const itemPosition = useRef<number>(0);
   const [showDate, setShowDate] = useState(false);
-  const [visible, setVisible] = useState(false);
-  const hideMenu = () => setVisible(false);
-  const showMenu = () => setVisible(true);
 
   const others = excludeUser({
     users: chatUsers,
@@ -89,7 +86,7 @@ const Message = ({
   return (
     <HoldItem
       key={`message-${item.messageId}`}
-      items={isOwnMessage ? senderMenu(item.createdAt ?? '') : receiverMenu}
+      items={isOwnMessage ? senderMenu(item) : receiverMenu}
       actionParams={actionParamsProps}
       containerStyles={{ justifyContent: 'center' }}
     >

@@ -7,6 +7,8 @@ import {
   StyleSheet,
   View,
   Dimensions,
+  TouchableWithoutFeedback,
+  TouchableOpacity,
 } from 'react-native';
 
 import useTheme from '@followBack/Hooks/useTheme';
@@ -40,7 +42,6 @@ const ThreadList: React.FC = () => {
   const [refetchData, setRefetchData] = useState(false);
   const { data, isLoading, isError, isSuccess, hasNextPage, fetchNextPage } =
     useFetchthreadsList({ id, searchValue, refetchData });
-  const [lastThread, setLastThread] = useState<Thread | undefined>(undefined);
 
   const loadNextPageData = () => {
     if (hasNextPage) {
@@ -61,25 +62,10 @@ const ThreadList: React.FC = () => {
 
   useEffect(() => {
     if (typeof data === typeof undefined) return;
-    let flattenData = !!data?.pages
+    let flattenData = data?.pages
       ? data.pages.flatMap((page) => page?.data)
       : [];
-    flattenData = flattenData.sort(function (a, b) {
-      var dateA = new Date(a?.createdAt || '');
-      var dateB = new Date(b?.createdAt || '');
-      if (dateA < dateB) {
-        return 1;
-      }
-      if (dateA > dateB) {
-        return -1;
-      }
-      return 0;
-    });
-    let currentLastThread = flattenData[flattenData.length - 1];
-    if (!(currentLastThread == lastThread)) {
-      setLastThread(currentLastThread);
-      setthreadsList(flattenData);
-    }
+    setthreadsList(flattenData);
   }, [data]);
 
   const onBookmarkPressed = async (item: Thread) => {
@@ -106,25 +92,22 @@ const ThreadList: React.FC = () => {
   const RenderedThreadItem = ({ item }: { item: Thread | undefined }) => {
     if (!item) return <></>;
     return (
-      <Pressable
-        style={({ pressed }) => ({
-          opacity: pressed ? 0.7 : 1,
-          marginVertical: 10,
-        })}
-        onPress={() => {
-          nav.navigate(AuthorizedScreensEnum.threadsListStack, {
-            screen: AuthorizedScreensEnum.threadDetails,
-            params: { threadInfo: item },
-          });
-        }}
+      <Swipeable
+        renderRightActions={(progress, dragX) => renderRightActions(item)}
+        rightThreshold={windowWidth / 10}
       >
-        <Swipeable
-          renderRightActions={(progress, dragX) => renderRightActions(item)}
-          rightThreshold={windowWidth / 10}
+        <TouchableOpacity
+          style={{ marginVertical: 5 }}
+          onPress={() => {
+            nav.navigate(AuthorizedScreensEnum.threadsListStack, {
+              screen: AuthorizedScreensEnum.threadDetails,
+              params: { threadInfo: item },
+            });
+          }}
         >
           <ThreadCard threadItem={item} />
-        </Swipeable>
-      </Pressable>
+        </TouchableOpacity>
+      </Swipeable>
     );
   };
 

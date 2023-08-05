@@ -66,14 +66,6 @@ const ThreadCard: React.FC<IthreadCardProps> = ({ threadItem }) => {
         : getFinalUsers();
   }, [others]);
 
-  useEffect(() => {
-    const getFullData = async () => {
-      const data = await getThreadParticipantsUserName(others);
-      setUsernames(data);
-    };
-    getFullData();
-  }, [others]);
-
   const message =
     threadItem.text?.trim() && threadItem.text?.trim() !== ''
       ? threadItem.text?.trim()
@@ -99,7 +91,7 @@ const ThreadCard: React.FC<IthreadCardProps> = ({ threadItem }) => {
             ellipsizeMode='tail'
             numberOfLines={1}
           >
-            {usernames}
+            {getThreadParticipantsUserName(others)}
           </Typography>
         </View>
 
@@ -122,7 +114,7 @@ const ThreadCard: React.FC<IthreadCardProps> = ({ threadItem }) => {
             />
           )}
         </View>
-        <View>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
           <Typography
             type={isMessageSeen ? 'mediumRegularBody' : 'mediumBoldBody'}
             color={textColor}
@@ -131,20 +123,19 @@ const ThreadCard: React.FC<IthreadCardProps> = ({ threadItem }) => {
           >
             {message}
           </Typography>
+          <Typography
+            type={isMessageSeen ? 'smallRegularBody' : 'smallBoldBody'}
+            color={textColor}
+            ellipsizeMode='tail'
+            numberOfLines={1}
+            lineHeight={17}
+            textAlign='center'
+          >
+            {formatMessageDate(threadItem.createdAt)}
+          </Typography>
         </View>
       </View>
-      <View style={{ justifyContent: 'flex-start' }}>
-        <Typography
-          type={isMessageSeen ? 'smallRegularBody' : 'smallBoldBody'}
-          color={textColor}
-          ellipsizeMode='tail'
-          numberOfLines={1}
-          lineHeight={17}
-          textAlign='center'
-        >
-          {formatMessageDate(threadItem.createdAt)}
-        </Typography>
-      </View>
+      <View style={{ alignSelf: 'flex-end' }}></View>
     </View>
   );
 };

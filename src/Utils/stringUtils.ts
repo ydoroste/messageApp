@@ -32,20 +32,20 @@ export const getUserName = async (userAddress: string) => {
   }
 };
 
-export const getThreadParticipantsUserName = async (users: IContact[]) => {
+export const getThreadParticipantsUserName = (users: IContact[]) => {
   let sortedUsers = sortUsers(users);
   if (!sortedUsers || sortedUsers?.length === 0) return '';
-  const contactsString = await getContacts();
-  const localContactsList = <IContact[]>JSON.parse(contactsString ?? '');
-  let firstUser = localContactsList.find(
-    (contact) => contact.address == sortedUsers[0].address
-  );
-  const firstUserName = firstUser?.name;
+  // const contactsString = await getContacts();
+  // const localContactsList = <IContact[]>JSON.parse(contactsString ?? '');
+  // let firstUser = localContactsList.find(
+  //   (contact) => contact.address == sortedUsers[0].address
+  // );
+  const firstUserName = sortedUsers[0].name ?? sortedUsers[0].address;
   if (sortedUsers.length === 1) return firstUserName;
-  let secondUser = localContactsList.find(
-    (contact) => contact.address == sortedUsers[1].address
-  );
-  const secondUserName = secondUser?.name;
+  // let secondUser = localContactsList.find(
+  //   (contact) => contact.address == sortedUsers[1].address
+  // );
+  const secondUserName = sortedUsers[1].name ?? sortedUsers[1].address;
 
   if (sortedUsers.length === 2) {
     return `${firstUserName} & ${secondUserName}`;

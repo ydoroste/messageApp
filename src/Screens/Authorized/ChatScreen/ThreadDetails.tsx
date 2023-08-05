@@ -98,6 +98,17 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
     ],
     userAddress: `${userDetails.user_name}@iinboxx.com`,
   });
+  others =
+    others.length === 0 &&
+    threadInfo?.lastHeader.formContact.address ===
+      `${userDetails.user_name}@iinboxx.com`
+      ? [
+          {
+            name: userDetails.user_name,
+            address: `${userDetails.user_name}@iinboxx.com`,
+          },
+        ]
+      : others;
 
   const firstMessageDate = hasData
     ? conversationDateTime(firstMessage?.createdAt ?? '')
@@ -109,27 +120,17 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
     }
   };
 
-  useEffect(() => {
-    const getFinalUsers = () => {
-      others.forEach(async (user) => {
-        if (!user.name) {
-          user.name = await getUserName(user.address);
-        }
-      });
-      return others;
-    };
-    others =
-      others.length === 0 &&
-      threadInfo?.lastHeader.formContact.address ===
-        `${userDetails.user_name}@iinboxx.com`
-        ? [
-            {
-              name: userDetails.user_name,
-              address: `${userDetails.user_name}@iinboxx.com`,
-            },
-          ]
-        : getFinalUsers();
-  }, [others]);
+  // useEffect(() => {
+  //   const getFinalUsers = () => {
+  //     others.forEach(async (user) => {
+  //       if (!user.name) {
+  //         user.name = await getUserName(user.address);
+  //       }
+  //     });
+  //     return others;
+  //   };
+
+  // }, [others]);
 
   useEffect(() => {
     const getFullData = async () => {
@@ -150,25 +151,9 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
       !!data?.pages && data?.pages?.[0] !== undefined
         ? data?.pages.flatMap((page) => page?.data)
         : [];
-    flattenData = flattenData.sort(function (a, b) {
-      let dateA = new Date(a?.createdAt ?? '');
-      let dateB = new Date(b?.createdAt ?? '');
-      if (dateA < dateB) {
-        return -1;
-      }
-      if (dateA > dateB) {
-        return 1;
-      }
-      return 0;
-    });
-    let currentMessages = flattenData[flattenData.length - 1]?.messageId ?? '';
-    if (!(currentMessages == lastMessages)) {
-      console.log('lastMessages ==>', lastMessages);
-      console.log('Current messages ==>', currentMessages);
-      setLastMessages(currentMessages);
-      setAllMessages(flattenData);
-      setLastMessageData(flattenData[0]);
-    }
+    setAllMessages(flattenData);
+    setLastMessageData(flattenData[0]);
+    scrollViewRef.current?.scrollToEnd({ animated: false });
   }, [data]);
 
   useFocusEffect(
@@ -181,10 +166,6 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
       };
     }, [])
   );
-
-  useEffect(() => {
-    scrollViewRef.current?.scrollToEnd();
-  }, [lastMessages]);
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
@@ -397,32 +378,24 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
     setAttachments(attachmentsToUpload);
   };
 
-  const unsendForMe = async (threadMessage: IThreadMessage) => {
-    let newMessages = allMessages
-      .slice()
-      .filter((message, i) => message?.messageId !== threadMessage.messageId);
-    setAllMessages(newMessages);
-    await deleteMessagesApi({ ids: [threadMessage.messageId ?? ''] }, false);
-  };
-
   const onPressReplyToMessage = (threadMessage: IThreadMessage) => {
     setReplyTo(threadMessage);
   };
 
-  const unsendForAll = useCallback(async (threadMessage: IThreadMessage) => {
+  const unsend = useCallback(async (threadMessage: IThreadMessage) => {
     let newMessages = allMessages
       .slice()
       .filter((message, i) => message?.messageId !== threadMessage.messageId);
     setAllMessages(newMessages);
-    await deleteMessagesApi({ ids: [threadMessage.messageId ?? ''] }, true);
+    await deleteMessagesApi({ ids: [threadMessage.messageId ?? ''] });
   }, []);
 
-  const senderMenu = (messageDate: string) =>
-    !isTimelimitExceeded(messageDate)
+  const senderMenu = (item: IThreadMessage) =>
+    !isTimelimitExceeded(item.createdAt ?? '')
       ? [
           {
-            text: 'Unsend for all',
-            onPress: unsendForAll,
+            text: 'Unsend',
+            onPress: unsend,
           },
           {
             text: 'Edit',
@@ -435,19 +408,11 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
             text: 'Reply',
             onPress: onPressReplyToMessage,
           },
-          {
-            text: 'Unsend for me',
-            onPress: unsendForMe,
-          },
         ]
       : [
           {
             text: 'Reply',
             onPress: onPressReplyToMessage,
-          },
-          {
-            text: 'Unsend for me',
-            onPress: unsendForMe,
           },
         ];
 
@@ -459,7 +424,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
   ];
 
   const renderMessageItem = ({ item }: { item: IThreadMessage }) => (
-    <View style={{ marginVertical: 8 }}>
+    <View style={{ marginVertical: 7 }}>
       {item?.failedToSend ? (
         <FailedMessage
           item={item}
@@ -487,15 +452,6 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
     );
   }
 
-  const getChatData = () => {
-    return [...failedMessages, ...allMessages];
-  };
-
-  const getChatLength = () => {
-    const lastItemIndex = [...failedMessages, ...allMessages].length - 1;
-    return lastItemIndex;
-  };
-
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -518,21 +474,19 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
               <View style={{ minHeight: 2, minWidth: 2, flex: 1 }}>
                 <FlashList
                   ref={scrollViewRef}
-                  data={getChatData()}
+                  data={[...failedMessages, ...allMessages]}
                   renderItem={renderMessageItem}
                   keyExtractor={(item, _) => `message-${item?.messageId}`}
-                  onEndReachedThreshold={0.1}
+                  onEndReachedThreshold={0.3}
                   scrollIndicatorInsets={{ right: 1 }}
-                  inverted={false}
                   onEndReached={async () => {
                     await loadNextPageData();
                   }}
                   indicatorStyle='white'
                   showsVerticalScrollIndicator={true}
-                  scrollsToTop={false}
-                  initialScrollIndex={getChatLength()}
                   contentContainerStyle={{ paddingHorizontal: 5 }}
-                  estimatedItemSize={300}
+                  estimatedItemSize={100}
+                  inverted={false}
                 />
               </View>
               <View style={{ height: 35 }} />
@@ -602,7 +556,6 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
           onPressCompose={onPressCompose}
           onPressAttachments={onPressAttachments}
           tempAttachments={attachments}
-          isFocus
         />
       </View>
     </KeyboardAvoidingView>

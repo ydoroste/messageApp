@@ -6,6 +6,7 @@ import {
   IDeleteMessageResponse,
   IThreadMessagesAPIResponse,
 } from './types';
+import { sortDataSet } from '@followBack/Utils/sortedDataUponDate';
 
 export const MESSAGES_LIMIT = 1000;
 
@@ -19,16 +20,19 @@ export const getThreadMessagesApi = async ({
   return GetApi<IThreadMessagesAPIResponse>(
     `${CORE_SERVICE_URL}${ApiEndpoints.threadMessages}?threadId=${id}&pageNumber=${pageParam}&pageSize=${MESSAGES_LIMIT}`
   )
-    .then((res) => res.data)
+    .then((res) => {
+      return {
+        totalCount: res.data.totalCount,
+        data: sortDataSet(res.data.data),
+        page: res.data.page,
+      };
+    })
     .catch((e) => console.log('error from fetchThreadMsgs', e.response.data));
 };
 
-export const deleteMessagesApi = async (
-  request: IDeleteMessageRequest,
-  isForAll: boolean
-) => {
+export const deleteMessagesApi = async (request: IDeleteMessageRequest) => {
   return DeleteApi<IDeleteMessageRequest, IDeleteMessageResponse>(
-    isForAll ? ApiEndpoints.deleteForAll : ApiEndpoints.deleteForMe,
+    ApiEndpoints.deleteForAll,
     undefined,
     {
       headers: {},
