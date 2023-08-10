@@ -42,7 +42,11 @@ export const getUsernameAPI = async ({
   let result = forAddress.replace(re, '%40');
   return GetApi<IGetUsernameReponse>(
     `${CORE_SERVICE_URL}${ApiEndpoints.contactsList}/details/${result}`
-  ).then((res) => {
-    return res.data;
-  });
+  )
+    .then((res) => {
+      return res.data;
+    })
+    .catch((e) => {
+      return { name: forAddress, address: forAddress };
+    });
 };

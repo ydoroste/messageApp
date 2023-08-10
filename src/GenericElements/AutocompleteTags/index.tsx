@@ -14,6 +14,7 @@ import useTheme from '@followBack/Hooks/useTheme';
 import useStylesWithTheme from '@followBack/Hooks/useStylesWithTheme';
 import { IAutoCompleteTags } from '@followBack/GenericElements/AutocompleteTags/types';
 import { isValidEmail } from '@followBack/Utils/validations';
+import { getUsernameAPI } from '@followBack/Apis/Contacts';
 const screenWidth = Dimensions.get('window').width;
 
 const AutoCompleteTags = React.forwardRef<TextInput, IAutoCompleteTags>(
@@ -62,19 +63,17 @@ const AutoCompleteTags = React.forwardRef<TextInput, IAutoCompleteTags>(
           selectionColor: colors.white,
           placeholderTextColor: colors.grey02,
           placeholder: tags && tags.length > 0 ? undefined : 'add',
-          onChangeText: (text) => {
+          onChangeText: async (text) => {
             const lastCharIndex = text.length - 1;
             const lastChar = text[lastCharIndex];
             if (parseChars.includes(lastChar)) {
               const mail = text.slice(0, lastCharIndex).toLocaleLowerCase();
               if (!isValidEmail(mail)) return;
-              onChangeTags([
-                ...tags,
-                {
-                  name: text.toLocaleLowerCase(),
-                  address: text.toLocaleLowerCase(),
-                },
-              ]);
+              let user = { address: mail, name: mail };
+              if (mail.includes('@iinboxx.com')) {
+                user = await getUsernameAPI({ forAddress: mail });
+              }
+              onChangeTags([...tags, user]);
               onChangeText('');
             } else {
               onChangeText(text.toLocaleLowerCase());
