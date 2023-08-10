@@ -334,6 +334,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
       mediaTypes: ImagePicker.MediaTypeOptions.All,
       allowsMultipleSelection: true,
       orderedSelection: true,
+      quality: 0,
     });
     if (result) {
       result.assets?.forEach(async (asset) => {
@@ -418,6 +419,10 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
     },
   ];
 
+  const onContentSizeChange = () => {
+    scrollViewRef.current?.scrollToEnd({ animated: true });
+  };
+
   const renderMessageItem = ({ item }: { item: IThreadMessage }) => (
     <Pressable
       style={{ marginVertical: 7 }}
@@ -432,6 +437,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
       ) : (
         (item.text || (item.attachments && item.attachments.length > 0)) && (
           <Message
+            key={item.messageId}
             item={item}
             senderMenu={senderMenu}
             receiverMenu={receiverMenu}
@@ -450,6 +456,11 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
     );
   }
 
+  const keyExtractor = (item: IThreadMessage, index: number) =>
+    `message-${item?.messageId}`;
+  const endReached = async () => {
+    await loadNextPageData();
+  };
   const renderChat = () => {
     return (
       <View style={styles.chatWrapper}>
@@ -460,20 +471,23 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
                 ref={scrollViewRef}
                 data={[...failedMessages, ...allMessages]}
                 renderItem={renderMessageItem}
-                keyExtractor={(item, _) => `message-${item?.messageId}`}
+                keyExtractor={keyExtractor}
                 onEndReachedThreshold={0.5}
                 scrollIndicatorInsets={{ right: 1 }}
-                onEndReached={async () => {
-                  await loadNextPageData();
-                }}
+                onEndReached={endReached}
                 indicatorStyle='white'
                 showsVerticalScrollIndicator={true}
                 contentContainerStyle={{ paddingHorizontal: 5 }}
-                estimatedListSize={{
-                  width: Dimensions.get('window').width - 10,
-                  height: Dimensions.get('window').height - 80,
+                estimatedItemSize={60}
+                overrideItemLayout={(_, data, index) => ({
+                  length: 150,
+                  offset: 150 * index,
+                  index,
+                })}
+                removeClippedSubviews={true}
+                onContentSizeChange={() => {
+                  scrollViewRef.current?.scrollToEnd({ animated: false });
                 }}
-                estimatedItemSize={59}
               />
             </View>
             <View style={{ height: 35 }} />
@@ -562,7 +576,6 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
           onPressCompose={onPressCompose}
           onPressAttachments={onPressAttachments}
           tempAttachments={attachments}
-          isFocus={refetchData}
         />
       </View>
     </KeyboardAvoidingView>

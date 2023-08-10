@@ -40,13 +40,13 @@ export const getThreadParticipantsUserName = async (users: IContact[]) => {
     (contact) =>
       contact.address.toLowerCase() === sortedUsers[0].address.toLowerCase()
   );
-  const firstUserName = firstUser?.name ?? sortedUsers[0].address;
+  const firstUserName = sortedUsers[0].name ?? sortedUsers[0].address;
   if (sortedUsers.length === 1) return firstUserName;
   let secondUser = localContactsList.find(
     (contact) =>
       contact.address.toLowerCase() === sortedUsers[1].address.toLowerCase()
   );
-  const secondUserName = secondUser?.name ?? sortedUsers[1].address;
+  const secondUserName = sortedUsers[1].name ?? sortedUsers[1].address;
   if (sortedUsers.length === 2) {
     return `${firstUserName} & ${secondUserName}`;
   }

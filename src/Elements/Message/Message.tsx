@@ -27,6 +27,7 @@ const Message = ({
   item,
   senderMenu,
   receiverMenu,
+  layoutChanged,
 }: {
   item: IThreadMessage;
   senderMenu: any;
@@ -83,6 +84,7 @@ const Message = ({
     };
   }, [item]);
 
+  const attachmentsLenght = item.attachments?.length ?? 0;
   return (
     <HoldItem
       key={`message-${item.messageId}`}
@@ -93,7 +95,6 @@ const Message = ({
       <View
         onLayout={(event) => {
           const { height } = event.nativeEvent.layout;
-          itemPosition.current = height / 2 - 4;
         }}
         style={{
           ...styles.container,
@@ -124,7 +125,7 @@ const Message = ({
               {item.attachments.map((attachment, index) => {
                 return (
                   <Image
-                    key={makeid(index)}
+                    key={attachment.id}
                     style={{
                       width: 80,
                       height: 80,

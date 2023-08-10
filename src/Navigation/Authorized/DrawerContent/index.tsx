@@ -69,7 +69,7 @@ const CustomDrawerContent = (props: any) => {
       />
 
       <DrawerItem
-        label='1.1.31072023'
+        label='1.0.09082023'
         onPress={() => {}}
         labelStyle={{ color: '#8c8c8c', position: 'absolute' }}
       />
