@@ -15,7 +15,7 @@ const Tag: React.FC<ITagProps> = ({ tag, onPress }) => {
   return (
     <View style={styles.container}>
       <Typography color='primary' type='mediumRegularBody'>
-        {emailNameParcer(tag.address)}
+        {tag.name}
       </Typography>
       <View style={styles.iconContainer}>
         <IconButton

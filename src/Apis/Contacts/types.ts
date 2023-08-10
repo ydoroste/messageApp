@@ -1,19 +1,15 @@
 export interface IContact {
-    address: string;
-    name?: string
+  address: string;
+  name?: string;
 }
 
 export interface IContactListApiResponse {
-    data: ContactsData;
-    page: number;
-    totalCount: number;
-}
-
-export interface ContactsData {
-    contacts: IContact[];
+  data: { contacts: IContact[] };
+  page: number;
+  totalCount: number;
 }
 
 export interface IGetUsernameReponse {
-    name: string,
-    address: string
+  name: string;
+  address: string;
 }

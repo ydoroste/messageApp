@@ -58,6 +58,7 @@ const AutoCompleteTags = React.forwardRef<TextInput, IAutoCompleteTags>(
       <CustomAutocompleteTags
         allowCustomTags
         inputProps={{
+          autoCapitalize: 'none',
           selectionColor: colors.white,
           placeholderTextColor: colors.grey02,
           placeholder: tags && tags.length > 0 ? undefined : 'add',
@@ -65,12 +66,18 @@ const AutoCompleteTags = React.forwardRef<TextInput, IAutoCompleteTags>(
             const lastCharIndex = text.length - 1;
             const lastChar = text[lastCharIndex];
             if (parseChars.includes(lastChar)) {
-              const mail = text.slice(0, lastCharIndex);
+              const mail = text.slice(0, lastCharIndex).toLocaleLowerCase();
               if (!isValidEmail(mail)) return;
-              onChangeTags([...tags, { name: text, address: text }]);
+              onChangeTags([
+                ...tags,
+                {
+                  name: text.toLocaleLowerCase(),
+                  address: text.toLocaleLowerCase(),
+                },
+              ]);
               onChangeText('');
             } else {
-              onChangeText(text);
+              onChangeText(text.toLocaleLowerCase());
             }
           },
           onKeyPress: (e: NativeSyntheticEvent<TextInputKeyPressEventData>) => {
