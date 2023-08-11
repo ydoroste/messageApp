@@ -1,25 +1,20 @@
 import { StyleSheet, View } from 'react-native';
-import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { memo } from 'react';
 import { IthreadCardProps } from '@followBack/Elements/ThreadCard/types';
 import Typography from '@followBack/GenericElements/Typography';
 import Avatar from '@followBack/Elements/Avatar';
 import { useUserDetails } from '@followBack/Hooks/useUserDetails';
 import { excludeUser } from '@followBack/Utils/messages';
-import {
-  getThreadParticipantsUserName,
-  getUserName,
-} from '@followBack/Utils/stringUtils';
+import { getThreadParticipantsUserName } from '@followBack/Utils/stringUtils';
 import { formatMessageDate } from '@followBack/Utils/date';
 import IconButton from '@followBack/GenericElements/IconButton';
 import useTheme from '@followBack/Hooks/useTheme';
 import { IContact } from '@followBack/Apis/Contacts/types';
-import _ from 'lodash';
 
 const ThreadCard: React.FC<IthreadCardProps> = ({ threadItem }) => {
   if (!threadItem) return <></>;
   const { userDetails } = useUserDetails();
   const { colors } = useTheme();
-  const [usernames, setUsernames] = useState<string | undefined>('');
 
   let others: IContact[] = [];
   others = excludeUser({
@@ -43,22 +38,6 @@ const ThreadCard: React.FC<IthreadCardProps> = ({ threadItem }) => {
         ]
       : others;
 
-  useEffect(() => {
-    let finalUsernames: IContact[] = JSON.parse(JSON.stringify(others));
-    finalUsernames.forEach(async (user, index) => {
-      if (user.name == undefined) {
-        finalUsernames[index].name = user.address;
-        const userName = await getUserName(user.address);
-        finalUsernames[index].name = userName;
-      }
-    });
-    const getFullData = async () => {
-      const data = await getThreadParticipantsUserName(finalUsernames);
-      setUsernames(data);
-    };
-    getFullData();
-  }, [threadItem, usernames, setUsernames]);
-
   const message =
     threadItem.text?.trim() && threadItem.text?.trim() !== ''
       ? threadItem.text?.trim()
@@ -73,7 +52,7 @@ const ThreadCard: React.FC<IthreadCardProps> = ({ threadItem }) => {
   return (
     <View style={styles.container}>
       <View style={{ ...styles.avatar }}>
-        <Avatar users={others} />
+        <Avatar users={others} imageURL={''} />
       </View>
 
       <View style={[styles.content, { flex: 3.5 }]}>
@@ -84,7 +63,7 @@ const ThreadCard: React.FC<IthreadCardProps> = ({ threadItem }) => {
             ellipsizeMode='tail'
             numberOfLines={1}
           >
-            {usernames}
+            {getThreadParticipantsUserName(others)}
           </Typography>
         </View>
 

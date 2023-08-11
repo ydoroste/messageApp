@@ -93,46 +93,32 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
     ? conversationDateTime(firstMessage?.createdAt ?? '')
     : '';
 
+  let others = excludeUser({
+    users: [
+      threadInfo.lastHeader.formContact,
+      ...threadInfo.lastHeader.toList,
+      ...(threadInfo.lastHeader.ccList ?? []),
+      ...(threadInfo.lastHeader.bccList ?? []),
+    ],
+    userAddress: `${userDetails.user_name}@iinboxx.com`,
+  });
+  others =
+    others.length === 0 &&
+    threadInfo?.lastHeader.formContact.address ===
+      `${userDetails.user_name}@iinboxx.com`
+      ? [
+          {
+            name: userDetails.user_name,
+            address: `${userDetails.user_name}@iinboxx.com`,
+          },
+        ]
+      : others;
+
   const loadNextPageData = async () => {
     if (hasNextPage) {
       fetchNextPage();
     }
   };
-
-  useEffect(() => {
-    let others = excludeUser({
-      users: [
-        threadInfo.lastHeader.formContact,
-        ...threadInfo.lastHeader.toList,
-        ...(threadInfo.lastHeader.ccList ?? []),
-        ...(threadInfo.lastHeader.bccList ?? []),
-      ],
-      userAddress: `${userDetails.user_name}@iinboxx.com`,
-    });
-    others =
-      others.length === 0 &&
-      threadInfo?.lastHeader.formContact.address ===
-        `${userDetails.user_name}@iinboxx.com`
-        ? [
-            {
-              name: userDetails.user_name,
-              address: `${userDetails.user_name}@iinboxx.com`,
-            },
-          ]
-        : others;
-    let finalUsernames: IContact[] = JSON.parse(JSON.stringify(others));
-    finalUsernames.forEach(async (user, index) => {
-      if (user.name == undefined) {
-        const userName = await getUserName(user.address);
-        finalUsernames[index].name = userName;
-      }
-    });
-    const getFullData = async () => {
-      const data = await getThreadParticipantsUserName(finalUsernames);
-      setUsernames(data);
-    };
-    getFullData();
-  }, []);
 
   // MARK: - Load thread messages from API
   useEffect(() => {
@@ -147,7 +133,6 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
         : [];
     setAllMessages(flattenData);
     setLastMessageData(flattenData[flattenData.length - 1]);
-    console.log('Last Message ==> ', flattenData[flattenData.length - 1]);
     scrollViewRef.current?.scrollToEnd();
   }, [data]);
 
@@ -563,7 +548,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
       <View style={styles.container}>
         {hasData && (
           <ThreadDetailsHeader
-            receiver={usernames ?? ''}
+            receiver={getThreadParticipantsUserName(others)}
             subject={subject}
             firtMessageDate={firstMessageDate}
             navigation={navigation}
