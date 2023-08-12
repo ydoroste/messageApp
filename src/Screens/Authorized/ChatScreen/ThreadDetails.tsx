@@ -126,7 +126,6 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
     if (failedMessagesData[id]) {
       setFailedMessages(failedMessagesData[id].reverse());
     }
-
     let flattenData =
       !!data?.pages && data?.pages?.[0] !== undefined
         ? data?.pages.flatMap((page) => page?.data)

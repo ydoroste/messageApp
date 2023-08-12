@@ -1,5 +1,5 @@
 import { GetApi } from '@followBack/Utils/httpApis/apis';
-import { BETA_SERVICE_URL, CORE_SERVICE_URL } from '@followBack/Apis/constants';
+import { CORE_SERVICE_URL } from '@followBack/Apis/constants';
 import { ApiEndpoints } from '@followBack/Apis';
 import { IthreadsListAPIRequest, IthreadsListAPIResponse } from './type';
 import { sortDataSet } from '@followBack/Utils/sortedDataUponDate';
@@ -8,7 +8,7 @@ export const THREADS_LIMIT = 5;
 
 export const getThreadListApi = async (req: IthreadsListAPIRequest) => {
   return GetApi<IthreadsListAPIResponse>(
-    `${BETA_SERVICE_URL}${ApiEndpoints.threadList}?mailboxId=${
+    `${CORE_SERVICE_URL}${ApiEndpoints.threadList}?mailboxId=${
       req.id
     }&pageNumber=${Number(
       req.pageParam
