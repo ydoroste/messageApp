@@ -7,6 +7,7 @@ import {
   StyleSheet,
   View,
   Dimensions,
+  ViewStyle,
 } from 'react-native';
 
 import useTheme from '@followBack/Hooks/useTheme';
@@ -29,8 +30,11 @@ import {
   getContacts,
   setContacts,
 } from '@followBack/Utils/contactDetails';
+import SkeletonContent from 'react-native-skeleton-content';
+import SkeletonLoader from 'expo-skeleton-loader';
 
 const windowWidth = Dimensions.get('window').width;
+const windowHeight = Dimensions.get('window').height;
 
 const ThreadList: React.FC = () => {
   const nav = useNavigation<authorizedStackNavigationProps['navigation']>();
@@ -127,6 +131,70 @@ const ThreadList: React.FC = () => {
       </View>
     );
   }
+
+  const AvatarLayout = ({
+    size = 100,
+    style,
+  }: {
+    size?: number;
+    style?: ViewStyle;
+  }) => (
+    <SkeletonLoader>
+      <SkeletonLoader.Container
+        style={[{ flex: 1, flexDirection: 'row' }, style]}
+      >
+        <SkeletonLoader.Item
+          style={{
+            width: size,
+            height: size,
+            borderRadius: size / 2,
+            marginRight: 20,
+          }}
+        />
+        <SkeletonLoader.Container style={{ paddingVertical: 10 }}>
+          <SkeletonLoader.Item
+            style={{ width: 220, height: 20, marginBottom: 5 }}
+          />
+          <SkeletonLoader.Item style={{ width: 150, height: 20 }} />
+        </SkeletonLoader.Container>
+      </SkeletonLoader.Container>
+    </SkeletonLoader>
+  );
+
+  const PostLayout = () => (
+    <SkeletonLoader style={{ marginVertical: 10 }}>
+      <AvatarLayout style={{ marginBottom: 10 }} />
+
+      <SkeletonLoader.Item
+        style={{
+          width: windowWidth,
+          height: windowHeight / 3.5,
+          marginVertical: 10,
+        }}
+      />
+    </SkeletonLoader>
+  );
+
+  const renderThreadItem = ({ item }: { item: Thread }) => {
+    return (
+      <Swipeable
+        renderRightActions={(progress, dragX) => renderRightActions(item)}
+        rightThreshold={windowWidth / 10}
+      >
+        <Pressable
+          style={{ marginVertical: 5 }}
+          onPress={() => {
+            nav.navigate(AuthorizedScreensEnum.threadsListStack, {
+              screen: AuthorizedScreensEnum.threadDetails,
+              params: { threadInfo: item },
+            });
+          }}
+        >
+          <ThreadCard threadItem={item} />
+        </Pressable>
+      </Swipeable>
+    );
+  };
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -161,26 +229,7 @@ const ThreadList: React.FC = () => {
             }}
             scrollIndicatorInsets={{ right: 1 }}
             data={threadsList}
-            renderItem={({ item }: { item: Thread }) => (
-              <Swipeable
-                renderRightActions={(progress, dragX) =>
-                  renderRightActions(item)
-                }
-                rightThreshold={windowWidth / 10}
-              >
-                <Pressable
-                  style={{ marginVertical: 5 }}
-                  onPress={() => {
-                    nav.navigate(AuthorizedScreensEnum.threadsListStack, {
-                      screen: AuthorizedScreensEnum.threadDetails,
-                      params: { threadInfo: item },
-                    });
-                  }}
-                >
-                  <ThreadCard threadItem={item} />
-                </Pressable>
-              </Swipeable>
-            )}
+            renderItem={renderThreadItem}
             estimatedItemSize={100}
             onEndReached={loadNextPageData}
             onEndReachedThreshold={0.2}
