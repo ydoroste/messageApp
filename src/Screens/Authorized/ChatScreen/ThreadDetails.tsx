@@ -8,7 +8,6 @@ import {
   Image,
   Pressable,
   Keyboard,
-  Dimensions,
 } from 'react-native';
 import useTheme from '@followBack/Hooks/useTheme';
 import { useFetchThreadMessages } from '@followBack/Hooks/Apis/ThreadMessages';
@@ -17,10 +16,7 @@ import MailSender from '@followBack/Elements/MailSender/MailSender';
 import ThreadDetailsHeader from '@followBack/Elements/Headers/Authorized/ThreadDetailsHeader/threadDetailsHeader.index';
 import { excludeUser, makeid } from '@followBack/Utils/messages';
 import { useUserDetails } from '@followBack/Hooks/useUserDetails';
-import {
-  getThreadParticipantsUserName,
-  getUserName,
-} from '@followBack/Utils/stringUtils';
+import { getThreadParticipantsUserName } from '@followBack/Utils/stringUtils';
 import {
   conversationDateTime,
   isTimelimitExceeded,
@@ -48,6 +44,7 @@ import { deleteMessagesApi } from '@followBack/Apis/ThreadMessages';
 import { Buffer } from 'buffer';
 import * as FileSystem from 'expo-file-system';
 import { ActivityIndicator } from 'react-native-paper';
+import { MAIL_DOMAIN } from '@followBack/Apis/constants';
 
 const ThreadDetails: React.FC = ({ navigation, route }) => {
   const { threadInfo } = route.params;
@@ -100,16 +97,16 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
       ...(threadInfo.lastHeader.ccList ?? []),
       ...(threadInfo.lastHeader.bccList ?? []),
     ],
-    userAddress: `${userDetails.user_name}@iinboxx.com`,
+    userAddress: `${userDetails.user_name}@${MAIL_DOMAIN}`,
   });
   others =
     others.length === 0 &&
     threadInfo?.lastHeader.formContact.address ===
-      `${userDetails.user_name}@iinboxx.com`
+      `${userDetails.user_name}@${MAIL_DOMAIN}`
       ? [
           {
             name: userDetails.user_name,
-            address: `${userDetails.user_name}@iinboxx.com`,
+            address: `${userDetails.user_name}@${MAIL_DOMAIN}`,
           },
         ]
       : others;
@@ -170,7 +167,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
     endPoint
       ?.map((obj) => ({ address: obj?.address?.trim() }))
       .filter(
-        ({ address }) => address !== `${userDetails.user_name}@iinboxx.com`
+        ({ address }) => address !== `${userDetails.user_name}@${MAIL_DOMAIN}`
       );
 
   const createComposeRequest = (messageText: string): IComposeApiRequest => {
@@ -183,7 +180,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
         toEndPoints?.push({ address: contact.address });
       });
     }
-    if (lastFromEndPoint !== `${userDetails.user_name}@iinboxx.com`) {
+    if (lastFromEndPoint !== `${userDetails.user_name}@${MAIL_DOMAIN}`) {
       toEndPoints?.push({ address: lastFromEndPoint });
     }
     let composeRequest: IComposeApiRequest = {
@@ -193,7 +190,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
       toList: toEndPoints,
       ccList: formatEndPoints(lastMessageData?.cc ?? []),
       bccList: formatEndPoints(lastHeader?.bccList ?? []),
-      from: `${userDetails?.user_name}@iinboxx.com`,
+      from: `${userDetails?.user_name}@${MAIL_DOMAIN}`,
       attachments: attachments,
     };
     if (messageToEdit) {

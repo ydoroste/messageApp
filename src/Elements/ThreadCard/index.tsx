@@ -10,6 +10,7 @@ import { formatMessageDate } from '@followBack/Utils/date';
 import IconButton from '@followBack/GenericElements/IconButton';
 import useTheme from '@followBack/Hooks/useTheme';
 import { IContact } from '@followBack/Apis/Contacts/types';
+import { MAIL_DOMAIN } from '@followBack/Apis/constants';
 
 const ThreadCard: React.FC<IthreadCardProps> = ({ threadItem }) => {
   if (!threadItem) return <></>;
@@ -24,16 +25,16 @@ const ThreadCard: React.FC<IthreadCardProps> = ({ threadItem }) => {
       ...(threadItem.lastHeader.ccList ?? []),
       ...(threadItem.lastHeader.bccList ?? []),
     ],
-    userAddress: `${userDetails.user_name}@iinboxx.com`,
+    userAddress: `${userDetails.user_name}@${MAIL_DOMAIN}`,
   });
   others =
     others.length === 0 &&
     threadItem?.lastHeader.formContact.address ===
-      `${userDetails.user_name}@iinboxx.com`
+      `${userDetails.user_name}@${MAIL_DOMAIN}`
       ? [
           {
             name: userDetails.user_name,
-            address: `${userDetails.user_name}@iinboxx.com`,
+            address: `${userDetails.user_name}@${MAIL_DOMAIN}`,
           },
         ]
       : others;

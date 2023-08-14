@@ -15,6 +15,7 @@ import useStylesWithTheme from '@followBack/Hooks/useStylesWithTheme';
 import { IAutoCompleteTags } from '@followBack/GenericElements/AutocompleteTags/types';
 import { isValidEmail } from '@followBack/Utils/validations';
 import { getUsernameAPI } from '@followBack/Apis/Contacts';
+import { MAIL_DOMAIN } from '@followBack/Apis/constants';
 const screenWidth = Dimensions.get('window').width;
 
 const AutoCompleteTags = React.forwardRef<TextInput, IAutoCompleteTags>(
@@ -70,7 +71,7 @@ const AutoCompleteTags = React.forwardRef<TextInput, IAutoCompleteTags>(
               const mail = text.slice(0, lastCharIndex).toLocaleLowerCase();
               if (!isValidEmail(mail)) return;
               let user = { address: mail, name: mail };
-              if (mail.includes('@iinboxx.com')) {
+              if (mail.includes(`@${MAIL_DOMAIN}`)) {
                 user = await getUsernameAPI({ forAddress: mail });
               }
               onChangeTags([...tags, user]);

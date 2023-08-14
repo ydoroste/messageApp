@@ -28,7 +28,7 @@ export const useFetchthreadsList = ({
       },
       keepPreviousData: true,
       enabled: refetchData,
-      refetchInterval: 750,
+      refetchInterval: 350,
       refetchOnWindowFocus: true,
       refetchOnReconnect: true,
       refetchOnMount: true,

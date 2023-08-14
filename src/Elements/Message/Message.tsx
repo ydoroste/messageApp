@@ -1,27 +1,17 @@
 import Typography from '@followBack/GenericElements/Typography';
 import React, { useMemo, useRef, useState } from 'react';
-import { View, Pressable, Image, Text } from 'react-native';
+import { View, Pressable, Image } from 'react-native';
 import { formatMessageDate } from '@followBack/Utils/date';
 import useStylesWithTheme from '@followBack/Hooks/useStylesWithTheme';
 import { useUserDetails } from '@followBack/Hooks/useUserDetails';
-import { excludeUser, makeid } from '@followBack/Utils/messages';
+import { excludeUser } from '@followBack/Utils/messages';
 import { emailNameParcer } from '@followBack/Utils/email';
 import useTheme from '@followBack/Hooks/useTheme';
 import { UIActivityIndicator } from 'react-native-indicators';
 import { IThreadMessage } from '@followBack/Apis/ThreadMessages/types';
 import { ScrollView } from 'react-native-gesture-handler';
-import {
-  Menu as MaterialMenu,
-  MenuItem,
-  MenuDivider,
-} from 'react-native-material-menu';
-import {
-  Menu,
-  MenuOptions,
-  MenuOption,
-  MenuTrigger,
-} from 'react-native-popup-menu';
 import { HoldItem } from 'react-native-hold-menu';
+import { MAIL_DOMAIN } from '@followBack/Apis/constants';
 
 const Message = ({
   item,
@@ -55,7 +45,7 @@ const Message = ({
 
   const others = excludeUser({
     users: chatUsers,
-    userAddress: `${userDetails.user_name}@iinboxx.com`,
+    userAddress: `${userDetails.user_name}@${MAIL_DOMAIN}`,
   });
 
   const isGroupChat = others.length > 1;
