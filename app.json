@@ -1,0 +1,54 @@
+{
+  "expo": {
+    "name": "MailApp",
+    "slug": "mailapp",
+    "owner": "shared_developer",
+    "privacy": "hidden",
+    "version": "1.0.17072023",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#000000"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0,
+      "url": "https://u.expo.dev/2195ca69-0c1f-4508-a5dc-ca5392fe90b1"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.abdulazizmassoud.MobileApp",
+      "buildNumber": "1.0.15072023",
+      "usesIcloudStorage": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#000000"
+      },
+      "package": "mail.app.v1",
+      "permissions": ["android.permission.RECORD_AUDIO"]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "2195ca69-0c1f-4508-a5dc-ca5392fe90b1"
+      }
+    },
+    "runtimeVersion": "exposdk:47.0.0",
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "The app accesses your photos to let you share them with your friends."
+        }
+      ],
+      "expo-localization"
+    ]
+  }
+}

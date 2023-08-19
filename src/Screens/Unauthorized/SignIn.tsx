@@ -1,0 +1,30 @@
+import {
+    StyleSheet,
+    KeyboardAvoidingView,
+    Pressable,
+    Platform, Keyboard} from "react-native";
+import React from "react";
+
+import SignInForm from "@followBack/Elements/signInForm";
+
+const SignIn: React.FC = ()=> {
+    return (
+        <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined}  keyboardVerticalOffset={100}
+                              style={{flex: 1}}>
+            <Pressable  style={styles.container} onPress={Keyboard.dismiss}>
+                <SignInForm/>
+            </Pressable>
+        </KeyboardAvoidingView>
+
+    );
+}
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        width: "100%",
+        paddingHorizontal: 50
+    }
+});
+export default SignIn;
