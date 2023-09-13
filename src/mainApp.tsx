@@ -1,22 +1,21 @@
-import * as React from 'react';
-import { QueryClient, QueryClientProvider } from 'react-query';
-import { ThemeProvider } from '@followBack/Contexts/ThemeContext';
-import { Provider as PaperProvider } from 'react-native-paper';
-import { View } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
-import { StatusBar } from 'expo-status-bar';
-import UnauthorizedNavigation from '@followBack/Navigation/Unauthorized';
-import AuthorizedNavigation from '@followBack/Navigation/Authorized';
-import useInitialLoading from '@followBack/Hooks/useInitialLoading';
-import { useUserDetails } from '@followBack/Hooks/useUserDetails';
-import { MailBoxesProvider } from './Contexts/MailboxesContext';
-import axios, { InternalAxiosRequestConfig } from 'axios';
-import { getAccessToken } from './Utils/accessToken';
-import { AUTH_SERVICE_URL, CORE_SERVICE_URL } from './Apis/constants';
-import { ApiEndpoints } from './Apis';
-import { UserProvider } from './Contexts/UserContext';
-import { HoldMenuProvider } from 'react-native-hold-menu';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import * as React from "react";
+import { QueryClient, QueryClientProvider } from "react-query";
+import { ThemeProvider } from "@followBack/Contexts/ThemeContext";
+import { Provider as PaperProvider } from "react-native-paper";
+import { View } from "react-native";
+import { NavigationContainer } from "@react-navigation/native";
+import { StatusBar } from "expo-status-bar";
+import UnauthorizedNavigation from "@followBack/Navigation/Unauthorized";
+import AuthorizedNavigation from "@followBack/Navigation/Authorized";
+import useInitialLoading from "@followBack/Hooks/useInitialLoading";
+import { useUserDetails } from "@followBack/Hooks/useUserDetails";
+import { MailBoxesProvider } from "./Contexts/MailboxesContext";
+import axios, { InternalAxiosRequestConfig } from "axios";
+import { getAccessToken } from "./Utils/accessToken";
+import { AUTH_SERVICE_URL, CORE_SERVICE_URL } from "./Apis/constants";
+import { ApiEndpoints } from "./Apis";
+import { UserProvider } from "./Contexts/UserContext";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -56,7 +55,7 @@ const MainApp: React.FC = () => {
       request.baseURL = getBaseURL(request);
       if (!isAuthenticated) return request;
       const token = await getAccessToken();
-      request.headers['Authorization'] = `Bearer ${token}`;
+      request.headers["Authorization"] = `Bearer ${token}`;
       return request;
     },
     (error) => {
@@ -65,28 +64,26 @@ const MainApp: React.FC = () => {
   );
 
   return (
-    <HoldMenuProvider theme='dark' safeAreaInsets={safeAreaInsets}>
-      <QueryClientProvider client={queryClient}>
-        <ThemeProvider>
-          <PaperProvider>
-            <View style={{ flex: 1 }}>
-              <NavigationContainer>
-                <StatusBar style='light' />
-                {isAuthenticated ? (
-                  <UserProvider>
-                    <MailBoxesProvider>
-                      <AuthorizedNavigation />
-                    </MailBoxesProvider>
-                  </UserProvider>
-                ) : (
-                  <UnauthorizedNavigation />
-                )}
-              </NavigationContainer>
-            </View>
-          </PaperProvider>
-        </ThemeProvider>
-      </QueryClientProvider>
-    </HoldMenuProvider>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider>
+        <PaperProvider>
+          <View style={{ flex: 1 }}>
+            <NavigationContainer>
+              <StatusBar style="light" />
+              {isAuthenticated ? (
+                <UserProvider>
+                  <MailBoxesProvider>
+                    <AuthorizedNavigation />
+                  </MailBoxesProvider>
+                </UserProvider>
+              ) : (
+                <UnauthorizedNavigation />
+              )}
+            </NavigationContainer>
+          </View>
+        </PaperProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 };
 export default MainApp;

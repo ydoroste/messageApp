@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   View,
   KeyboardAvoidingView,
@@ -8,43 +8,43 @@ import {
   Image,
   Pressable,
   Keyboard,
-} from 'react-native';
-import useTheme from '@followBack/Hooks/useTheme';
-import { useFetchThreadMessages } from '@followBack/Hooks/Apis/ThreadMessages';
-import Message from '@followBack/Elements/Message/Message';
-import MailSender from '@followBack/Elements/MailSender/MailSender';
-import ThreadDetailsHeader from '@followBack/Elements/Headers/Authorized/ThreadDetailsHeader/threadDetailsHeader.index';
-import { excludeUser, makeid } from '@followBack/Utils/messages';
-import { useUserDetails } from '@followBack/Hooks/useUserDetails';
-import { getThreadParticipantsUserName } from '@followBack/Utils/stringUtils';
+} from "react-native";
+import useTheme from "@followBack/Hooks/useTheme";
+import { useFetchThreadMessages } from "@followBack/Hooks/Apis/ThreadMessages";
+import Message from "@followBack/Elements/Message/Message";
+import MailSender from "@followBack/Elements/MailSender/MailSender";
+import ThreadDetailsHeader from "@followBack/Elements/Headers/Authorized/ThreadDetailsHeader/threadDetailsHeader.index";
+import { excludeUser, makeid } from "@followBack/Utils/messages";
+import { useUserDetails } from "@followBack/Hooks/useUserDetails";
+import { getThreadParticipantsUserName } from "@followBack/Utils/stringUtils";
 import {
   conversationDateTime,
   isTimelimitExceeded,
-} from '@followBack/Utils/date';
-import { useFocusEffect } from '@react-navigation/native';
-import { IComposeApiRequest } from '@followBack/Apis/Compose/types';
-import LoadingScreen from '@followBack/Elements/LoadingScreen/LoadingScreen.index';
-import { FlashList } from '@shopify/flash-list';
-import { useFailedMessages } from '@followBack/Hooks/useFailedMessages';
-import FailedMessage from '@followBack/Elements/FailedMessage/FailedMessage.index';
-import { composeApi, editMessageApi } from '@followBack/Apis/Compose';
-import { IThreadMessage } from '@followBack/Apis/ThreadMessages/types';
-import { IContact } from '@followBack/Apis/Contacts/types';
-import * as ImagePicker from 'expo-image-picker';
+} from "@followBack/Utils/date";
+import { useFocusEffect } from "@react-navigation/native";
+import { IComposeApiRequest } from "@followBack/Apis/Compose/types";
+import LoadingScreen from "@followBack/Elements/LoadingScreen/LoadingScreen.index";
+import { FlashList } from "@shopify/flash-list";
+import { useFailedMessages } from "@followBack/Hooks/useFailedMessages";
+import FailedMessage from "@followBack/Elements/FailedMessage/FailedMessage.index";
+import { composeApi, editMessageApi } from "@followBack/Apis/Compose";
+import { IThreadMessage } from "@followBack/Apis/ThreadMessages/types";
+import { IContact } from "@followBack/Apis/Contacts/types";
+import * as ImagePicker from "expo-image-picker";
 import {
   createAttachment,
   getUploadLinkApi,
-} from '@followBack/Apis/GetAttachmentUploadLink';
-import { ScrollView } from 'react-native-gesture-handler';
-import * as mime from 'mime';
-import { ICreateAttachmentRequest } from '@followBack/Apis/GetAttachmentUploadLink/types';
-import Typography from '@followBack/GenericElements/Typography';
-import { Thread } from '@followBack/Apis/threadsList/type';
-import { deleteMessagesApi } from '@followBack/Apis/ThreadMessages';
-import { Buffer } from 'buffer';
-import * as FileSystem from 'expo-file-system';
-import { ActivityIndicator } from 'react-native-paper';
-import { MAIL_DOMAIN } from '@followBack/Apis/constants';
+} from "@followBack/Apis/GetAttachmentUploadLink";
+import { ScrollView } from "react-native-gesture-handler";
+import * as mime from "mime";
+import { ICreateAttachmentRequest } from "@followBack/Apis/GetAttachmentUploadLink/types";
+import Typography from "@followBack/GenericElements/Typography";
+import { Thread } from "@followBack/Apis/threadsList/type";
+import { deleteMessagesApi } from "@followBack/Apis/ThreadMessages";
+import { Buffer } from "buffer";
+import * as FileSystem from "expo-file-system";
+import { ActivityIndicator } from "react-native-paper";
+import { MAIL_DOMAIN } from "@followBack/Apis/constants";
 
 const ThreadDetails: React.FC = ({ navigation, route }) => {
   const { threadInfo } = route.params;
@@ -57,7 +57,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
     (IThreadMessage | undefined)[]
   >([]);
   const { colors } = useTheme();
-  const [mail, setMail] = useState('');
+  const [mail, setMail] = useState("");
   const { userDetails } = useUserDetails();
   const { failedMessagesData, setFailedMessagesData } = useFailedMessages();
   const onChangeMailContent = ({ value }: { value: string }) => setMail(value);
@@ -80,15 +80,15 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
   const [lastMessages, setLastMessages] = useState<string | undefined>(
     undefined
   );
-  const [usernames, setUsernames] = useState<string | undefined>('');
+  const [usernames, setUsernames] = useState<string | undefined>("");
 
   const scrollViewRef = useRef<FlashList<IThreadMessage[]> | undefined>(null);
   const hasData = allMessages.length > 0;
   const firstMessage = allMessages[0];
 
   const firstMessageDate = hasData
-    ? conversationDateTime(firstMessage?.createdAt ?? '')
-    : '';
+    ? conversationDateTime(firstMessage?.createdAt ?? "")
+    : "";
 
   let others = excludeUser({
     users: [
@@ -145,13 +145,13 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
-      'keyboardDidShow',
+      "keyboardDidShow",
       () => {
         scrollViewRef.current?.scrollToEnd({ animated: false });
       }
     );
     const keyboardDidHideListener = Keyboard.addListener(
-      'keyboardDidHide',
+      "keyboardDidHide",
       () => {
         scrollViewRef.current?.scrollToEnd({ animated: false });
       }
@@ -171,7 +171,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
       );
 
   const createComposeRequest = (messageText: string): IComposeApiRequest => {
-    const lastFromEndPoint = lastMessageData?.from?.address ?? '';
+    const lastFromEndPoint = lastMessageData?.from?.address ?? "";
     const toEndPoints = formatEndPoints(lastMessageData?.to ?? [])?.filter(
       ({ address }) => address !== lastFromEndPoint
     );
@@ -216,7 +216,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
       message.text = mail;
       allMessagesCopy.splice(index, 0, message);
       await setAllMessages(allMessagesCopy);
-      setMail('');
+      setMail("");
       setIsEditingMessage(undefined);
       await editMessageApi(createComposeRequest(mail?.trim()));
       return;
@@ -229,7 +229,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
       ) {
         return;
       }
-      setMail('');
+      setMail("");
       setReplyTo(undefined);
       const allMessagesCopy = [...allMessages];
       const newMessage = {
@@ -324,30 +324,30 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
       await setAttachmentsLocalURI(attachmentsToShow);
       await result.assets?.forEach(async (asset) => {
         if (asset.fileSize && asset.fileSize > 25 * 1024 * 1024) {
-          Alert.alert('Error', 'Attachment size is bigger than 25 MB!!!');
+          Alert.alert("Error", "Attachment size is bigger than 25 MB!!!");
         } else {
-          let link = await getUploadLinkApi({ filename: asset.fileName ?? '' });
-          const mimeType = mime.getType(asset.fileName ?? ''); // => 'application/pdf'
+          let link = await getUploadLinkApi({ filename: asset.fileName ?? "" });
+          const mimeType = mime.getType(asset.fileName ?? ""); // => 'application/pdf'
           const base64 = await FileSystem.readAsStringAsync(asset.uri, {
             encoding: FileSystem.EncodingType.Base64,
           });
-          const buffer = Buffer.from(base64 ?? '', 'base64');
+          const buffer = Buffer.from(base64 ?? "", "base64");
           let res = await fetch(link.link, {
-            method: 'PUT',
+            method: "PUT",
             body: buffer,
             headers: {
-              'Content-Type': `${mimeType}`,
+              "Content-Type": `${mimeType}`,
             },
           });
           if (res.status == 200) {
             let createAttachmentReq: ICreateAttachmentRequest = {
               url: link.link,
-              title: asset.fileName ?? '',
-              type: mimeType ?? '',
+              title: asset.fileName ?? "",
+              type: mimeType ?? "",
               size: asset.fileSize ?? 0,
             };
             let createRes = await createAttachment(createAttachmentReq);
-            attachmentsToUpload.push(createRes.id ?? '');
+            attachmentsToUpload.push(createRes.id ?? "");
           }
         }
       });
@@ -364,38 +364,38 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
       .slice()
       .filter((message, i) => message?.messageId !== threadMessage.messageId);
     setAllMessages(newMessages);
-    await deleteMessagesApi({ ids: [threadMessage.messageId ?? ''] });
+    await deleteMessagesApi({ ids: [threadMessage.messageId ?? ""] });
   }, []);
 
   const senderMenu = (item: IThreadMessage) =>
-    !isTimelimitExceeded(item.createdAt ?? '')
+    !isTimelimitExceeded(item.createdAt ?? "")
       ? [
           {
-            text: 'Unsend',
+            text: "Unsend",
             onPress: unsend,
           },
           {
-            text: 'Edit',
+            text: "Edit",
             onPress: async (threadMessage: IThreadMessage) => {
               setIsEditingMessage(threadMessage);
               setMail(threadMessage.text);
             },
           },
           {
-            text: 'Reply',
+            text: "Reply",
             onPress: onPressReplyToMessage,
           },
         ]
       : [
           {
-            text: 'Reply',
+            text: "Reply",
             onPress: onPressReplyToMessage,
           },
         ];
 
   const receiverMenu = [
     {
-      text: 'Reply',
+      text: "Reply",
       onPress: onPressReplyToMessage,
     },
   ];
@@ -431,7 +431,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
   if (!hasData || isError) {
     return (
       <LoadingScreen
-        loadingText={isError ? 'Something Wrong' : 'Loading'}
+        loadingText={isError ? "Something Wrong" : "Loading"}
         loadingIndecatorSize={20}
       />
     );
@@ -456,7 +456,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
                 onEndReachedThreshold={0.5}
                 scrollIndicatorInsets={{ right: 1 }}
                 onEndReached={endReached}
-                indicatorStyle='white'
+                indicatorStyle="white"
                 showsVerticalScrollIndicator={true}
                 contentContainerStyle={{ paddingHorizontal: 5 }}
                 estimatedItemSize={60}
@@ -482,7 +482,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
               showsHorizontalScrollIndicator
               scrollIndicatorInsets={{ bottom: 1 }}
             >
-              <View style={{ height: 90, flexDirection: 'row' }}>
+              <View style={{ height: 90, flexDirection: "row" }}>
                 {attachmentsLocalURI.map((att, index) => {
                   return (
                     <Pressable
@@ -495,7 +495,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
                         newAttachments.splice(index, 1);
                         setAttachments(newAttachments);
                       }}
-                      style={{ justifyContent: 'center' }}
+                      style={{ justifyContent: "center" }}
                     >
                       <Image
                         key={makeid(index)}
@@ -509,11 +509,11 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
                       />
                       {attachments.length < attachmentsLocalURI.length && (
                         <ActivityIndicator
-                          size='small'
+                          size="small"
                           color={colors.white}
                           style={{
-                            position: 'absolute',
-                            alignSelf: 'center',
+                            position: "absolute",
+                            alignSelf: "center",
                           }}
                         />
                       )}
@@ -526,8 +526,8 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
         )}
         {replyToMessage !== undefined && (
           <View style={{ height: 80 }}>
-            <Typography type='largeBoldBody' color='chat'>
-              {'Replying to: ' + replyToMessage.text.trimEnd()}
+            <Typography type="largeBoldBody" color="chat">
+              {"Replying to: " + replyToMessage.text.trimEnd()}
             </Typography>
           </View>
         )}
@@ -537,8 +537,8 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 35 : 100}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 35 : 100}
       style={{ flex: 1, backgroundColor: colors.black }}
     >
       <View style={styles.container}>
@@ -567,7 +567,7 @@ export default ThreadDetails;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: Platform.OS === 'ios' ? 20 : 0,
+    marginTop: Platform.OS === "ios" ? 20 : 0,
   },
   titleText: {
     height: 25,
@@ -577,10 +577,10 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   emptyOrErrorMessageContainer: {
-    alignItems: 'center',
+    alignItems: "center",
     flex: 1,
-    height: '100%',
-    backgroundColor: 'black',
+    height: "100%",
+    backgroundColor: "black",
     paddingTop: 50,
   },
 });
