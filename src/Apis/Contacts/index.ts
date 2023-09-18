@@ -1,11 +1,11 @@
-import { GetApi } from '@followBack/Utils/httpApis/apis';
-import { CORE_SERVICE_URL } from '@followBack/Apis/constants';
-import { ApiEndpoints } from '@followBack/Apis';
+import { GetApi } from "@followBack/Utils/httpApis/apis";
+import { CORE_SERVICE_URL } from "@followBack/Apis/constants";
+import { ApiEndpoints } from "@followBack/Apis";
 import {
   IContact,
   IContactListApiResponse,
   IGetUsernameReponse,
-} from './types';
+} from "./types";
 
 export const getContactsListApi = async ({
   searchValue,
@@ -15,10 +15,9 @@ export const getContactsListApi = async ({
   return GetApi<IContactListApiResponse>(
     `${CORE_SERVICE_URL}${ApiEndpoints.contactsList}?search=${searchValue}`
   ).then(async (res) => {
-    console.log(searchValue);
     if (
       res.data.data.contacts.length < 1 &&
-      searchValue.toLocaleLowerCase().includes('@iinboxx')
+      searchValue.toLocaleLowerCase().includes("@iinboxx")
     ) {
       const { name, address } = await getUsernameAPI({
         forAddress: searchValue,
@@ -39,7 +38,7 @@ export const getUsernameAPI = async ({
   forAddress: string;
 }) => {
   let re = /\@/gi;
-  let result = forAddress.replace(re, '%40');
+  let result = forAddress.replace(re, "%40");
   return GetApi<IGetUsernameReponse>(
     `${CORE_SERVICE_URL}${ApiEndpoints.contactsList}/details/${result}`
   )

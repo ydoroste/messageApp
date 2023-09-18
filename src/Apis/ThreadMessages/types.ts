@@ -1,5 +1,5 @@
-import { IContact } from '@followBack/Apis/Contacts/types';
-import { ICreateAttachmentApiResponse } from '@followBack/Apis/GetAttachmentUploadLink/types';
+import { IContact } from "@followBack/Apis/Contacts/types";
+import { ICreateAttachmentApiResponse } from "@followBack/Apis/GetAttachmentUploadLink/types";
 
 export interface IThreadMessagesAPIResponse {
   data: IThreadMessage[];
@@ -7,6 +7,13 @@ export interface IThreadMessagesAPIResponse {
   totalCount: number;
 }
 
+export interface Reaction {
+  byUserId: string;
+  createdAt: string;
+  headerId: string;
+  id: string;
+  reaction: string;
+}
 export interface IThreadMessage {
   headerId?: string;
   messageId?: string;
@@ -17,7 +24,7 @@ export interface IThreadMessage {
   text: string;
   outbound?: boolean;
   attachments?: ICreateAttachmentApiResponse[];
-  reactions?: [];
+  reactions?: Reaction[];
   replyTo?: [];
   edited?: boolean;
   forwarded?: boolean;
@@ -27,6 +34,9 @@ export interface IThreadMessage {
   // Moved to failed message list, not received from API, it's local one
   notConfirmedNewMessage?: boolean;
   failedToSend: boolean;
+  updatedAt?: string;
+  isDeleted?: boolean;
+  index?: number;
 }
 
 export interface IDeleteMessageRequest {

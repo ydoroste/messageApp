@@ -1,7 +1,7 @@
-import { IContact } from '@followBack/Apis/Contacts/types';
-import { sortUsers } from '@followBack/Utils/messages';
-import { deleteContacts, getContacts, setContacts } from './contactDetails';
-import { getUsernameAPI } from '@followBack/Apis/Contacts';
+import { IContact } from "@followBack/Apis/Contacts/types";
+import { sortUsers } from "@followBack/Utils/messages";
+import { deleteContacts, getContacts, setContacts } from "./contactDetails";
+import { getUsernameAPI } from "@followBack/Apis/Contacts";
 
 export const getUserName = async (userAddress: string) => {
   let localContactsList: IContact[] = [];
@@ -33,8 +33,7 @@ export const getUserName = async (userAddress: string) => {
 
 export const getThreadParticipantsUserName = (users: IContact[]) => {
   let sortedUsers = sortUsers(users);
-  console.log(sortedUsers);
-  if (!sortedUsers || sortedUsers?.length === 0) return '';
+  if (!sortedUsers || sortedUsers?.length === 0) return "";
   const firstUserName = sortedUsers[0].name ?? sortedUsers[0].address;
   if (sortedUsers.length === 1) return firstUserName;
   const secondUserName = sortedUsers[1].name ?? sortedUsers[1].address;

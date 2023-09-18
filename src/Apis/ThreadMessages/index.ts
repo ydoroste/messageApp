@@ -1,12 +1,17 @@
-import { DeleteApi, GetApi, PostApi } from '@followBack/Utils/httpApis/apis';
-import { CORE_SERVICE_URL } from '@followBack/Apis/constants';
-import { ApiEndpoints } from '@followBack/Apis';
+import {
+  DeleteApi,
+  GetApi,
+  PostApi,
+  PutApi,
+} from "@followBack/Utils/httpApis/apis";
+import { CORE_SERVICE_URL } from "@followBack/Apis/constants";
+import { ApiEndpoints } from "@followBack/Apis";
 import {
   IDeleteMessageRequest,
   IDeleteMessageResponse,
   IThreadMessagesAPIResponse,
-} from './types';
-import { sortDataSet } from '@followBack/Utils/sortedDataUponDate';
+} from "./types";
+import { sortDataSet } from "@followBack/Utils/sortedDataUponDate";
 
 export const MESSAGES_LIMIT = 1000;
 
@@ -27,10 +32,25 @@ export const getThreadMessagesApi = async ({
         page: res.data.page,
       };
     })
-    .catch((e) => console.log('error from fetchThreadMsgs', e.response.data));
+    .catch((e) => console.log("error from fetchThreadMsgs", e.response.data));
 };
 
 export const deleteMessagesApi = async (request: IDeleteMessageRequest) => {
+  return DeleteApi<IDeleteMessageRequest, IDeleteMessageResponse>(
+    ApiEndpoints.deleteForMe,
+    undefined,
+    {
+      headers: {},
+      data: {
+        ids: request.ids,
+      },
+    }
+  )
+    .then((res) => res.data)
+    .catch((e) => console.log("error from fetchThreadMsgs", e.response.data));
+};
+
+export const unSendMessagesApi = async (request: IDeleteMessageRequest) => {
   return DeleteApi<IDeleteMessageRequest, IDeleteMessageResponse>(
     ApiEndpoints.deleteForAll,
     undefined,
@@ -42,5 +62,5 @@ export const deleteMessagesApi = async (request: IDeleteMessageRequest) => {
     }
   )
     .then((res) => res.data)
-    .catch((e) => console.log('error from fetchThreadMsgs', e.response.data));
+    .catch((e) => console.log("error from fetchThreadMsgs", e.response.data));
 };

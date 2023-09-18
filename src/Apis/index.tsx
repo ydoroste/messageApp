@@ -18,5 +18,6 @@ export enum ApiEndpoints {
   editMessage = "messages",
   bookmarks = "inbox/threads/bookmark",
   deleteForAll = "messages/forAll",
-  deleteForMe = "messages/forMe"
+  deleteForMe = "messages/forMe",
+  Emoji = "reactions",
 }
