@@ -42,15 +42,7 @@ export const updateEmojiApi = async ({
 };
 
 export const deleteEmojiApi = async ({ id }: { id: string }) => {
-  return DeleteApi<IDeleteEmojiApiRequest, IDeleteEmojiApiResponse>(
-    ApiEndpoints.Emoji,
-    undefined,
-    {
-      data: {
-        id,
-      },
-    }
-  )
+  return DeleteApi<IDeleteEmojiApiResponse>(`${ApiEndpoints.Emoji}/${id}`)
     .then((res) => res.data)
     .catch((e) => console.log("error from deleteEmojiApi", e.response.data));
 };
