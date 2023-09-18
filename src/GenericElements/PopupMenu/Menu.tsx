@@ -1,36 +1,33 @@
-import React, {
-  useState,
-  useEffect,
-  useRef,
-  useMemo,
-  useCallback,
-} from "react";
-import {
-  Pressable,
-  StyleSheet,
-  Platform,
-  Dimensions,
-  TouchableOpacity,
-  Modal,
-} from "react-native";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { Pressable, StyleSheet, Platform, Dimensions } from "react-native";
 import MenuItem from "./Components/MenuItem";
 import { View } from "react-native";
-import useStylesWithTheme from "@followBack/Hooks/useStylesWithTheme";
 
-import { BlurView } from "expo-blur";
+import Emojis from "./Components/Emojis";
+import BlurredModal from "../BlurredModal/BlurredModal";
 
 const { width: layoutWidth, height: layoutHeight } = Dimensions.get("window");
 
 const Menu = ({
   menuOptions,
   children,
-  actionParamsProps,
+  item,
   onPress,
+  emojis,
+  onEmojiPress,
+  MessageContent,
+  index,
+  disabled,
 }: {
   menuOptions: any;
   children: React.ReactNode;
-  actionParamsProps: Record<string, object>;
+  item: any;
   onPress: () => void;
+  onEmojiPress: (emojiName: string) => void;
+  emojis: string[];
+  MessageContent: React.ReactNode;
+  index: number;
+  disabled: boolean;
 }) => {
   const triggerWrapperRef = useRef<View | null>(null);
 
@@ -59,47 +56,40 @@ const Menu = ({
     <>
       <Pressable
         onLongPress={() => {
-          setMenuVisible(true);
+          if (!disabled) {
+            setMenuVisible(true);
+          }
         }}
         onPress={onPress}
         ref={triggerWrapperRef}
       >
         {children}
       </Pressable>
-      <Modal transparent visible={menuVisible}>
-        {menuVisible && (
-          <TouchableOpacity
-            activeOpacity={1}
-            onPress={closeModal}
-            style={styles.modalWrapper}
-          >
-            <BlurView
-              intensity={Platform.OS === "ios" ? 30 : 120}
-              tint="dark"
-              style={{
-                paddingBottom:
-                  triggerHeight > layoutHeight - 100 ? 200 : undefined,
-                ...styles.modalContent,
-              }}
-            >
-              <View>{children}</View>
-              <View style={[styles.activeSection]} collapsable={false}>
-                {menuOptions.map((menuOption: any) => {
-                  return (
-                    <MenuItem
-                      closeModal={closeModal}
-                      text={menuOption.text}
-                      onPress={() =>
-                        menuOption.onPress(actionParamsProps[menuOption.text])
-                      }
-                    />
-                  );
-                })}
-              </View>
-            </BlurView>
-          </TouchableOpacity>
-        )}
-      </Modal>
+      <BlurredModal
+        closeModal={closeModal}
+        menuVisible={menuVisible}
+        triggerHeight={triggerHeight}
+      >
+        <View>{MessageContent}</View>
+
+        <View style={[styles.activeSection]} collapsable={false}>
+          <Emojis
+            emojis={emojis}
+            closeModal={closeModal}
+            onEmojiPress={onEmojiPress}
+          />
+          {menuOptions.map((menuOption: any) => {
+            return (
+              <MenuItem
+                closeModal={closeModal}
+                text={menuOption.text}
+                onPress={() => menuOption.onPress({ ...item, index })}
+                iconName={menuOption.iconName}
+              />
+            );
+          })}
+        </View>
+      </BlurredModal>
     </>
   );
 };
@@ -114,7 +104,6 @@ const styles = StyleSheet.create({
   activeSection: {
     ...Platform.select({
       ios: {
-        width: layoutWidth * 0.5,
         shadowColor: "#000",
         shadowOffset: {
           width: 0,
@@ -123,10 +112,8 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.35,
         shadowRadius: 100,
       },
-      android: {
-        maxWidth: layoutWidth * 0.7,
-      },
     }),
+    width: layoutWidth * 0.7,
     zIndex: 99,
     alignSelf: "center",
     marginTop: 10,

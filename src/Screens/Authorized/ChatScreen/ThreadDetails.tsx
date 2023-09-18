@@ -9,6 +9,8 @@ import {
   Pressable,
   Keyboard,
 } from "react-native";
+
+import { setStringAsync } from "expo-clipboard";
 import useTheme from "@followBack/Hooks/useTheme";
 import { useFetchThreadMessages } from "@followBack/Hooks/Apis/ThreadMessages";
 import Message from "@followBack/Elements/Message/Message";
@@ -38,13 +40,17 @@ import {
 import { ScrollView } from "react-native-gesture-handler";
 import * as mime from "mime";
 import { ICreateAttachmentRequest } from "@followBack/Apis/GetAttachmentUploadLink/types";
-import Typography from "@followBack/GenericElements/Typography";
 import { Thread } from "@followBack/Apis/threadsList/type";
-import { deleteMessagesApi } from "@followBack/Apis/ThreadMessages";
+import {
+  deleteMessagesApi,
+  unSendMessagesApi,
+} from "@followBack/Apis/ThreadMessages";
 import { Buffer } from "buffer";
 import * as FileSystem from "expo-file-system";
 import { ActivityIndicator } from "react-native-paper";
 import { MAIL_DOMAIN } from "@followBack/Apis/constants";
+import ReplyToMessage from "@followBack/Elements/ReplyToMessage/ReplyToMessage";
+import SelectAllWrapper from "@followBack/Elements/SelectAllWrapper/SelectAllWrapper";
 
 const ThreadDetails: React.FC = ({ navigation, route }) => {
   const { threadInfo } = route.params;
@@ -81,6 +87,13 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
     undefined
   );
   const [usernames, setUsernames] = useState<string | undefined>("");
+
+  const [isSelectAllActivated, setIsSelectAllActivated] =
+    useState<boolean>(false);
+
+  const [selectedIndexes, setSelectedIndexes] = useState<
+    Record<string, boolean>
+  >({});
 
   const scrollViewRef = useRef<FlashList<IThreadMessage[]> | undefined>(null);
   const hasData = allMessages.length > 0;
@@ -359,44 +372,118 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
     setReplyTo(threadMessage);
   };
 
-  const unsend = useCallback(async (threadMessage: IThreadMessage) => {
-    let newMessages = allMessages
-      .slice()
-      .filter((message, i) => message?.messageId !== threadMessage.messageId);
-    setAllMessages(newMessages);
-    await deleteMessagesApi({ ids: [threadMessage.messageId ?? ""] });
-  }, []);
+  const onUnSendPress = useCallback(
+    async (threadMessage: IThreadMessage) => {
+      const newMessages = JSON.parse(JSON.stringify(allMessages));
+
+      newMessages[threadMessage.index].isDeleted = true;
+
+      setAllMessages([...newMessages]);
+      await unSendMessagesApi({ ids: [threadMessage.messageId ?? ""] });
+    },
+    [allMessages]
+  );
+
+  const onDeletePress = useCallback(
+    async (threadMessage: IThreadMessage) => {
+      let newMessages = allMessages
+        .slice()
+        .filter((message, i) => message?.messageId !== threadMessage.messageId);
+
+      setAllMessages(newMessages);
+      await deleteMessagesApi({ ids: [threadMessage.messageId ?? ""] });
+    },
+    [allMessages]
+  );
+
+  const onCopy = (threadMessage: IThreadMessage) => {
+    setStringAsync(threadMessage.text);
+  };
+
+  const onBookMarkPress = useCallback(
+    async (threadMessage: IThreadMessage) => {
+      const newMessages = JSON.parse(JSON.stringify(allMessages));
+
+      newMessages[threadMessage.index].isBookMarked = true;
+
+      setAllMessages([...newMessages]);
+      // await deleteMessagesApi({ ids: [threadMessage.messageId ?? ""] });
+    },
+    [allMessages]
+  );
+
+  const onUnBookMarkedPress = useCallback(
+    async (threadMessage: IThreadMessage) => {
+      const newMessages = JSON.parse(JSON.stringify(allMessages));
+
+      newMessages[threadMessage.index].isBookMarked = false;
+
+      setAllMessages([...newMessages]);
+      // await deleteMessagesApi({ ids: [threadMessage.messageId ?? ""] });
+    },
+    [allMessages]
+  );
+
+  const onSelectAllActivatedPress = (item: IThreadMessage) => {
+    setIsSelectAllActivated(true);
+    setSelectedIndexes({ [item?.index]: true });
+  };
 
   const senderMenu = (item: IThreadMessage) =>
     !isTimelimitExceeded(item.createdAt ?? "")
       ? [
           {
-            text: "Unsend",
-            onPress: unsend,
+            text: "unsend",
+            onPress: onUnSendPress,
+            iconName: "unsend",
           },
           {
-            text: "Edit",
+            text: "edit",
             onPress: async (threadMessage: IThreadMessage) => {
               setIsEditingMessage(threadMessage);
               setMail(threadMessage.text);
             },
+            iconName: "edit",
           },
           {
-            text: "Reply",
+            text: "copy",
+            onPress: onCopy,
+            iconName: "copy",
+          },
+          {
+            text: "reply",
             onPress: onPressReplyToMessage,
+            iconName: "reply",
+          },
+          {
+            text: "delete",
+            onPress: onDeletePress,
+            iconName: "delete",
+          },
+          {
+            text: "bookmark",
+            onPress: onBookMarkPress,
+            iconName: "bookmark",
+          },
+          {
+            text: "selectmore",
+            onPress: onSelectAllActivatedPress,
+            iconName: "selectmore",
           },
         ]
       : [
           {
-            text: "Reply",
+            text: "reply",
             onPress: onPressReplyToMessage,
+            iconName: "reply",
           },
         ];
 
   const receiverMenu = [
     {
-      text: "Reply",
+      text: "reply",
       onPress: onPressReplyToMessage,
+      iconName: "reply",
     },
   ];
 
@@ -404,7 +491,24 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
     scrollViewRef.current?.scrollToEnd({ animated: true });
   };
 
-  const renderMessageItem = ({ item }: { item: IThreadMessage }) => (
+  const onNavigateToRepliedMessage = (item: IThreadMessage) => {
+    const repliedMessageIndex = allMessages.findIndex(
+      (message) => message?.headerId === item?.replyTo?.id
+    );
+
+    scrollViewRef?.current?.scrollToIndex({
+      animated: true,
+      index: repliedMessageIndex,
+    });
+  };
+
+  const renderMessageItem = ({
+    item,
+    index,
+  }: {
+    item: IThreadMessage;
+    index: number;
+  }) => (
     <Pressable
       style={{ marginVertical: 7 }}
       onLongPress={(e) => Keyboard.dismiss()}
@@ -422,6 +526,20 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
             item={item}
             senderMenu={senderMenu}
             receiverMenu={receiverMenu}
+            index={index}
+            isReplying={replyToMessage?.index === index}
+            onUnBookMarkedPress={onUnBookMarkedPress}
+            isSelectAllActivated={isSelectAllActivated}
+            isSelected={selectedIndexes[index]}
+            onSelectPress={onSelectPress}
+            replyToMessageContent={
+              item?.replyTo
+                ? allMessages.find(
+                    (message) => message?.headerId === item?.replyTo?.id
+                  )
+                : undefined
+            }
+            onNavigateToRepliedMessage={onNavigateToRepliedMessage}
           />
         )
       )}
@@ -465,6 +583,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
                   offset: 150 * index,
                   index,
                 })}
+                keyboardShouldPersistTaps="handled"
                 removeClippedSubviews={true}
                 onContentSizeChange={() => {
                   scrollViewRef.current?.scrollToEnd({ animated: false });
@@ -525,14 +644,64 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
           </>
         )}
         {replyToMessage !== undefined && (
-          <View style={{ height: 80 }}>
-            <Typography type="largeBoldBody" color="chat">
-              {"Replying to: " + replyToMessage.text.trimEnd()}
-            </Typography>
-          </View>
+          <ReplyToMessage
+            item={replyToMessage}
+            onReplyToPress={onReplyToPress}
+            onCancelPress={onCancelPress}
+          />
         )}
       </View>
     );
+  };
+  const onReplyToPress = (index: number) => {
+    scrollViewRef?.current?.scrollToIndex({
+      animated: true,
+      index,
+    });
+  };
+
+  const onCancelPress = () => {
+    setReplyTo(undefined);
+  };
+  const onSelectAllCancelPress = () => {
+    setIsSelectAllActivated(false);
+    setSelectedIndexes({});
+  };
+  const onSelectAllPress = () => {
+    const obj = Object.fromEntries(
+      Array.from({ length: allMessages.length }, (_, i) => [i, true])
+    );
+
+    setSelectedIndexes(obj);
+  };
+  const onSelectPress = (index: number) => {
+    setSelectedIndexes((prevSelectedIndexes) => ({
+      ...prevSelectedIndexes,
+      [index]: !prevSelectedIndexes[index],
+    }));
+  };
+
+  const onSelectAllDeletePress = async () => {
+    const deletedMessageIds: string[] = [];
+    const unDeletedMessage = allMessages.slice().filter((message, i) => {
+      if (selectedIndexes[i] === undefined || selectedIndexes[i] === false) {
+        return true;
+      } else {
+        deletedMessageIds.push(message?.messageId);
+      }
+    });
+
+    setAllMessages(unDeletedMessage);
+
+    await deleteMessagesApi({
+      ids: deletedMessageIds,
+    });
+
+    onSelectAllCancelPress();
+  };
+
+  const onSelectAllBookMarkPress = () => {
+    onSelectAllCancelPress();
   };
 
   return (
@@ -542,22 +711,33 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
       style={{ flex: 1, backgroundColor: colors.black }}
     >
       <View style={styles.container}>
-        {hasData && (
-          <ThreadDetailsHeader
-            receiver={getThreadParticipantsUserName(others)}
-            subject={subject}
-            firtMessageDate={firstMessageDate}
-            navigation={navigation}
+        <SelectAllWrapper
+          isSelectAllActivated={isSelectAllActivated}
+          onSelectAllCancelPress={onSelectAllCancelPress}
+          onSelectAllPress={onSelectAllPress}
+          onSelectAllDeletePress={onSelectAllDeletePress}
+          onSelectAllBookMarkPress={onSelectAllBookMarkPress}
+        >
+          {hasData && (
+            <ThreadDetailsHeader
+              receiver={getThreadParticipantsUserName(others)}
+              subject={subject}
+              firtMessageDate={firstMessageDate}
+              navigation={navigation}
+            />
+          )}
+
+          {renderChat()}
+
+          <MailSender
+            text={mail}
+            onChangeMailContent={onChangeMailContent}
+            onPressCompose={onPressCompose}
+            onPressAttachments={onPressAttachments}
+            tempAttachments={attachments}
+            isEditingMessage={!!messageToEdit}
           />
-        )}
-        {renderChat()}
-        <MailSender
-          text={mail}
-          onChangeMailContent={onChangeMailContent}
-          onPressCompose={onPressCompose}
-          onPressAttachments={onPressAttachments}
-          tempAttachments={attachments}
-        />
+        </SelectAllWrapper>
       </View>
     </KeyboardAvoidingView>
   );
@@ -568,13 +748,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     marginTop: Platform.OS === "ios" ? 20 : 0,
+    position: "relative",
   },
   titleText: {
     height: 25,
   },
   chatWrapper: {
     flex: 1,
-    marginBottom: 30,
+    marginBottom: 60,
   },
   emptyOrErrorMessageContainer: {
     alignItems: "center",

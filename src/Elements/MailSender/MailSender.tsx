@@ -1,15 +1,15 @@
-import IconButton from '@followBack/GenericElements/IconButton';
-import React, { useEffect, useRef, useState } from 'react';
+import IconButton from "@followBack/GenericElements/IconButton";
+import React, { useEffect, useRef, useState } from "react";
 import {
   GestureResponderEvent,
   StyleSheet,
   TextInput,
   View,
-} from 'react-native';
-import InputField from '@followBack/GenericElements/InputField';
-import useTheme from '@followBack/Hooks/useTheme';
-import useKeyboardOpenListner from '@followBack/Hooks/useKeyboardOpenListner';
-import { UIActivityIndicator } from 'react-native-indicators';
+} from "react-native";
+import InputField from "@followBack/GenericElements/InputField";
+import useTheme from "@followBack/Hooks/useTheme";
+import useKeyboardOpenListner from "@followBack/Hooks/useKeyboardOpenListner";
+import { UIActivityIndicator } from "react-native-indicators";
 
 const MailSender = ({
   onChangeMailContent,
@@ -20,6 +20,7 @@ const MailSender = ({
   tempAttachments,
   isUploading,
   isFocus = false,
+  isEditingMessage,
 }: {
   tempAttachments: string[];
   isLoading?: boolean;
@@ -29,6 +30,7 @@ const MailSender = ({
   onPressAttachments: (e: GestureResponderEvent) => void;
   isUploading?: boolean;
   isFocus?: boolean;
+  isEditingMessage: boolean;
 }) => {
   const { colors } = useTheme();
   const [focused, setFocused] = useState(true);
@@ -55,7 +57,7 @@ const MailSender = ({
       <View style={styles.iconContainer}>
         <IconButton
           onPress={onPressAttachments}
-          name='add'
+          name="add"
           width={17}
           height={17}
           color={colors.grey02}
@@ -69,11 +71,11 @@ const MailSender = ({
           onBlur={onBlur}
           value={text}
           inputMaxHeight={inputMaxHeight}
-          textColor={colors.white}
+          textColor={isEditingMessage ? colors.green : colors.white}
           onChangeText={(text: string) => onChangeMailContent({ value: text })}
           multiline
-          mode='outlined'
-          placeholder='Write a message...'
+          mode="outlined"
+          placeholder="Write a message..."
         />
       </View>
       <View style={styles.iconContainer}>
@@ -84,7 +86,7 @@ const MailSender = ({
         ) : (
           <IconButton
             onPress={onPressCompose}
-            name='send'
+            name={isEditingMessage ? "done" : "send"}
             width={17}
             height={17}
             color={
@@ -104,22 +106,22 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   flexCenter: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "flex-end",
+    justifyContent: "space-between",
     marginBottom: 0,
     zIndex: 10,
-    position: 'absolute',
+    position: "absolute",
     bottom: 10,
-    backgroundColor: 'black',
-    width: '100%',
+    backgroundColor: "black",
+    width: "100%",
   },
   iconContainer: {
     marginBottom: 4,
   },
   loadingIconContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     height: 30,
     width: 33,
     marginBottom: 2,
