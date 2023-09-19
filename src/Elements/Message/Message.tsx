@@ -57,7 +57,7 @@ const Message = ({
   );
 
   useEffect(() => {
-    setReactions(item.reactions);
+    setReactions(item.reactions || []);
   }, [JSON.stringify(item.reactions)]);
 
   const { to, from, cc, bcc, createdAt } = item;
