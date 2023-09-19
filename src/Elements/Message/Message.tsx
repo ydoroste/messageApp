@@ -102,7 +102,7 @@ const Message = ({
           reaction: emojiName,
         });
 
-        newReactions.splice(myReactionIndex);
+        newReactions.splice(myReactionIndex, 1);
       }
 
       newReactions = [...newReactions, { ...emojiData }];
@@ -116,7 +116,7 @@ const Message = ({
       if (myReactionIndex !== -1) {
         await deleteEmojiApi({ id: item.reactions[myReactionIndex].id });
         const tempReactions = reactions.slice();
-        tempReactions.splice(myReactionIndex);
+        tempReactions.splice(myReactionIndex, 1);
 
         setReactions(tempReactions);
       }
