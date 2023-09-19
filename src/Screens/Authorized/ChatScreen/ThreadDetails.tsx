@@ -249,7 +249,11 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
         text: mail?.trim(),
         messageId: new Date().getTime().toString(),
         notConfirmedNewMessage: true,
+        ...(replyToMessage?.headerId
+          ? { replyTo: { id: replyToMessage?.headerId } }
+          : {}),
       };
+
       allMessagesCopy.push(newMessage);
       setAllMessages(allMessagesCopy);
       const data = await composeApi(createComposeRequest(mail?.trim()));
@@ -429,6 +433,34 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
     setSelectedIndexes({ [item?.index]: true });
   };
 
+  const commonMenu = [
+    {
+      text: "copy",
+      onPress: onCopy,
+      iconName: "copy",
+    },
+    {
+      text: "reply",
+      onPress: onPressReplyToMessage,
+      iconName: "reply",
+    },
+    {
+      text: "delete",
+      onPress: onDeletePress,
+      iconName: "delete",
+    },
+    {
+      text: "bookmark",
+      onPress: onBookMarkPress,
+      iconName: "bookmark",
+    },
+    {
+      text: "select more",
+      onPress: onSelectAllActivatedPress,
+      iconName: "selectmore",
+    },
+  ];
+
   const senderMenu = (item: IThreadMessage) =>
     !isTimelimitExceeded(item.createdAt ?? "")
       ? [
@@ -445,47 +477,11 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
             },
             iconName: "edit",
           },
-          {
-            text: "copy",
-            onPress: onCopy,
-            iconName: "copy",
-          },
-          {
-            text: "reply",
-            onPress: onPressReplyToMessage,
-            iconName: "reply",
-          },
-          {
-            text: "delete",
-            onPress: onDeletePress,
-            iconName: "delete",
-          },
-          {
-            text: "bookmark",
-            onPress: onBookMarkPress,
-            iconName: "bookmark",
-          },
-          {
-            text: "selectmore",
-            onPress: onSelectAllActivatedPress,
-            iconName: "selectmore",
-          },
+          ...commonMenu,
         ]
-      : [
-          {
-            text: "reply",
-            onPress: onPressReplyToMessage,
-            iconName: "reply",
-          },
-        ];
+      : [...commonMenu];
 
-  const receiverMenu = [
-    {
-      text: "reply",
-      onPress: onPressReplyToMessage,
-      iconName: "reply",
-    },
-  ];
+  const receiverMenu = [...commonMenu];
 
   const onContentSizeChange = () => {
     scrollViewRef.current?.scrollToEnd({ animated: true });

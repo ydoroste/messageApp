@@ -9,6 +9,7 @@ interface EmojiWrapperProps {
   onReactedEmojiPress: () => void;
   reactions: string[];
   myReactionIndex: number;
+  reactionCount: number;
 }
 
 const EmojiWrapper = ({
@@ -16,9 +17,8 @@ const EmojiWrapper = ({
   onReactedEmojiPress,
   reactions,
   myReactionIndex,
+  reactionCount,
 }: EmojiWrapperProps) => {
-  const reactionCount = reactions.length;
-
   const { styles } = useStyles();
   return (
     <>

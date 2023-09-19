@@ -228,6 +228,7 @@ const Message = ({
               <EmojiWrapper
                 onReactedEmojiPress={onReactedEmojiPress}
                 reactions={uniqueReactions}
+                reactionCount={reactions.length}
                 myReactionIndex={myReactionIndex}
               >
                 <BorderWrapper isReplying={isReplying}>
