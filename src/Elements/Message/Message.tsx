@@ -1,5 +1,5 @@
 import Typography from "@followBack/GenericElements/Typography";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View } from "react-native";
 import { formatMessageDate } from "@followBack/Utils/date";
 import useStylesWithTheme from "@followBack/Hooks/useStylesWithTheme";
@@ -55,6 +55,10 @@ const Message = ({
   const [reactions, setReactions] = useState<Reaction[] | []>(
     item.reactions || []
   );
+
+  useEffect(() => {
+    setReactions(item.reactions);
+  }, [JSON.stringify(item.reactions)]);
 
   const { to, from, cc, bcc, createdAt } = item;
   const { userDetails } = useUserDetails();
