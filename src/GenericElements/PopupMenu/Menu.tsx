@@ -46,6 +46,8 @@ const Menu = ({
 
   const [_menuOptions, set_menuOptions] = useState<MenuOption[]>([]);
 
+  const isFirstClick = useRef<Boolean>(true);
+
   const [triggerHeight, setTriggerHeight] = useState(0);
 
   const [menuVisible, setMenuVisible] = useState(false);
@@ -57,13 +59,14 @@ const Menu = ({
   };
 
   const onMorePress = useCallback(() => {
-    set_menuOptions((prevMenuOptions) => [
-      ...(prevMenuOptions.length === 4
+    set_menuOptions(() => [
+      ...(isFirstClick.current
         ? [...menuOptions.slice(3, 10)]
         : [...menuOptions.slice(0, 3)]),
       moreOption,
     ]);
-  }, [menuOptions]);
+    isFirstClick.current = !isFirstClick.current;
+  }, [menuOptions, isFirstClick.current]);
 
   const moreOption: MenuOption = useMemo(
     () => ({
@@ -75,6 +78,7 @@ const Menu = ({
   );
 
   useEffect(() => {
+    isFirstClick.current = true;
     set_menuOptions([...menuOptions.slice(0, 3), moreOption]);
   }, [JSON.stringify(menuOptions), menuVisible]);
 
