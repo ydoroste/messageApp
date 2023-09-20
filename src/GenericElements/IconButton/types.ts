@@ -26,4 +26,6 @@ export type iconsType =
   | "selectmore"
   | "unsend"
   | "done"
-  | "unselected";
+  | "unselected"
+  | "more"
+  | "forward";

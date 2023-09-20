@@ -23,6 +23,8 @@ const Bookmark = React.lazy(() => import("@followBack/Theme/Icons/Bookmark"));
 const Copy = React.lazy(() => import("@followBack/Theme/Icons/Copy"));
 const Edit = React.lazy(() => import("@followBack/Theme/Icons/Edit"));
 const Reply = React.lazy(() => import("@followBack/Theme/Icons/Reply"));
+const More = React.lazy(() => import("@followBack/Theme/Icons/More"));
+const Forward = React.lazy(() => import("@followBack/Theme/Icons/Forward"));
 const SelectMore = React.lazy(
   () => import("@followBack/Theme/Icons/SelectMore")
 );
@@ -32,6 +34,30 @@ const UnSelected = React.lazy(
 );
 const UnSend = React.lazy(() => import("@followBack/Theme/Icons/UnSend"));
 const Done = React.lazy(() => import("@followBack/Theme/Icons/Done"));
+
+const iconMap: Record<iconsType, React.FC<IIconProps>> = {
+  close: Close,
+  hidden: Hidden,
+  shown: Shown,
+  add: Add,
+  delete: Delete,
+  send: Send,
+  downArrow: DownArrow,
+  drawer: Drawer,
+  back: Back,
+  pin: Pin,
+  attachment: Attachment,
+  bookmark: Bookmark,
+  copy: Copy,
+  edit: Edit,
+  reply: Reply,
+  selectmore: SelectMore,
+  unsend: UnSend,
+  done: Done,
+  unselected: UnSelected,
+  more: More,
+  forward: Forward,
+};
 const IconButton: React.FC<IIconButtonProps> = ({
   name,
   width,
@@ -45,68 +71,8 @@ const IconButton: React.FC<IIconButtonProps> = ({
   ): React.ReactElement<IIconProps> | undefined => {
     let IconElement: React.FC<IIconProps>;
 
-    switch (icon) {
-      case "close":
-        IconElement = Close;
-        break;
-      case "hidden":
-        IconElement = Hidden;
-        break;
-      case "shown":
-        IconElement = Shown;
-        break;
-      case "add":
-        IconElement = Add;
-        break;
-      case "delete":
-        IconElement = Delete;
-        break;
-      case "send":
-        IconElement = Send;
-        break;
-      case "downArrow":
-        IconElement = DownArrow;
-        break;
-      case "drawer":
-        IconElement = Drawer;
-        break;
-      case "back":
-        IconElement = Back;
-        break;
-      case "pin":
-        IconElement = Pin;
-        break;
-      case "attachment":
-        IconElement = Attachment;
-        break;
-      case "bookmark":
-        IconElement = Bookmark;
-        break;
-      case "copy":
-        IconElement = Copy;
-        break;
-      case "edit":
-        IconElement = Edit;
-        break;
-      case "reply":
-        IconElement = Reply;
-        break;
-      case "selectmore":
-        IconElement = SelectMore;
-        break;
-      case "unsend":
-        IconElement = UnSend;
-        break;
-      case "done":
-        IconElement = Done;
-        break;
-      case "unselected":
-        IconElement = UnSelected;
-        break;
-      default:
-        IconElement = Close;
-        break;
-    }
+    IconElement = iconMap[icon] || Close;
+
     return (
       <React.Suspense fallback={null}>
         <IconElement color={color} height={height} width={width} />

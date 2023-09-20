@@ -11,6 +11,7 @@ interface MenuItem {
   closeModal: () => void;
   text: string;
   iconName: iconsType;
+  isLastIndex?: boolean;
 }
 
 const MenuItem: React.FC<MenuItem> = ({
@@ -18,18 +19,25 @@ const MenuItem: React.FC<MenuItem> = ({
   onPress,
   closeModal,
   iconName,
+  isLastIndex,
 }) => {
   const handleOnPress = useCallback(() => {
     onPress();
     closeModal();
-  }, []);
+  }, [onPress, closeModal]);
 
   const { styles } = useStyles();
 
   const { colors } = useTheme();
 
   return (
-    <Pressable onPress={handleOnPress} style={styles.body}>
+    <Pressable
+      onPress={handleOnPress}
+      style={[
+        styles.body,
+        ...(isLastIndex ? [{ borderBottomWidth: 0 }] : [{}]),
+      ]}
+    >
       <Text style={styles.text}>{text}</Text>
       <IconButton
         onPress={handleOnPress}
@@ -56,5 +64,6 @@ const useStyles = useStylesWithTheme((theme) => ({
   },
   text: {
     color: theme.colors.white,
+    fontSize: theme.fontSizes.small,
   },
 }));

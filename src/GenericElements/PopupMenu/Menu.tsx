@@ -1,12 +1,25 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useMemo,
+} from "react";
 import { Pressable, StyleSheet, Platform, Dimensions } from "react-native";
 import MenuItem from "./Components/MenuItem";
 import { View } from "react-native";
 
 import Emojis from "./Components/Emojis";
 import BlurredModal from "../BlurredModal/BlurredModal";
+import { iconsType } from "../IconButton/types";
 
 const { width: layoutWidth, height: layoutHeight } = Dimensions.get("window");
+
+type MenuOption = {
+  text: string;
+  onPress: (props: { item: any; index: number }) => void;
+  iconName: iconsType;
+};
 
 const Menu = ({
   menuOptions,
@@ -19,7 +32,7 @@ const Menu = ({
   index,
   disabled,
 }: {
-  menuOptions: any;
+  menuOptions: MenuOption[];
   children: React.ReactNode;
   item: any;
   onPress: () => void;
@@ -31,6 +44,8 @@ const Menu = ({
 }) => {
   const triggerWrapperRef = useRef<View | null>(null);
 
+  const [_menuOptions, set_menuOptions] = useState<MenuOption[]>([]);
+
   const [triggerHeight, setTriggerHeight] = useState(0);
 
   const [menuVisible, setMenuVisible] = useState(false);
@@ -40,6 +55,28 @@ const Menu = ({
       setTriggerHeight(height);
     });
   };
+
+  const onMorePress = useCallback(() => {
+    set_menuOptions((prevMenuOptions) => [
+      ...(prevMenuOptions.length === 4
+        ? [...menuOptions.slice(3, 10)]
+        : [...menuOptions.slice(0, 3)]),
+      moreOption,
+    ]);
+  }, [menuOptions]);
+
+  const moreOption: MenuOption = useMemo(
+    () => ({
+      iconName: "more",
+      text: "more",
+      onPress: onMorePress,
+    }),
+    []
+  );
+
+  useEffect(() => {
+    set_menuOptions([...menuOptions.slice(0, 3), moreOption]);
+  }, [JSON.stringify(menuOptions), menuVisible]);
 
   const closeModal = useCallback(() => {
     setMenuVisible(false);
@@ -78,13 +115,16 @@ const Menu = ({
             closeModal={closeModal}
             onEmojiPress={onEmojiPress}
           />
-          {menuOptions.map((menuOption: any) => {
+
+          {_menuOptions.map((menuOption: MenuOption, menuIndex: number) => {
+            const isLastIndex = menuIndex === _menuOptions.length - 1;
             return (
               <MenuItem
-                closeModal={closeModal}
+                closeModal={isLastIndex ? () => {} : closeModal}
                 text={menuOption.text}
                 onPress={() => menuOption.onPress({ ...item, index })}
                 iconName={menuOption.iconName}
+                isLastIndex={isLastIndex}
               />
             );
           })}

@@ -38,12 +38,12 @@ const EditedWrapper = ({
     };
   }, [isEdited]);
 
-  const isEditedShouldShow = isEdited && minutesDiff >= 0 && minutesDiff <= 10;
+  const isLessThanTenMinutes = minutesDiff >= 0 && minutesDiff <= 10;
 
   return (
     <>
       <View style={styles.container}>{children}</View>
-      {isEditedShouldShow && (
+      {isEdited && (
         <View
           style={{
             marginTop: 5,
@@ -51,7 +51,7 @@ const EditedWrapper = ({
           }}
         >
           <Typography type="smallRegularBody" color="secondary">
-            {`edit ${minutesDiff} min ago`}
+            {isLessThanTenMinutes ? `edit ${minutesDiff} mins ago` : "edited"}
           </Typography>
         </View>
       )}

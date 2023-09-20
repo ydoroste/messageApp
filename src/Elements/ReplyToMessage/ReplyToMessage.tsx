@@ -23,25 +23,25 @@ const ReplyToMessage = ({
   return (
     <View style={styles.container}>
       <View style={styles.content}>
-        <Typography type="largeRegularBody" color="chat">
-          {"replying to: "}
+        <Typography type="smallRegularBody" color="chat">
+          {"replying to "}
         </Typography>
 
         <Pressable onPress={_onReplyToPress}>
           <Typography
-            style={{ textDecorationLine: "underline", color: "white" }}
-            type="largeBoldBody"
+            type="smallRegularBody"
+            textDecoration={"underline"}
             color="chat"
           >
-            {item.text.slice(0, 25).concat("...")}
+            {`${item.from?.name?.split(" ")[0]}'s message`}
           </Typography>
         </Pressable>
       </View>
 
       <Pressable onPress={onCancelPress}>
         <Typography
-          style={{ textDecorationLine: "underline", color: "white" }}
-          type="largeBoldBody"
+          type="smallRegularBody"
+          textDecoration={"underline"}
           color="chat"
         >
           {"cancel"}
@@ -51,7 +51,7 @@ const ReplyToMessage = ({
   );
 };
 
-export default ReplyToMessage;
+export default React.memo(ReplyToMessage);
 
 const useStyles = useStylesWithTheme((theme) => ({
   container: {
@@ -60,11 +60,11 @@ const useStyles = useStylesWithTheme((theme) => ({
     marginBottom: 27,
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 25,
+    alignItems: "flex-end",
+    paddingVertical: 4,
+    paddingHorizontal: 32,
   },
   content: {
     flexDirection: "row",
-    alignItems: "baseline",
   },
 }));

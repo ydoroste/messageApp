@@ -445,6 +445,11 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
       iconName: "reply",
     },
     {
+      text: "forward",
+      onPress: () => {},
+      iconName: "forward",
+    },
+    {
       text: "delete",
       onPress: onDeletePress,
       iconName: "delete",
