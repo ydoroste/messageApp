@@ -48,13 +48,26 @@ const SelectAllWrapper = ({
                   height={16}
                   color={colors.white}
                 />
-                <Typography type="mediumRegularBody" color="error">
+                <Typography type="mediumRegularBody" color="primary">
                   select all
                 </Typography>
               </View>
             </Pressable>
           </BlurView>
           <View style={styles.bottomContainer}>
+            <Pressable onPress={() => {}} style={styles.bottomItemContainer}>
+              <IconButton
+                onPress={() => {}}
+                name="forward"
+                width={16}
+                height={16}
+                color={colors.grey02}
+              />
+
+              <Typography type="mediumRegularBody" color="secondary">
+                forward
+              </Typography>
+            </Pressable>
             <Pressable
               onPress={onSelectAllBookMarkPress}
               style={styles.bottomItemContainer}
@@ -64,7 +77,7 @@ const SelectAllWrapper = ({
                 name="bookmark"
                 width={16}
                 height={16}
-                color={colors.grey01}
+                color={colors.grey02}
               />
               <Typography type="mediumRegularBody" color="secondary">
                 bookmark
@@ -79,7 +92,7 @@ const SelectAllWrapper = ({
                 name="delete"
                 width={16}
                 height={16}
-                color={colors.grey01}
+                color={colors.grey02}
               />
 
               <Typography type="mediumRegularBody" color="secondary">

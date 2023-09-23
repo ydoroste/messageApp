@@ -51,9 +51,11 @@ import { ActivityIndicator } from "react-native-paper";
 import { MAIL_DOMAIN } from "@followBack/Apis/constants";
 import ReplyToMessage from "@followBack/Elements/ReplyToMessage/ReplyToMessage";
 import SelectAllWrapper from "@followBack/Elements/SelectAllWrapper/SelectAllWrapper";
+import { BlurView } from "expo-blur";
 
 const ThreadDetails: React.FC = ({ navigation, route }) => {
   const { threadInfo } = route.params;
+
   const { threadId: id, topicId, subject, lastHeader } = threadInfo as Thread;
   const params = route.params;
   const [allMessages, setAllMessages] = useState<
@@ -124,6 +126,10 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
         ]
       : others;
 
+  const isAllFromUnSend = others.every((other) =>
+    /@unsend\.app$/.test(other.address)
+  );
+
   const loadNextPageData = async () => {
     if (hasNextPage) {
       fetchNextPage();
@@ -176,6 +182,8 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
     };
   }, []);
 
+  const isEditingMessage = !!messageToEdit;
+
   const formatEndPoints = (endPoint: IContact[]) =>
     endPoint
       ?.map((obj) => ({ address: obj?.address?.trim() }))
@@ -218,16 +226,16 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
   // MARK: - Send new message in chat/thread
   const onPressCompose = async () => {
     if (messageToEdit != undefined) {
-      const allMessagesCopy = [...allMessages];
-      let index = allMessagesCopy.findIndex((message) => {
-        if (message?.messageId == messageToEdit.messageId) {
-          return true;
+      const allMessagesCopy = [];
+
+      for (const message of allMessages) {
+        if (message?.messageId !== messageToEdit.messageId) {
+          allMessagesCopy.push(message);
+        } else {
+          allMessagesCopy.push({ ...message, text: mail });
         }
-      });
-      allMessagesCopy.splice(index, 1);
-      const message = { ...messageToEdit };
-      message.text = mail;
-      allMessagesCopy.splice(index, 0, message);
+      }
+
       await setAllMessages(allMessagesCopy);
       setMail("");
       setIsEditingMessage(undefined);
@@ -440,27 +448,12 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
       iconName: "copy",
     },
     {
-      text: "reply",
-      onPress: onPressReplyToMessage,
-      iconName: "reply",
-    },
-    {
       text: "forward",
       onPress: () => {},
       iconName: "forward",
     },
     {
-      text: "delete",
-      onPress: onDeletePress,
-      iconName: "delete",
-    },
-    {
-      text: "bookmark",
-      onPress: onBookMarkPress,
-      iconName: "bookmark",
-    },
-    {
-      text: "select more",
+      text: "more",
       onPress: onSelectAllActivatedPress,
       iconName: "selectmore",
     },
@@ -489,7 +482,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
   const receiverMenu = [...commonMenu];
 
   const onContentSizeChange = () => {
-    scrollViewRef.current?.scrollToEnd({ animated: true });
+    scrollViewRef.current?.scrollToEnd({ animated: false });
   };
 
   const onNavigateToRepliedMessage = (item: IThreadMessage) => {
@@ -503,49 +496,68 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
     });
   };
 
+  const onCloseEdit = useCallback(() => {
+    setMail("");
+    setIsEditingMessage(undefined);
+  }, []);
+
   const renderMessageItem = ({
     item,
     index,
   }: {
     item: IThreadMessage;
     index: number;
-  }) => (
-    <Pressable
-      style={{ marginVertical: 7 }}
-      onLongPress={(e) => Keyboard.dismiss()}
-    >
-      {item?.failedToSend ? (
-        <FailedMessage
-          item={item}
-          createComposeRequest={createComposeRequest}
-          moveFromFailedToSuccess={moveFromFailedToSuccess}
-        />
-      ) : (
-        (item.text || (item.attachments && item.attachments.length > 0)) && (
-          <Message
-            key={item.messageId}
-            item={item}
-            senderMenu={senderMenu}
-            receiverMenu={receiverMenu}
-            index={index}
-            isReplying={replyToMessage?.index === index}
-            onUnBookMarkedPress={onUnBookMarkedPress}
-            isSelectAllActivated={isSelectAllActivated}
-            isSelected={selectedIndexes[index]}
-            onSelectPress={onSelectPress}
-            replyToMessageContent={
-              item?.replyTo
-                ? allMessages.find(
-                    (message) => message?.headerId === item?.replyTo?.id
-                  )
-                : undefined
-            }
-            onNavigateToRepliedMessage={onNavigateToRepliedMessage}
+  }) => {
+    const isNotCurrentMessageEditing =
+      !!isEditingMessage && messageToEdit?.index !== index;
+    const isCurrentMessageEditing =
+      !!isEditingMessage && messageToEdit?.index === index;
+    return (
+      <>
+        {isNotCurrentMessageEditing && (
+          <BlurView
+            intensity={Platform.OS === "ios" ? 30 : 120}
+            tint="dark"
+            style={styles.editBlurring}
           />
-        )
-      )}
-    </Pressable>
-  );
+        )}
+        {item?.failedToSend ? (
+          <FailedMessage
+            item={item}
+            createComposeRequest={createComposeRequest}
+            moveFromFailedToSuccess={moveFromFailedToSuccess}
+          />
+        ) : (
+          (item.text || (item.attachments && item.attachments.length > 0)) && (
+            <Message
+              key={item.messageId}
+              item={item}
+              senderMenu={senderMenu}
+              receiverMenu={receiverMenu}
+              index={index}
+              isReplying={replyToMessage?.index === index}
+              onUnBookMarkedPress={onUnBookMarkedPress}
+              isSelectAllActivated={isSelectAllActivated}
+              isSelected={selectedIndexes[index]}
+              onSelectPress={onSelectPress}
+              onPressReplyToMessage={onPressReplyToMessage}
+              replyToMessageContent={
+                item?.replyTo
+                  ? allMessages.find(
+                      (message) => message?.headerId === item?.replyTo?.id
+                    )
+                  : undefined
+              }
+              isAllFromUnSend={isAllFromUnSend}
+              onNavigateToRepliedMessage={onNavigateToRepliedMessage}
+              isCurrentMessageEditing={isCurrentMessageEditing}
+              onCloseEdit={onCloseEdit}
+            />
+          )
+        )}
+      </>
+    );
+  };
 
   if (!hasData || isError) {
     return (
@@ -586,9 +598,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
                 })}
                 keyboardShouldPersistTaps="handled"
                 removeClippedSubviews={true}
-                onContentSizeChange={() => {
-                  scrollViewRef.current?.scrollToEnd({ animated: false });
-                }}
+                onContentSizeChange={onContentSizeChange}
               />
             </View>
             <View style={{ height: 35 }} />
@@ -736,7 +746,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
             onPressCompose={onPressCompose}
             onPressAttachments={onPressAttachments}
             tempAttachments={attachments}
-            isEditingMessage={!!messageToEdit}
+            isEditingMessage={isEditingMessage}
           />
         </SelectAllWrapper>
       </View>
@@ -764,5 +774,9 @@ const styles = StyleSheet.create({
     height: "100%",
     backgroundColor: "black",
     paddingTop: 50,
+  },
+  editBlurring: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 10,
   },
 });

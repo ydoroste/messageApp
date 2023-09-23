@@ -5,7 +5,14 @@ import React, {
   useCallback,
   useMemo,
 } from "react";
-import { Pressable, StyleSheet, Platform, Dimensions } from "react-native";
+import {
+  Pressable,
+  StyleSheet,
+  Platform,
+  Dimensions,
+  StyleProp,
+  ViewStyle,
+} from "react-native";
 import MenuItem from "./Components/MenuItem";
 import { View } from "react-native";
 
@@ -31,6 +38,7 @@ const Menu = ({
   MessageContent,
   index,
   disabled,
+  containerStyle,
 }: {
   menuOptions: MenuOption[];
   children: React.ReactNode;
@@ -41,12 +49,9 @@ const Menu = ({
   MessageContent: React.ReactNode;
   index: number;
   disabled: boolean;
+  containerStyle: StyleProp<ViewStyle>;
 }) => {
   const triggerWrapperRef = useRef<View | null>(null);
-
-  const [_menuOptions, set_menuOptions] = useState<MenuOption[]>([]);
-
-  const isFirstClick = useRef<Boolean>(true);
 
   const [triggerHeight, setTriggerHeight] = useState(0);
 
@@ -57,30 +62,6 @@ const Menu = ({
       setTriggerHeight(height);
     });
   };
-
-  const onMorePress = useCallback(() => {
-    set_menuOptions(() => [
-      ...(isFirstClick.current
-        ? [...menuOptions.slice(3, 10)]
-        : [...menuOptions.slice(0, 3)]),
-      moreOption,
-    ]);
-    isFirstClick.current = !isFirstClick.current;
-  }, [menuOptions, isFirstClick.current]);
-
-  const moreOption: MenuOption = useMemo(
-    () => ({
-      iconName: "more",
-      text: "more",
-      onPress: onMorePress,
-    }),
-    []
-  );
-
-  useEffect(() => {
-    isFirstClick.current = true;
-    set_menuOptions([...menuOptions.slice(0, 3), moreOption]);
-  }, [JSON.stringify(menuOptions), menuVisible]);
 
   const closeModal = useCallback(() => {
     setMenuVisible(false);
@@ -94,7 +75,7 @@ const Menu = ({
   }, [menuVisible]);
 
   return (
-    <>
+    <View style={containerStyle}>
       <Pressable
         onLongPress={() => {
           if (!disabled) {
@@ -111,7 +92,7 @@ const Menu = ({
         menuVisible={menuVisible}
         triggerHeight={triggerHeight}
       >
-        <View>{MessageContent}</View>
+        <View style={{ maxWidth: "80%" }}>{MessageContent}</View>
 
         <View style={[styles.activeSection]} collapsable={false}>
           <Emojis
@@ -120,21 +101,19 @@ const Menu = ({
             onEmojiPress={onEmojiPress}
           />
 
-          {_menuOptions.map((menuOption: MenuOption, menuIndex: number) => {
-            const isLastIndex = menuIndex === _menuOptions.length - 1;
+          {menuOptions.map((menuOption: MenuOption, menuIndex: number) => {
             return (
               <MenuItem
-                closeModal={isLastIndex ? () => {} : closeModal}
+                closeModal={closeModal}
                 text={menuOption.text}
                 onPress={() => menuOption.onPress({ ...item, index })}
                 iconName={menuOption.iconName}
-                isLastIndex={isLastIndex}
               />
             );
           })}
         </View>
       </BlurredModal>
-    </>
+    </View>
   );
 };
 

@@ -14,10 +14,12 @@ const MessageContent = ({
   item,
   containerStyle,
   textColor = "chat",
+  isAllFromUnSend,
 }: {
   item: IThreadMessage;
   containerStyle?: StyleProp<ViewStyle>;
   textColor?: colorTypes;
+  isAllFromUnSend: boolean;
 }) => {
   const { styles } = useStyles();
 
@@ -49,9 +51,12 @@ const MessageContent = ({
       ? messageSender?.name?.split(" ")?.[0]
       : messageSender.address;
 
-  const messageStyle = isOwnMessage
-    ? styles.ownMessageStyle
-    : styles.otherMessagesStyle;
+  const messageStyle =
+    !isAllFromUnSend && isOwnMessage
+      ? styles.ownUnSendMessageStyle
+      : isOwnMessage
+      ? styles.ownMessageStyle
+      : styles.otherMessagesStyle;
 
   return (
     <View style={[styles.contentContainer, messageStyle, containerStyle]}>
@@ -88,7 +93,6 @@ const useStyles = useStylesWithTheme((theme) => ({
   contentContainer: {
     paddingVertical: 10,
     paddingHorizontal: 15,
-    width: "80%",
     borderRadius: 20,
     backgroundColor: theme.colors.dark02,
   },
@@ -100,6 +104,9 @@ const useStyles = useStylesWithTheme((theme) => ({
   },
   ownMessageStyle: {
     backgroundColor: theme.colors.purple,
+  },
+  ownUnSendMessageStyle: {
+    backgroundColor: theme.colors.green01,
   },
   otherMessagesStyle: {
     backgroundColor: theme.colors.dark04,

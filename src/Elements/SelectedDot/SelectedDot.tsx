@@ -25,9 +25,9 @@ const SelectedDot = ({
       <IconButton
         onPress={onPress}
         name={isSelected ? "selectmore" : "unselected"}
-        width={20}
-        height={20}
-        color={colors.white}
+        width={24}
+        height={24}
+        color={colors.grey02}
       />
     </View>
   );
@@ -40,5 +40,8 @@ const styles = StyleSheet.create({
     position: "absolute",
     zIndex: 100000000,
     alignItems: "center",
+    justifyContent: "center",
+    height: "100%",
+    left: 0,
   },
 });

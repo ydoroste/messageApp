@@ -36,7 +36,7 @@ const EditedWrapper = ({
     return () => {
       clearInterval(intervalRef.current as NodeJS.Timeout);
     };
-  }, [isEdited]);
+  }, [isEdited, editedDate]);
 
   const isLessThanTenMinutes = minutesDiff >= 0 && minutesDiff <= 10;
 

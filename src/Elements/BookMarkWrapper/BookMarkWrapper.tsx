@@ -44,7 +44,6 @@ export default BookMarkWrapper;
 const styles = StyleSheet.create({
   container: {
     alignSelf: "flex-end",
-    backgroundColor: "red",
     borderRadius: 20,
   },
   rightIconContainer: {

@@ -6,6 +6,14 @@ import useStylesWithTheme from "@followBack/Hooks/useStylesWithTheme";
 import { useUserDetails } from "@followBack/Hooks/useUserDetails";
 import { excludeUser } from "@followBack/Utils/messages";
 import { emailNameParcer } from "@followBack/Utils/email";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  useAnimatedGestureHandler,
+  withSpring,
+  interpolate,
+  runOnJS,
+} from "react-native-reanimated";
 import {
   IThreadMessage,
   Reaction,
@@ -25,6 +33,9 @@ import {
   deleteEmojiApi,
   updateEmojiApi,
 } from "@followBack/Apis/MessageReactions";
+import { PanGestureHandler } from "react-native-gesture-handler";
+import IconButton from "@followBack/GenericElements/IconButton";
+import CloseWrapper from "../CloseWrapper/CloseWrapper";
 
 const Message = ({
   item,
@@ -38,6 +49,10 @@ const Message = ({
   onSelectPress,
   replyToMessageContent,
   onNavigateToRepliedMessage,
+  onPressReplyToMessage,
+  isAllFromUnSend,
+  isCurrentMessageEditing,
+  onCloseEdit,
 }: {
   item: IThreadMessage;
   senderMenu: any;
@@ -50,6 +65,10 @@ const Message = ({
   onSelectPress: (index: number) => void;
   replyToMessageContent: IThreadMessage | undefined;
   onNavigateToRepliedMessage: (item: IThreadMessage) => void;
+  onPressReplyToMessage: (threadMessage: IThreadMessage) => void;
+  isAllFromUnSend: boolean;
+  isCurrentMessageEditing: boolean;
+  onCloseEdit: () => void;
 }) => {
   const { styles } = useStyles();
   const [reactions, setReactions] = useState<Reaction[] | []>(
@@ -60,29 +79,12 @@ const Message = ({
     setReactions(item.reactions || []);
   }, [JSON.stringify(item.reactions)]);
 
-  const { to, from, cc, bcc, createdAt } = item;
   const { userDetails } = useUserDetails();
   const isOwnMessage = !item?.from?.address
     ? true
     : userDetails.user_name === emailNameParcer(item?.from?.address);
 
-  const sender = from ?? {
-    name: userDetails.user_name,
-    address: userDetails.email,
-  };
-  const toList = to ?? [];
-  const ccList = cc ?? [];
-  const bccList = bcc ?? [];
-
-  const chatUsers = [...toList, ...ccList, ...bccList, sender];
   const [showDate, setShowDate] = useState(false);
-
-  const others = excludeUser({
-    users: chatUsers,
-    userAddress: `${userDetails.user_name}@${MAIL_DOMAIN}`,
-  });
-
-  const messageSender = sender;
 
   const myReactionIndex = reactions.findIndex(
     (reaction: Reaction) => reaction.byUserId === userDetails.wildduck_user_id
@@ -127,21 +129,25 @@ const Message = ({
     } catch (error) {}
   };
 
-  const DateSection = showDate && (
+  const DateSection = !isSelectAllActivated && showDate && (
     <View
       style={[
         {
           alignSelf: isOwnMessage ? "flex-start" : "flex-end",
           position: "absolute",
+          bottom: 0,
         },
       ]}
     >
       <Typography type="smallRegularBody" color="secondary">
-        {formatMessageDate(createdAt ?? "")}
+        {formatMessageDate(item.createdAt ?? "")}
       </Typography>
     </View>
   );
 
+  const adjustPositionStyle = {
+    ...(isOwnMessage ? { marginLeft: "auto" } : { marginRight: "auto" }),
+  };
   const menuProps = {
     key: `message-${item.messageId}`,
     menuOptions: isOwnMessage ? senderMenu(item) : receiverMenu,
@@ -155,18 +161,23 @@ const Message = ({
     },
     onEmojiPress: _onEmojiPress,
     emojis: ["thumbsup", "heart", "joy", "open_mouth", "pray", "cry"],
-    MessageContent: <MessageContent item={item} />,
+    MessageContent: (
+      <MessageContent item={item} isAllFromUnSend={isAllFromUnSend} />
+    ),
     index: index,
     disabled: isSelectAllActivated,
+    containerStyle: [
+      adjustPositionStyle,
+      {
+        maxWidth: "80%",
+        ...(!isOwnMessage && isSelectAllActivated ? { marginLeft: 41 } : {}),
+      },
+    ],
   };
 
   const uniqueReactions = [
     ...new Set(reactions.map((reaction) => reaction.reaction)),
   ];
-
-  const adjustPositionStyle = {
-    ...(isOwnMessage ? { marginLeft: "auto" } : { marginRight: "auto" }),
-  };
 
   const _onUnBookMarkedPress = () => {
     onUnBookMarkedPress({ ...item, index });
@@ -175,6 +186,37 @@ const Message = ({
   const _onNavigateToRepliedMessage = () => {
     onNavigateToRepliedMessage(item);
   };
+
+  const startPosition = 0;
+  const x = useSharedValue(startPosition);
+
+  const eventHandler = useAnimatedGestureHandler({
+    onActive(event, context) {
+      if (event.translationX >= 0) {
+        x.value = event.translationX;
+      }
+    },
+    onEnd(event, context) {
+      x.value = withSpring(0);
+      if (x.value >= 100) {
+        runOnJS(onPressReplyToMessage)({ ...item, index });
+      }
+    },
+  });
+
+  const uas = useAnimatedStyle(() => {
+    const translatedX = interpolate(x.value, [0, 100], [0, 50]);
+
+    return {
+      transform: [{ translateX: translatedX }],
+    };
+  });
+
+  const replyStyle = useAnimatedStyle(() => {
+    return {
+      opacity: interpolate(x.value, [80, 100], [0, 1]),
+    };
+  });
 
   if (item.isDeleted) {
     //TODO:
@@ -188,20 +230,35 @@ const Message = ({
   }
 
   return (
-    <View>
-      <RepliedToMessage
-        isVisible={!!replyToMessageContent}
-        isOwnMessage={isOwnMessage}
-        onNavigateToRepliedMessage={_onNavigateToRepliedMessage}
-      >
-        <MessageContent
-          item={replyToMessageContent as IThreadMessage}
-          containerStyle={styles.repliedToMessage}
-          textColor="secondary"
-        />
-      </RepliedToMessage>
+    <PanGestureHandler
+      onGestureEvent={eventHandler}
+      failOffsetY={[-5, 5]}
+      activeOffsetX={[-5, 5]}
+    >
+      <Animated.View style={[styles.swipeContainer, uas]}>
+        <Animated.View style={[styles.replyIconContainer, replyStyle]}>
+          <IconButton
+            disabled
+            name={"reply"}
+            width={17}
+            height={17}
+            color={"white"}
+          />
+        </Animated.View>
 
-      <Menu {...menuProps}>
+        <RepliedToMessage
+          isVisible={!!replyToMessageContent}
+          isOwnMessage={isOwnMessage}
+          onNavigateToRepliedMessage={_onNavigateToRepliedMessage}
+        >
+          <MessageContent
+            item={replyToMessageContent as IThreadMessage}
+            containerStyle={styles.repliedToMessage}
+            textColor="secondary"
+            isAllFromUnSend={isAllFromUnSend}
+          />
+        </RepliedToMessage>
+
         {isSelectAllActivated && (
           <SelectedDot
             isSelected={isSelected}
@@ -209,16 +266,8 @@ const Message = ({
             index={index}
           />
         )}
-        <View
-          style={[
-            adjustPositionStyle,
-            {
-              ...(!isOwnMessage && isSelectAllActivated
-                ? { marginLeft: 35 }
-                : {}),
-            },
-          ]}
-        >
+        {DateSection}
+        <Menu {...menuProps}>
           <BookMarkWrapper
             isBookMarked={item?.isBookMarked as boolean}
             isOwnMessage={isOwnMessage}
@@ -236,15 +285,22 @@ const Message = ({
                 myReactionIndex={myReactionIndex}
               >
                 <BorderWrapper isReplying={isReplying}>
-                  <MessageContent item={item} />
+                  <CloseWrapper
+                    isCurrentMessageEditing={isCurrentMessageEditing}
+                    onCloseEdit={onCloseEdit}
+                  >
+                    <MessageContent
+                      item={item}
+                      isAllFromUnSend={isAllFromUnSend}
+                    />
+                  </CloseWrapper>
                 </BorderWrapper>
               </EmojiWrapper>
             </EditedWrapper>
           </BookMarkWrapper>
-        </View>
-        {DateSection}
-      </Menu>
-    </View>
+        </Menu>
+      </Animated.View>
+    </PanGestureHandler>
   );
 };
 
@@ -256,26 +312,7 @@ const useStyles = useStylesWithTheme((theme) => ({
     textAlign: "center",
     position: "absolute",
   },
-  contentContainer: {
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    width: "80%",
-    borderRadius: 20,
-    backgroundColor: theme.colors.dark02,
-  },
-  activityIndicatorContainer: {
-    position: "absolute",
-    left: -20,
-    top: "30%",
-  },
-  ownMessageStyle: {
-    backgroundColor: theme.colors.purple,
-  },
-  otherMessagesStyle: {
-    backgroundColor: theme.colors.dark04,
-    borderColor: theme.colors.dark02,
-    borderWidth: 1,
-  },
+
   repliedToMessage: {
     backgroundColor: "transparent",
     borderWidth: 2,
@@ -283,6 +320,17 @@ const useStyles = useStylesWithTheme((theme) => ({
     maxWidth: 200,
     maxHeight: 200,
     overflow: "hidden",
+  },
+  replyIconContainer: {
+    position: "absolute",
+    left: -50,
+    alignSelf: "center",
+    justifyContent: "center",
+    alignItems: "center",
+    height: "100%",
+  },
+  swipeContainer: {
+    marginVertical: 7,
   },
 }));
 

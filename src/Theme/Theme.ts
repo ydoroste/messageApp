@@ -16,6 +16,7 @@ export const theme: Theme = {
     blue02: "#3aadff",
     purple: "#5200FF",
     green: "#31F4AE",
+    green01: "#0DA500",
   },
   fontFamilies: {
     OpenSans_400Regular: "OpenSans_400Regular",
