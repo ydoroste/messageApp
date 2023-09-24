@@ -34,6 +34,7 @@ const UnSelected = React.lazy(
 );
 const UnSend = React.lazy(() => import("@followBack/Theme/Icons/UnSend"));
 const Done = React.lazy(() => import("@followBack/Theme/Icons/Done"));
+const Verified = React.lazy(() => import("@followBack/Theme/Icons/Verified"));
 
 const iconMap: Record<iconsType, React.FC<IIconProps>> = {
   close: Close,
@@ -57,6 +58,7 @@ const iconMap: Record<iconsType, React.FC<IIconProps>> = {
   unselected: UnSelected,
   more: More,
   forward: Forward,
+  verified: Verified,
 };
 const IconButton: React.FC<IIconButtonProps> = ({
   name,

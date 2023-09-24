@@ -1,16 +1,17 @@
-import { StyleSheet, View } from 'react-native';
-import React, { memo } from 'react';
-import { IthreadCardProps } from '@followBack/Elements/ThreadCard/types';
-import Typography from '@followBack/GenericElements/Typography';
-import Avatar from '@followBack/Elements/Avatar';
-import { useUserDetails } from '@followBack/Hooks/useUserDetails';
-import { excludeUser } from '@followBack/Utils/messages';
-import { getThreadParticipantsUserName } from '@followBack/Utils/stringUtils';
-import { formatMessageDate } from '@followBack/Utils/date';
-import IconButton from '@followBack/GenericElements/IconButton';
-import useTheme from '@followBack/Hooks/useTheme';
-import { IContact } from '@followBack/Apis/Contacts/types';
-import { MAIL_DOMAIN } from '@followBack/Apis/constants';
+import { StyleSheet, View } from "react-native";
+import React, { memo } from "react";
+import { IthreadCardProps } from "@followBack/Elements/ThreadCard/types";
+import Typography from "@followBack/GenericElements/Typography";
+import Avatar from "@followBack/Elements/Avatar";
+import { useUserDetails } from "@followBack/Hooks/useUserDetails";
+import { excludeUser } from "@followBack/Utils/messages";
+import { getThreadParticipantsUserName } from "@followBack/Utils/stringUtils";
+import { formatMessageDate } from "@followBack/Utils/date";
+import IconButton from "@followBack/GenericElements/IconButton";
+import useTheme from "@followBack/Hooks/useTheme";
+import { IContact } from "@followBack/Apis/Contacts/types";
+import { MAIL_DOMAIN } from "@followBack/Apis/constants";
+import VerifiedIcon from "@followBack/GenericElements/VerifiedIcon/VerifiedIcon";
 
 const ThreadCard: React.FC<IthreadCardProps> = ({ threadItem }) => {
   if (!threadItem) return <></>;
@@ -40,39 +41,40 @@ const ThreadCard: React.FC<IthreadCardProps> = ({ threadItem }) => {
       : others;
 
   const message =
-    threadItem.text?.trim() && threadItem.text?.trim() !== ''
+    threadItem.text?.trim() && threadItem.text?.trim() !== ""
       ? threadItem.text?.trim()
-      : '<no message>';
+      : "<no message>";
   const subject =
-    threadItem.subject?.trim() && threadItem.subject?.trim() !== ''
+    threadItem.subject?.trim() && threadItem.subject?.trim() !== ""
       ? threadItem.subject?.trim()
-      : '<no subject>';
+      : "<no subject>";
   const isMessageSeen = threadItem.seen;
-  const textColor = isMessageSeen ? 'secondary' : 'chat';
+  const textColor = isMessageSeen ? "secondary" : "chat";
 
   return (
     <View style={styles.container}>
       <View style={{ ...styles.avatar }}>
-        <Avatar users={others} imageURL={''} />
+        <Avatar users={others} imageURL={threadItem.favicon} />
       </View>
 
       <View style={[styles.content, { flex: 3.5 }]}>
-        <View>
+        <View style={styles.headerIconContainer}>
           <Typography
-            type={isMessageSeen ? 'mediumRegularTitle' : 'mediumBoldTitle'}
+            type={isMessageSeen ? "mediumRegularTitle" : "mediumBoldTitle"}
             color={textColor}
-            ellipsizeMode='tail'
+            ellipsizeMode="tail"
             numberOfLines={1}
           >
             {getThreadParticipantsUserName(others)}
           </Typography>
+          {threadItem.favicon && <VerifiedIcon />}
         </View>
 
-        <View style={{ marginBottom: 3, flexDirection: 'row' }}>
+        <View style={{ marginBottom: 3, flexDirection: "row" }}>
           <Typography
-            type={isMessageSeen ? 'largeRegularBody' : 'largeBoldBody'}
+            type={isMessageSeen ? "largeRegularBody" : "largeBoldBody"}
             color={textColor}
-            ellipsizeMode='tail'
+            ellipsizeMode="tail"
             numberOfLines={1}
           >
             {subject}
@@ -80,35 +82,35 @@ const ThreadCard: React.FC<IthreadCardProps> = ({ threadItem }) => {
           {threadItem.lastHeader.attachments.length > 0 && (
             <IconButton
               onPress={() => {}}
-              name='attachment'
+              name="attachment"
               width={12}
               height={20}
               color={colors.grey01}
             />
           )}
         </View>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+        <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
           <Typography
-            type={isMessageSeen ? 'mediumRegularBody' : 'mediumBoldBody'}
+            type={isMessageSeen ? "mediumRegularBody" : "mediumBoldBody"}
             color={textColor}
-            ellipsizeMode='tail'
+            ellipsizeMode="tail"
             numberOfLines={1}
           >
             {message}
           </Typography>
           <Typography
-            type={isMessageSeen ? 'smallRegularBody' : 'smallBoldBody'}
+            type={isMessageSeen ? "smallRegularBody" : "smallBoldBody"}
             color={textColor}
-            ellipsizeMode='tail'
+            ellipsizeMode="tail"
             numberOfLines={1}
             lineHeight={17}
-            textAlign='center'
+            textAlign="center"
           >
             {formatMessageDate(threadItem.createdAt)}
           </Typography>
         </View>
       </View>
-      <View style={{ alignSelf: 'flex-end' }}></View>
+      <View style={{ alignSelf: "flex-end" }}></View>
     </View>
   );
 };
@@ -118,9 +120,9 @@ export default memo(ThreadCard);
 const styles = StyleSheet.create({
   container: {
     height: 80,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-start',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-start",
     flex: 1,
   },
 
@@ -130,6 +132,10 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    width: '100%',
+    width: "100%",
+  },
+  headerIconContainer: {
+    flexDirection: "row",
+    alignItems: "flex-start",
   },
 });

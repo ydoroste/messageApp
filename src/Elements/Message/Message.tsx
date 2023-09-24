@@ -36,6 +36,7 @@ import {
 import { PanGestureHandler } from "react-native-gesture-handler";
 import IconButton from "@followBack/GenericElements/IconButton";
 import CloseWrapper from "../CloseWrapper/CloseWrapper";
+import OriginalEmailWrapper from "../OriginalEmailWrapper/OriginalEmailWrapper";
 
 const Message = ({
   item,
@@ -278,24 +279,29 @@ const Message = ({
               isOwnMessage={isOwnMessage}
               editedDate={item.updatedAt as string}
             >
-              <EmojiWrapper
-                onReactedEmojiPress={onReactedEmojiPress}
-                reactions={uniqueReactions}
-                reactionCount={reactions.length}
-                myReactionIndex={myReactionIndex}
+              <OriginalEmailWrapper
+                isPromotional={item.promotional && item.html}
+                html={item.html}
               >
-                <BorderWrapper isReplying={isReplying}>
-                  <CloseWrapper
-                    isCurrentMessageEditing={isCurrentMessageEditing}
-                    onCloseEdit={onCloseEdit}
-                  >
-                    <MessageContent
-                      item={item}
-                      isAllFromUnSend={isAllFromUnSend}
-                    />
-                  </CloseWrapper>
-                </BorderWrapper>
-              </EmojiWrapper>
+                <EmojiWrapper
+                  onReactedEmojiPress={onReactedEmojiPress}
+                  reactions={uniqueReactions}
+                  reactionCount={reactions.length}
+                  myReactionIndex={myReactionIndex}
+                >
+                  <BorderWrapper isReplying={isReplying}>
+                    <CloseWrapper
+                      isCurrentMessageEditing={isCurrentMessageEditing}
+                      onCloseEdit={onCloseEdit}
+                    >
+                      <MessageContent
+                        item={item}
+                        isAllFromUnSend={isAllFromUnSend}
+                      />
+                    </CloseWrapper>
+                  </BorderWrapper>
+                </EmojiWrapper>
+              </OriginalEmailWrapper>
             </EditedWrapper>
           </BookMarkWrapper>
         </Menu>

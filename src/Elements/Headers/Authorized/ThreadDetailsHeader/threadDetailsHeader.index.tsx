@@ -1,19 +1,21 @@
-import React from 'react';
-import Typography from '@followBack/GenericElements/Typography';
-import useStylesWithTheme from '@followBack/Hooks/useStylesWithTheme';
-import useTheme from '@followBack/Hooks/useTheme';
-import { TouchableHighlight, View } from 'react-native';
+import React from "react";
+import Typography from "@followBack/GenericElements/Typography";
+import useStylesWithTheme from "@followBack/Hooks/useStylesWithTheme";
+import useTheme from "@followBack/Hooks/useTheme";
+import { TouchableHighlight, View } from "react-native";
 
-import IconButton from '@followBack/GenericElements/IconButton';
-import { AuthorizedScreensEnum } from '@followBack/Navigation/Authorized/constants';
-import { Feather } from '@expo/vector-icons';
-import { ThreadDetailsHeaderProps } from './threadDetailsHeader.types';
+import IconButton from "@followBack/GenericElements/IconButton";
+import { AuthorizedScreensEnum } from "@followBack/Navigation/Authorized/constants";
+import { Feather } from "@expo/vector-icons";
+import { ThreadDetailsHeaderProps } from "./threadDetailsHeader.types";
+import VerifiedIcon from "@followBack/GenericElements/VerifiedIcon/VerifiedIcon";
 
 const ThreadDetailsHeader: React.FC<ThreadDetailsHeaderProps> = ({
   navigation,
   subject,
   receiver,
   firtMessageDate,
+  favicon,
 }) => {
   const onBackButtonPress = () => {
     navigation?.navigate(AuthorizedScreensEnum.threadsListStack, {
@@ -23,43 +25,44 @@ const ThreadDetailsHeader: React.FC<ThreadDetailsHeaderProps> = ({
   const { colors } = useTheme();
   const { styles } = useStyles();
   const parsedSubject =
-    subject?.trim() && subject?.trim() !== ''
+    subject?.trim() && subject?.trim() !== ""
       ? subject?.trim()
-      : '<no subject>';
+      : "<no subject>";
   return (
     <View>
       <View style={styles.headerContainer}>
         <IconButton
-          name='back'
+          name="back"
           onPress={onBackButtonPress}
           color={colors.grey02}
           width={20}
           height={32}
         />
         <View style={styles.headerTitleContainer}>
-          <View style={styles.textContainer}>
+          <View style={[styles.row, styles.textContainer]}>
             <Typography
-              type='mediumBoldTitle'
-              textAlign='center'
-              color={'primary'}
+              type="mediumBoldTitle"
+              textAlign="center"
+              color={"primary"}
             >
               {receiver}
             </Typography>
+            {favicon && <VerifiedIcon />}
           </View>
           <View style={styles.textContainer}>
             <Typography
-              type='largeBoldBody'
-              textAlign='center'
-              color={'secondary'}
+              type="largeBoldBody"
+              textAlign="center"
+              color={"secondary"}
             >
               {parsedSubject}
             </Typography>
           </View>
 
           <Typography
-            type='smallRegularBody'
-            textAlign='center'
-            color={'secondary'}
+            type="smallRegularBody"
+            textAlign="center"
+            color={"secondary"}
           >
             {firtMessageDate}
           </Typography>
@@ -71,7 +74,7 @@ const ThreadDetailsHeader: React.FC<ThreadDetailsHeaderProps> = ({
           underlayColor={colors.grey01}
           onPress={() => null}
         >
-          <Feather name='info' size={24} color={colors.grey02} />
+          <Feather name="info" size={24} color={colors.grey02} />
         </TouchableHighlight>
       </View>
     </View>
@@ -80,18 +83,25 @@ const ThreadDetailsHeader: React.FC<ThreadDetailsHeaderProps> = ({
 
 const useStyles = useStylesWithTheme((theme) => ({
   headerContainer: {
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
     marginBottom: 18,
   },
   headerTitleContainer: {
-    alignItems: 'center',
-    maxWidth: '80%',
+    alignItems: "center",
+    maxWidth: "80%",
   },
   textContainer: {
     marginBottom: 10,
+  },
+  row: {
+    flexDirection: "row",
+  },
+  verifiedContainer: {
+    marginTop: -5,
+    marginBottom: -30,
   },
 }));
 

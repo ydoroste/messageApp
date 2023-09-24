@@ -1,5 +1,5 @@
-import Typography from '@followBack/GenericElements/Typography';
-import React, { memo, useCallback, useEffect, useState } from 'react';
+import Typography from "@followBack/GenericElements/Typography";
+import React, { memo, useCallback, useEffect, useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -8,40 +8,40 @@ import {
   View,
   Dimensions,
   ViewStyle,
-} from 'react-native';
+} from "react-native";
 
-import useTheme from '@followBack/Hooks/useTheme';
-import { FlashList } from '@shopify/flash-list';
-import ThreadCard from '@followBack/Elements/ThreadCard';
-import { useFetchthreadsList } from '@followBack/Hooks/Apis/ThreadsList';
-import { useSearch } from '@followBack/Hooks/useSearch';
-import { AuthorizedScreensEnum } from '@followBack/Navigation/Authorized/constants';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { authorizedStackNavigationProps } from '@followBack/Navigation/Authorized/types';
-import { useMailBoxes } from '@followBack/Hooks/useMailboxes';
-import LoadingScreen from '@followBack/Elements/LoadingScreen/LoadingScreen.index';
-import { Thread } from '@followBack/Apis/threadsList/type';
-import { Swipeable } from 'react-native-gesture-handler';
-import IconButton from '@followBack/GenericElements/IconButton';
-import { editBookmark } from '@followBack/Apis/Bookmarks';
-import { getContactsListApi } from '@followBack/Apis/Contacts';
+import useTheme from "@followBack/Hooks/useTheme";
+import { FlashList } from "@shopify/flash-list";
+import ThreadCard from "@followBack/Elements/ThreadCard";
+import { useFetchthreadsList } from "@followBack/Hooks/Apis/ThreadsList";
+import { useSearch } from "@followBack/Hooks/useSearch";
+import { AuthorizedScreensEnum } from "@followBack/Navigation/Authorized/constants";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { authorizedStackNavigationProps } from "@followBack/Navigation/Authorized/types";
+import { useMailBoxes } from "@followBack/Hooks/useMailboxes";
+import LoadingScreen from "@followBack/Elements/LoadingScreen/LoadingScreen.index";
+import { Thread } from "@followBack/Apis/threadsList/type";
+import { Swipeable } from "react-native-gesture-handler";
+import IconButton from "@followBack/GenericElements/IconButton";
+import { editBookmark } from "@followBack/Apis/Bookmarks";
+import { getContactsListApi } from "@followBack/Apis/Contacts";
 import {
   deleteContacts,
   getContacts,
   setContacts,
-} from '@followBack/Utils/contactDetails';
-import SkeletonContent from 'react-native-skeleton-content';
-import SkeletonLoader from 'expo-skeleton-loader';
+} from "@followBack/Utils/contactDetails";
+import SkeletonContent from "react-native-skeleton-content";
+import SkeletonLoader from "expo-skeleton-loader";
 
-const windowWidth = Dimensions.get('window').width;
-const windowHeight = Dimensions.get('window').height;
+const windowWidth = Dimensions.get("window").width;
+const windowHeight = Dimensions.get("window").height;
 
 const ThreadList: React.FC = () => {
-  const nav = useNavigation<authorizedStackNavigationProps['navigation']>();
+  const nav = useNavigation<authorizedStackNavigationProps["navigation"]>();
   const { data: mail } = useMailBoxes();
   const { id } = mail?.data.mailboxes?.find(
-    (t) => t.mailbox.toLowerCase() === 'inbox'
-  ) ?? { id: '' };
+    (t) => t.mailbox.toLowerCase() === "inbox"
+  ) ?? { id: "" };
   const { colors } = useTheme();
   const { searchValue } = useSearch();
   const [isInitialLoading, setIsInitialLoading] = useState(true);
@@ -73,9 +73,9 @@ const ThreadList: React.FC = () => {
       if (typeof contactsList !== typeof undefined && contactsList !== null) {
         return;
       }
-      const contactsFromAPI = await getContactsListApi({ searchValue: '' });
+      const contactsFromAPI = await getContactsListApi({ searchValue: "" });
       await setContacts(JSON.stringify(contactsFromAPI.contacts));
-      console.log('contacts from API', contactsFromAPI);
+      console.log("contacts from API", contactsFromAPI);
     };
     getContactsData();
   });
@@ -95,12 +95,12 @@ const ThreadList: React.FC = () => {
   const renderRightActions = (item: Thread | undefined) => {
     if (!item) return <></>;
     return (
-      <View style={{ width: windowWidth / 10, justifyContent: 'center' }}>
+      <View style={{ width: windowWidth / 10, justifyContent: "center" }}>
         <IconButton
           onPress={() => {
             onBookmarkPressed(item);
           }}
-          name='pin'
+          name="pin"
           width={25}
           height={31}
           color={item.favorite ? colors.white : colors.grey01}
@@ -110,12 +110,12 @@ const ThreadList: React.FC = () => {
   };
 
   if (isLoading) {
-    return <LoadingScreen loadingText={'Loading'} loadingIndecatorSize={20} />;
+    return <LoadingScreen loadingText={"Loading"} loadingIndecatorSize={20} />;
   }
   if (isError)
     return (
       <View style={styles.emptyOrErrorMessageContainer}>
-        <Typography color='secondary' type='largeRegularBody'>
+        <Typography color="secondary" type="largeRegularBody">
           An error occurred while fetching data
         </Typography>
       </View>
@@ -125,7 +125,7 @@ const ThreadList: React.FC = () => {
   if (isEmptyList) {
     return (
       <View style={styles.emptyOrErrorMessageContainer}>
-        <Typography color='secondary' type='largeRegularBody'>
+        <Typography color="secondary" type="largeRegularBody">
           no results
         </Typography>
       </View>
@@ -141,7 +141,7 @@ const ThreadList: React.FC = () => {
   }) => (
     <SkeletonLoader>
       <SkeletonLoader.Container
-        style={[{ flex: 1, flexDirection: 'row' }, style]}
+        style={[{ flex: 1, flexDirection: "row" }, style]}
       >
         <SkeletonLoader.Item
           style={{
@@ -197,12 +197,12 @@ const ThreadList: React.FC = () => {
   };
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
       keyboardVerticalOffset={100}
       style={{ flex: 1, backgroundColor: colors.black }}
     >
       {isLoading && (
-        <Typography color='secondary' type='smallBoldBody'>
+        <Typography color="secondary" type="smallBoldBody">
           Loading...
         </Typography>
       )}
@@ -215,8 +215,8 @@ const ThreadList: React.FC = () => {
         }
       >
         {isSuccess && !!searchValue && (
-          <Typography type='largeRegularBody' color='secondary'>
-            {threadsList.length} search results{' '}
+          <Typography type="largeRegularBody" color="secondary">
+            {threadsList.length} search results{" "}
           </Typography>
         )}
       </View>
@@ -225,7 +225,7 @@ const ThreadList: React.FC = () => {
         <View style={styles.container}>
           <FlashList
             keyExtractor={(item, index) => {
-              return item?.threadId ?? '' + '_' + index;
+              return item?.threadId ?? "" + "_" + index;
             }}
             scrollIndicatorInsets={{ right: 1 }}
             data={threadsList}
@@ -245,19 +245,19 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 20,
-    backgroundColor: 'black',
+    backgroundColor: "black",
   },
   searchCountWrapper: {
-    alignSelf: 'center',
+    alignSelf: "center",
   },
   moveSearchCounter: {
     marginTop: 50,
   },
   emptyOrErrorMessageContainer: {
-    alignItems: 'center',
+    alignItems: "center",
     flex: 1,
-    height: '100%',
-    backgroundColor: 'black',
+    height: "100%",
+    backgroundColor: "black",
     paddingTop: 50,
   },
 });

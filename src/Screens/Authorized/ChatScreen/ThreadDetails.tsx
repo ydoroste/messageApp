@@ -56,7 +56,13 @@ import { BlurView } from "expo-blur";
 const ThreadDetails: React.FC = ({ navigation, route }) => {
   const { threadInfo } = route.params;
 
-  const { threadId: id, topicId, subject, lastHeader } = threadInfo as Thread;
+  const {
+    threadId: id,
+    topicId,
+    subject,
+    lastHeader,
+    favicon,
+  } = threadInfo as Thread;
   const params = route.params;
   const [allMessages, setAllMessages] = useState<
     (IThreadMessage | undefined)[]
@@ -735,6 +741,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
               subject={subject}
               firtMessageDate={firstMessageDate}
               navigation={navigation}
+              favicon={favicon}
             />
           )}
 

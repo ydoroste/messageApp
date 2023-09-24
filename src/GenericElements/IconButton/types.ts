@@ -28,4 +28,5 @@ export type iconsType =
   | "done"
   | "unselected"
   | "more"
-  | "forward";
+  | "forward"
+  | "verified";
