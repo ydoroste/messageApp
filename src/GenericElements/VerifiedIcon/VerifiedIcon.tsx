@@ -14,7 +14,7 @@ const VerifiedIcon: React.FC = ({}) => {
         name={"verified"}
         width={24}
         height={24}
-        color={colors.blue02}
+        color={colors.blue03}
       />
     </View>
   );
