@@ -50,7 +50,7 @@ const useStyles = useStylesWithTheme((theme) => ({
   container: {
     ...StyleSheet.absoluteFillObject,
     zIndex: 100000000000000,
-    paddingBottom: 119,
+    paddingBottom: 84,
   },
   bottomContainer: {
     height: 24,
@@ -61,12 +61,12 @@ const useStyles = useStylesWithTheme((theme) => ({
     paddingVertical: 4,
     paddingHorizontal: 32,
     position: "absolute",
-    bottom: 95,
+    bottom: 60,
     left: 0,
     right: 0,
   },
   blackContainer: {
-    height: 95,
+    height: 60,
     zIndex: 10000000000000,
     left: 0,
     right: 0,
