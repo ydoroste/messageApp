@@ -52,6 +52,7 @@ import { MAIL_DOMAIN } from "@followBack/Apis/constants";
 import ReplyToMessage from "@followBack/Elements/ReplyToMessage/ReplyToMessage";
 import SelectAllWrapper from "@followBack/Elements/SelectAllWrapper/SelectAllWrapper";
 import { BlurView } from "expo-blur";
+import OriginalEmailViewContainerWrapper from "@followBack/Elements/OriginalEmailViewContainer/OriginalEmailViewContainer";
 
 const ThreadDetails: React.FC = ({ navigation, route }) => {
   const { threadInfo } = route.params;
@@ -85,6 +86,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
     useState<boolean>(false);
   const [attachments, setAttachments] = useState<string[]>([]);
   const [attachmentsLocalURI, setAttachmentsLocalURI] = useState<string[]>([]);
+  const [originalHtml, setOriginalHtml] = useState("");
   const [messageToEdit, setIsEditingMessage] = useState<
     IThreadMessage | undefined
   >(undefined);
@@ -558,6 +560,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
               onNavigateToRepliedMessage={onNavigateToRepliedMessage}
               isCurrentMessageEditing={isCurrentMessageEditing}
               onCloseEdit={onCloseEdit}
+              onPressViewOriginalEmail={onPressViewOriginalEmail}
             />
           )
         )}
@@ -721,6 +724,24 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
     onSelectAllCancelPress();
   };
 
+  const onPressViewOriginalEmail = (html: string) => {
+    setOriginalHtml(html);
+  };
+
+  const onPressViewSummarizedEmail = () => {
+    setOriginalHtml("");
+  };
+
+  const ThreadHeaderComponent = hasData && (
+    <ThreadDetailsHeader
+      receiver={getThreadParticipantsUserName(others)}
+      subject={subject}
+      firtMessageDate={firstMessageDate}
+      navigation={navigation}
+      favicon={favicon}
+    />
+  );
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : undefined}
@@ -735,26 +756,24 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
           onSelectAllDeletePress={onSelectAllDeletePress}
           onSelectAllBookMarkPress={onSelectAllBookMarkPress}
         >
-          {hasData && (
-            <ThreadDetailsHeader
-              receiver={getThreadParticipantsUserName(others)}
-              subject={subject}
-              firtMessageDate={firstMessageDate}
-              navigation={navigation}
-              favicon={favicon}
+          <OriginalEmailViewContainerWrapper
+            onPressViewSummarizedEmail={onPressViewSummarizedEmail}
+            html={originalHtml}
+            Header={ThreadHeaderComponent}
+          >
+            {ThreadHeaderComponent}
+
+            {renderChat()}
+
+            <MailSender
+              text={mail}
+              onChangeMailContent={onChangeMailContent}
+              onPressCompose={onPressCompose}
+              onPressAttachments={onPressAttachments}
+              tempAttachments={attachments}
+              isEditingMessage={isEditingMessage}
             />
-          )}
-
-          {renderChat()}
-
-          <MailSender
-            text={mail}
-            onChangeMailContent={onChangeMailContent}
-            onPressCompose={onPressCompose}
-            onPressAttachments={onPressAttachments}
-            tempAttachments={attachments}
-            isEditingMessage={isEditingMessage}
-          />
+          </OriginalEmailViewContainerWrapper>
         </SelectAllWrapper>
       </View>
     </KeyboardAvoidingView>

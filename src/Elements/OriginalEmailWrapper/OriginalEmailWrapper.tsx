@@ -1,47 +1,28 @@
 import Typography from "@followBack/GenericElements/Typography";
-import React, { useCallback, useState } from "react";
-import { WebView } from "react-native-webview";
-import { StyleSheet, Pressable, Modal, ScrollView } from "react-native";
-import IconButton from "@followBack/GenericElements/IconButton";
-import { useWindowDimensions } from "react-native";
+import React from "react";
+import { StyleSheet, Pressable } from "react-native";
 
 interface OriginalEmailProps {
   children: React.ReactNode;
   html?: string;
   isPromotional: boolean;
+  onPressViewOriginalEmail: (html: string) => void;
 }
 
 const OriginalEmailWrapper = ({
   html,
   children,
   isPromotional,
+  onPressViewOriginalEmail,
 }: OriginalEmailProps) => {
-  const { width } = useWindowDimensions();
-  const [isOriginalEmailViewPressed, setIsOriginalEmailViewPressed] =
-    useState(false);
-  const toggleModal = useCallback(() => {
-    setIsOriginalEmailViewPressed((preState) => !preState);
-  }, []);
   return (
     <>
       {children}
-      {isOriginalEmailViewPressed && (
-        <Modal>
-          <Pressable style={styles.iconContainer} onPress={toggleModal}>
-            <IconButton
-              onPress={toggleModal}
-              disabled
-              name={"close"}
-              width={20}
-              height={20}
-              color={"black"}
-            />
-          </Pressable>
-          <WebView originWhitelist={["*"]} source={{ html: html as string }} />
-        </Modal>
-      )}
-      {isPromotional && false && (
-        <Pressable style={styles.promotionalContainer} onPress={toggleModal}>
+      {isPromotional && (
+        <Pressable
+          style={styles.promotionalContainer}
+          onPress={() => onPressViewOriginalEmail(html as string)}
+        >
           <Typography type="mediumRegularBody" color="blue">
             {`view original email >`}
           </Typography>

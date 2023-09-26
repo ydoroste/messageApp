@@ -54,6 +54,7 @@ const Message = ({
   isAllFromUnSend,
   isCurrentMessageEditing,
   onCloseEdit,
+  onPressViewOriginalEmail,
 }: {
   item: IThreadMessage;
   senderMenu: any;
@@ -70,6 +71,7 @@ const Message = ({
   isAllFromUnSend: boolean;
   isCurrentMessageEditing: boolean;
   onCloseEdit: () => void;
+  onPressViewOriginalEmail: (html: string) => void;
 }) => {
   const { styles } = useStyles();
   const [reactions, setReactions] = useState<Reaction[] | []>(
@@ -280,8 +282,9 @@ const Message = ({
               editedDate={item.updatedAt as string}
             >
               <OriginalEmailWrapper
-                isPromotional={item.promotional && item.html}
+                isPromotional={item?.promotional && item.html}
                 html={item.html}
+                onPressViewOriginalEmail={onPressViewOriginalEmail}
               >
                 <EmojiWrapper
                   onReactedEmojiPress={onReactedEmojiPress}
