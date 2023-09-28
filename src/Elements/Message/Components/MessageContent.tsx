@@ -1,4 +1,3 @@
-import Typography from "@followBack/GenericElements/Typography";
 import React from "react";
 import { View, Image, ImageStyle, StyleProp, ViewStyle } from "react-native";
 import useStylesWithTheme from "@followBack/Hooks/useStylesWithTheme";
@@ -9,6 +8,9 @@ import { IThreadMessage } from "@followBack/Apis/ThreadMessages/types";
 import { ScrollView } from "react-native-gesture-handler";
 import { MAIL_DOMAIN } from "@followBack/Apis/constants";
 import { colorTypes } from "@followBack/GenericElements/Typography/types";
+import RenderHTML, { MixedStyleDeclaration } from "react-native-render-html";
+import { colorsToTheme } from "@followBack/GenericElements/Typography/utils";
+import useTheme from "@followBack/Hooks/useTheme";
 
 const MessageContent = ({
   item,
@@ -22,6 +24,10 @@ const MessageContent = ({
   isAllFromUnSend: boolean;
 }) => {
   const { styles } = useStyles();
+
+  const color = colorsToTheme[textColor];
+
+  const { colors } = useTheme();
 
   const { text, to, from, cc, bcc } = item;
   const { userDetails } = useUserDetails();
@@ -58,17 +64,23 @@ const MessageContent = ({
       ? styles.ownMessageStyle
       : styles.otherMessagesStyle;
 
+  const isSomeOneInGroup = isGroupChat && !isOwnMessage;
+
+  const injectedHtml = isSomeOneInGroup
+    ? `<strong>${userFirstName}  </strong>`
+    : "";
+
   return (
     <View style={[styles.contentContainer, messageStyle, containerStyle]}>
       {text && (
-        <Typography type="largeRegularBody" color={textColor}>
-          {isGroupChat && !isOwnMessage && (
-            <Typography type="largeBoldBody" color={textColor}>
-              {userFirstName + " "}
-            </Typography>
-          )}
-          {text}
-        </Typography>
+        <RenderHTML
+          baseStyle={
+            { ...styles.html, color: colors[color] } as MixedStyleDeclaration
+          }
+          source={{
+            html: injectedHtml + text,
+          }}
+        />
       )}
       {item.attachments && item.attachments.length > 0 && (
         <ScrollView horizontal style={{ maxHeight: 100 }}>
@@ -112,6 +124,11 @@ const useStyles = useStylesWithTheme((theme) => ({
     backgroundColor: theme.colors.dark04,
     borderColor: theme.colors.dark02,
     borderWidth: 1,
+  },
+  html: {
+    fontFamily: theme.fontFamilies.OpenSans_700Bold,
+    fontSize: theme.fontSizes.medium,
+    lineHeight: theme.lineHeights.medium,
   },
 }));
 

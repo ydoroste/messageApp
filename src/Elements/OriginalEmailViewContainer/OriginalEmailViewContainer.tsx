@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { WebView } from "react-native-webview";
-import { Pressable, StyleSheet } from "react-native";
+import { Linking, Pressable, StyleSheet } from "react-native";
 import { View } from "react-native";
 import Typography from "@followBack/GenericElements/Typography";
 import useStylesWithTheme from "@followBack/Hooks/useStylesWithTheme";
@@ -19,13 +19,26 @@ const OriginalEmailViewContainerWrapper = ({
   Header,
 }: OriginalEmailViewContainerProps) => {
   const { styles } = useStyles();
+
+  const handleShouldStartLoadWithRequest = useCallback((event: any) => {
+    const url = event.url;
+    if (url.startsWith("http://") || url.startsWith("https://")) {
+      Linking.openURL(url);
+      return false;
+    }
+    return true;
+  }, []);
   return (
     <>
       {children}
       {html && (
         <View style={styles.container}>
           {Header}
-          <WebView originWhitelist={["*"]} source={{ html: html as string }} />
+          <WebView
+            onShouldStartLoadWithRequest={handleShouldStartLoadWithRequest}
+            originWhitelist={["*"]}
+            source={{ html: html as string }}
+          />
           <View style={styles.blackContainer} />
           <View style={styles.bottomContainer}>
             <Pressable onPress={onPressViewSummarizedEmail}>
@@ -44,7 +57,7 @@ const OriginalEmailViewContainerWrapper = ({
   );
 };
 
-export default OriginalEmailViewContainerWrapper;
+export default React.memo(OriginalEmailViewContainerWrapper);
 
 const useStyles = useStylesWithTheme((theme) => ({
   container: {

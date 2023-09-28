@@ -30,6 +30,7 @@ export interface IThreadMessage {
   forwarded?: boolean;
   createdAt?: string;
   subject?: string;
+  bcc: any;
   // For sake of determining if the message failed to be sent or not
   // Moved to failed message list, not received from API, it's local one
   notConfirmedNewMessage?: boolean;
@@ -37,6 +38,7 @@ export interface IThreadMessage {
   updatedAt?: string;
   isDeleted?: boolean;
   index?: number;
+  promotional?: boolean;
 }
 
 export interface IDeleteMessageRequest {

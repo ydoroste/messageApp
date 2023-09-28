@@ -282,7 +282,7 @@ const Message = ({
               editedDate={item.updatedAt as string}
             >
               <OriginalEmailWrapper
-                isPromotional={item?.promotional && item.html}
+                isPromotional={(item?.promotional && item.html) as boolean}
                 html={item.html}
                 onPressViewOriginalEmail={onPressViewOriginalEmail}
               >
