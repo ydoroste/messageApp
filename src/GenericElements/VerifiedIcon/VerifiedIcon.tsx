@@ -10,9 +10,9 @@ const VerifiedIcon: React.FC = ({}) => {
   return (
     <View style={styles.verifiedContainer}>
       <IconButton
-        onPress={() => {}}
         name={"verified"}
         width={24}
+        disabled
         height={24}
         color={colors.blue03}
       />
