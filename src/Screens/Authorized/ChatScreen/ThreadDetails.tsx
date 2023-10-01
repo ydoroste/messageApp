@@ -562,15 +562,6 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
     );
   };
 
-  const overrideItemLayout = useCallback(
-    (_: any, __: any, index: number) => ({
-      length: 150,
-      offset: 150 * index,
-      index,
-    }),
-    []
-  );
-
   const endReached = useCallback(() => {
     loadNextPageData();
   }, []);
@@ -611,7 +602,6 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
             estimatedItemSize={60}
             initialNumToRender={10}
             onMomentumScrollBegin={onMomentumScrollBegin}
-            overrideItemLayout={overrideItemLayout}
             keyboardShouldPersistTaps="handled"
             inverted
             onEndReached={onEndReached}
@@ -820,6 +810,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 5,
     flexGrow: 1,
     justifyContent: "flex-end",
+    paddingTop: 30,
   },
   titleText: {
     height: 25,
