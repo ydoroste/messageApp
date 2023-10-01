@@ -108,6 +108,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
   const scrollViewRef = useRef<FlatList<any> | null>(null);
   const hasData = allMessages.length > 0;
   const firstMessage = allMessages[0];
+  const isFirstTimeRender = useRef(true);
 
   const firstMessageDate = hasData
     ? conversationDateTime(firstMessage?.createdAt ?? "")
@@ -581,9 +582,18 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
     []
   );
 
-  const onEndReached = useCallback(() => {
-    setRenderCount((prevCount) => prevCount + 10);
-  }, []);
+  const onEndReached = () => {
+    if (!isFirstTimeRender.current) {
+      setRenderCount((prevCount) => prevCount + 10);
+    }
+  };
+
+  const onMomentumScrollBegin = () => {
+    if (isFirstTimeRender.current) {
+      isFirstTimeRender.current = false;
+      onEndReached();
+    }
+  };
 
   const renderChat = () => {
     return (
@@ -599,6 +609,8 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
             showsVerticalScrollIndicator
             contentContainerStyle={styles.contentContainerStyle}
             estimatedItemSize={60}
+            initialNumToRender={10}
+            onMomentumScrollBegin={onMomentumScrollBegin}
             overrideItemLayout={overrideItemLayout}
             keyboardShouldPersistTaps="handled"
             inverted
