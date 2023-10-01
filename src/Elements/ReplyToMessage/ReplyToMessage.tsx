@@ -7,7 +7,7 @@ import { View, Pressable } from "react-native";
 interface ReplyToMessageProps {
   item: IThreadMessage;
   onCancelPress: () => void;
-  onReplyToPress: (index: number) => void;
+  onReplyToPress: (messageId: string) => void;
 }
 
 const ReplyToMessage = ({
@@ -18,7 +18,7 @@ const ReplyToMessage = ({
   const { styles } = useStyles();
 
   const _onReplyToPress = () => {
-    onReplyToPress(item?.index as number);
+    onReplyToPress(item.messageId as string);
   };
   return (
     <View style={styles.container}>

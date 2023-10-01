@@ -103,7 +103,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
   const [selectedMessageIds, setSelectedMessageIds] = useState<
     Record<string, boolean>
   >({});
-  const [renderCount, setRenderCount] = useState(10);
+  const [renderCount, setRenderCount] = useState(15);
 
   const scrollViewRef = useRef<FlatList<any> | null>(null);
   const hasData = allMessages.length > 0;
@@ -659,13 +659,24 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
         {replyToMessage !== undefined && (
           <ReplyToMessage
             item={replyToMessage}
-            onReplyToPress={scrollToIndex}
+            onReplyToPress={onReplyToPress}
             onCancelPress={onCancelPress}
           />
         )}
       </View>
     );
   };
+
+  const onReplyToPress = useCallback(
+    (messageId: string) => {
+      const index = allMessages.findIndex(
+        (message: IThreadMessage) => message?.messageId === messageId
+      );
+
+      scrollToIndex(index);
+    },
+    [allMessages, scrollToIndex]
+  );
   const scrollToIndex = useCallback((index: number) => {
     scrollViewRef?.current?.scrollToIndex({
       animated: true,
