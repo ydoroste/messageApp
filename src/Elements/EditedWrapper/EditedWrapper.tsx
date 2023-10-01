@@ -42,7 +42,7 @@ const EditedWrapper = ({
 
   return (
     <>
-      <View style={styles.container}>{children}</View>
+      {children}
       {isEdited && (
         <View
           style={{
@@ -60,9 +60,3 @@ const EditedWrapper = ({
 };
 
 export default EditedWrapper;
-
-const styles = StyleSheet.create({
-  container: {
-    alignSelf: "flex-end",
-  },
-});

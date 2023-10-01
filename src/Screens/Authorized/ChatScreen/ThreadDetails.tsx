@@ -810,7 +810,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 5,
     flexGrow: 1,
     justifyContent: "flex-end",
-    paddingTop: 30,
   },
   titleText: {
     height: 25,
