@@ -19,7 +19,6 @@ export const getUserName = async (userAddress: string) => {
       const userName = name;
       localContactsList.push({ address: userAddress, name: userName });
       await setContacts(JSON.stringify(localContactsList));
-      console.log(localContactsList);
       return userName;
     }
   } else {

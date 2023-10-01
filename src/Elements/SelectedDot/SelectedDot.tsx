@@ -5,17 +5,17 @@ import { View, StyleSheet } from "react-native";
 
 interface SelectedDotProps {
   isSelected: boolean;
-  onSelectPress: (index: number) => void;
-  index: number;
+  onSelectPress: (messageId: string) => void;
+  messageId: string;
 }
 
 const SelectedDot = ({
   isSelected,
   onSelectPress,
-  index,
+  messageId,
 }: SelectedDotProps) => {
   const onPress = () => {
-    onSelectPress(index);
+    onSelectPress(messageId);
   };
 
   const { colors } = useTheme();

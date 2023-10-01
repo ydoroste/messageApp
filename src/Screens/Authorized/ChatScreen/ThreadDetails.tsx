@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  useMemo,
+} from "react";
 import {
   View,
   KeyboardAvoidingView,
@@ -7,9 +13,9 @@ import {
   Alert,
   Image,
   Pressable,
-  Keyboard,
+  InteractionManager,
+  FlatList,
 } from "react-native";
-
 import { setStringAsync } from "expo-clipboard";
 import useTheme from "@followBack/Hooks/useTheme";
 import { useFetchThreadMessages } from "@followBack/Hooks/Apis/ThreadMessages";
@@ -23,7 +29,6 @@ import {
   conversationDateTime,
   isTimelimitExceeded,
 } from "@followBack/Utils/date";
-import { useFocusEffect } from "@react-navigation/native";
 import { IComposeApiRequest } from "@followBack/Apis/Compose/types";
 import LoadingScreen from "@followBack/Elements/LoadingScreen/LoadingScreen.index";
 import { FlashList } from "@shopify/flash-list";
@@ -64,7 +69,6 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
     lastHeader,
     favicon,
   } = threadInfo as Thread;
-  const params = route.params;
   const [allMessages, setAllMessages] = useState<
     (IThreadMessage | undefined)[]
   >([]);
@@ -76,11 +80,10 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
   const { userDetails } = useUserDetails();
   const { failedMessagesData, setFailedMessagesData } = useFailedMessages();
   const onChangeMailContent = ({ value }: { value: string }) => setMail(value);
-  const [refetchData, setRefetchData] = useState(false);
   const [lastMessageData, setLastMessageData] = useState<IThreadMessage>();
   const { data, isError, hasNextPage, fetchNextPage } = useFetchThreadMessages({
     id,
-    refetchData,
+    refetchData: true,
   });
   const [isUploadingAttachment, setIsUploadingAttachment] =
     useState<boolean>(false);
@@ -93,56 +96,59 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
   const [replyToMessage, setReplyTo] = useState<IThreadMessage | undefined>(
     undefined
   );
-  const [lastMessages, setLastMessages] = useState<string | undefined>(
-    undefined
-  );
-  const [usernames, setUsernames] = useState<string | undefined>("");
 
   const [isSelectAllActivated, setIsSelectAllActivated] =
     useState<boolean>(false);
 
-  const [selectedIndexes, setSelectedIndexes] = useState<
+  const [selectedMessageIds, setSelectedMessageIds] = useState<
     Record<string, boolean>
   >({});
+  const [renderCount, setRenderCount] = useState(10);
 
-  const scrollViewRef = useRef<FlashList<IThreadMessage[]> | undefined>(null);
+  const scrollViewRef = useRef<FlatList<IThreadMessage[]> | null>(null);
   const hasData = allMessages.length > 0;
   const firstMessage = allMessages[0];
 
   const firstMessageDate = hasData
     ? conversationDateTime(firstMessage?.createdAt ?? "")
     : "";
+  const getOthers = useCallback(() => {
+    let others = excludeUser({
+      users: [
+        lastHeader.formContact,
+        ...lastHeader.toList,
+        ...(lastHeader.ccList ?? []),
+        ...(lastHeader.bccList ?? []),
+      ],
+      userAddress: `${userDetails.user_name}@${MAIL_DOMAIN}`,
+    });
+    others =
+      others.length === 0 &&
+      lastHeader.formContact.address ===
+        `${userDetails.user_name}@${MAIL_DOMAIN}`
+        ? [
+            {
+              name: userDetails.user_name,
+              address: `${userDetails.user_name}@${MAIL_DOMAIN}`,
+            },
+          ]
+        : others;
 
-  let others = excludeUser({
-    users: [
-      threadInfo.lastHeader.formContact,
-      ...threadInfo.lastHeader.toList,
-      ...(threadInfo.lastHeader.ccList ?? []),
-      ...(threadInfo.lastHeader.bccList ?? []),
-    ],
-    userAddress: `${userDetails.user_name}@${MAIL_DOMAIN}`,
-  });
-  others =
-    others.length === 0 &&
-    threadInfo?.lastHeader.formContact.address ===
-      `${userDetails.user_name}@${MAIL_DOMAIN}`
-      ? [
-          {
-            name: userDetails.user_name,
-            address: `${userDetails.user_name}@${MAIL_DOMAIN}`,
-          },
-        ]
-      : others;
+    const isAllFromUnSend = others.every((other) =>
+      /@unsend\.app$/.test(other.address)
+    );
+    return {
+      others,
+      isAllFromUnSend,
+    };
+  }, []);
+  const others = useRef(getOthers()).current;
 
-  const isAllFromUnSend = others.every((other) =>
-    /@unsend\.app$/.test(other.address)
-  );
-
-  const loadNextPageData = async () => {
+  const loadNextPageData = useCallback(() => {
     if (hasNextPage) {
       fetchNextPage();
     }
-  };
+  }, [hasNextPage, fetchNextPage]);
 
   // MARK: - Load thread messages from API
   useEffect(() => {
@@ -154,41 +160,9 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
       !!data?.pages && data?.pages?.[0] !== undefined
         ? data?.pages.flatMap((page) => page?.data)
         : [];
-    setAllMessages(flattenData);
     setLastMessageData(flattenData[flattenData.length - 1]);
-    scrollViewRef.current?.scrollToEnd();
+    setAllMessages([...flattenData].reverse());
   }, [data]);
-
-  useFocusEffect(
-    useCallback(() => {
-      setRefetchData(true);
-      setReplyTo(undefined);
-      return () => {
-        setRefetchData(false);
-        setReplyTo(undefined);
-      };
-    }, [])
-  );
-
-  useEffect(() => {
-    const keyboardDidShowListener = Keyboard.addListener(
-      "keyboardDidShow",
-      () => {
-        scrollViewRef.current?.scrollToEnd({ animated: false });
-      }
-    );
-    const keyboardDidHideListener = Keyboard.addListener(
-      "keyboardDidHide",
-      () => {
-        scrollViewRef.current?.scrollToEnd({ animated: false });
-      }
-    );
-
-    return () => {
-      keyboardDidHideListener.remove();
-      keyboardDidShowListener.remove();
-    };
-  }, []);
 
   const isEditingMessage = !!messageToEdit;
 
@@ -244,23 +218,22 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
         }
       }
 
-      await setAllMessages(allMessagesCopy);
+      setAllMessages(allMessagesCopy);
       setMail("");
       setIsEditingMessage(undefined);
       await editMessageApi(createComposeRequest(mail?.trim()));
+      scrollToIndex(0);
       return;
     }
     try {
-      if (!mail && !(attachments.length > 0)) return;
       if (
-        isUploadingAttachment &&
-        attachments.length != attachmentsLocalURI.length
+        (!mail && !(attachments.length > 0)) ||
+        (isUploadingAttachment &&
+          attachments.length != attachmentsLocalURI.length)
       ) {
         return;
       }
-      setMail("");
-      setReplyTo(undefined);
-      const allMessagesCopy = [...allMessages];
+
       const newMessage = {
         text: mail?.trim(),
         messageId: new Date().getTime().toString(),
@@ -270,43 +243,46 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
           : {}),
       };
 
-      allMessagesCopy.push(newMessage);
+      let allMessagesCopy = [newMessage, ...allMessages];
+
+      setMail("");
+      setReplyTo(undefined);
       setAllMessages(allMessagesCopy);
-      const data = await composeApi(createComposeRequest(mail?.trim()));
-      const newMessageIndex = allMessagesCopy.findIndex(
-        (message) => message?.messageId === newMessage.messageId
-      );
-      if (data) {
-        allMessagesCopy.splice(newMessageIndex, 1, {
-          ...allMessagesCopy[newMessageIndex],
-          notConfirmedNewMessage: false,
-        });
-        setAllMessages(allMessagesCopy);
-        scrollViewRef.current?.scrollToEnd({ animated: false });
-      } else {
-        const allMessagesWithoutTheFailed = allMessagesCopy.filter(
-          (item) => !item?.notConfirmedNewMessage
-        );
-        setAllMessages(allMessagesWithoutTheFailed);
-        const failedMeessage = { ...newMessage, failedToSend: true };
-        setFailedMessages(() => {
-          const faildMessagesCopy = [...failedMessages];
-          faildMessagesCopy.unshift(failedMeessage);
-          return faildMessagesCopy;
-        });
-        const newFailedMEssagesObj = {
-          ...failedMessagesData,
-          [id]: [
-            ...(failedMessagesData?.[id] ? failedMessagesData?.[id] : []),
-            failedMeessage,
-          ],
-        };
-        setFailedMessagesData && setFailedMessagesData(newFailedMEssagesObj);
-      }
-      scrollViewRef.current?.scrollToEnd();
       setAttachments([]);
       setAttachmentsLocalURI([]);
       setIsUploadingAttachment(false);
+
+      InteractionManager.runAfterInteractions(async () => {
+        const data = await composeApi(createComposeRequest(mail?.trim()));
+        const newMessageIndex = allMessagesCopy.findIndex(
+          (message) => message?.messageId === newMessage.messageId
+        );
+        if (data) {
+          allMessagesCopy = [...allMessagesCopy];
+          allMessagesCopy[newMessageIndex] = { ...data };
+          setAllMessages(allMessagesCopy);
+        } else {
+          const allMessagesWithoutTheFailed = allMessagesCopy.filter(
+            (item) => !item?.notConfirmedNewMessage
+          );
+          setAllMessages(allMessagesWithoutTheFailed);
+          const failedMeessage = { ...newMessage, failedToSend: true };
+          setFailedMessages(() => {
+            const faildMessagesCopy = [...failedMessages];
+            faildMessagesCopy.unshift(failedMeessage);
+            return faildMessagesCopy;
+          });
+          const newFailedMEssagesObj = {
+            ...failedMessagesData,
+            [id]: [
+              ...(failedMessagesData?.[id] ? failedMessagesData?.[id] : []),
+              failedMeessage,
+            ],
+          };
+          setFailedMessagesData && setFailedMessagesData(newFailedMEssagesObj);
+        }
+        scrollToIndex(0);
+      });
     } catch (error) {}
   };
 
@@ -396,7 +372,12 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
     async (threadMessage: IThreadMessage) => {
       const newMessages = JSON.parse(JSON.stringify(allMessages));
 
-      newMessages[threadMessage.index].isDeleted = true;
+      const index = newMessages.findIndex(
+        (message: IThreadMessage) =>
+          message?.messageId === threadMessage.messageId
+      );
+
+      newMessages[index].isDeleted = true;
 
       setAllMessages([...newMessages]);
       await unSendMessagesApi({ ids: [threadMessage.messageId ?? ""] });
@@ -406,9 +387,9 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
 
   const onDeletePress = useCallback(
     async (threadMessage: IThreadMessage) => {
-      let newMessages = allMessages
-        .slice()
-        .filter((message, i) => message?.messageId !== threadMessage.messageId);
+      let newMessages = allMessages.filter(
+        (message, i) => message?.messageId !== threadMessage.messageId
+      );
 
       setAllMessages(newMessages);
       await deleteMessagesApi({ ids: [threadMessage.messageId ?? ""] });
@@ -416,15 +397,20 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
     [allMessages]
   );
 
-  const onCopy = (threadMessage: IThreadMessage) => {
+  const onCopy = useCallback((threadMessage: IThreadMessage) => {
     setStringAsync(threadMessage.text);
-  };
+  }, []);
 
   const onBookMarkPress = useCallback(
     async (threadMessage: IThreadMessage) => {
       const newMessages = JSON.parse(JSON.stringify(allMessages));
 
-      newMessages[threadMessage.index].isBookMarked = true;
+      const index = newMessages.findIndex(
+        (message: IThreadMessage) =>
+          message?.messageId === threadMessage.messageId
+      );
+
+      newMessages[index].isBookMarked = true;
 
       setAllMessages([...newMessages]);
       // await deleteMessagesApi({ ids: [threadMessage.messageId ?? ""] });
@@ -436,7 +422,12 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
     async (threadMessage: IThreadMessage) => {
       const newMessages = JSON.parse(JSON.stringify(allMessages));
 
-      newMessages[threadMessage.index].isBookMarked = false;
+      const index = newMessages.findIndex(
+        (message: IThreadMessage) =>
+          message?.messageId === threadMessage.messageId
+      );
+
+      newMessages[index].isBookMarked = false;
 
       setAllMessages([...newMessages]);
       // await deleteMessagesApi({ ids: [threadMessage.messageId ?? ""] });
@@ -444,82 +435,91 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
     [allMessages]
   );
 
-  const onSelectAllActivatedPress = (item: IThreadMessage) => {
+  const onSelectAllActivatedPress = useCallback((item: IThreadMessage) => {
     setIsSelectAllActivated(true);
-    setSelectedIndexes({ [item?.index]: true });
-  };
+    setSelectedMessageIds({ [item?.messageId as string]: true });
+  }, []);
 
-  const commonMenu = [
-    {
-      text: "copy",
-      onPress: onCopy,
-      iconName: "copy",
-    },
-    {
-      text: "forward",
-      onPress: () => {},
-      iconName: "forward",
-    },
-    {
-      text: "more",
-      onPress: onSelectAllActivatedPress,
-      iconName: "selectmore",
-    },
-  ];
+  const commonMenu = useMemo(
+    () => [
+      {
+        text: "copy",
+        onPress: onCopy,
+        iconName: "copy",
+      },
+      {
+        text: "forward",
+        onPress: () => {},
+        iconName: "forward",
+      },
+      {
+        text: "more",
+        onPress: onSelectAllActivatedPress,
+        iconName: "selectmore",
+      },
+    ],
+    [onCopy, onSelectAllActivatedPress]
+  );
 
-  const senderMenu = (item: IThreadMessage) =>
-    !isTimelimitExceeded(item.createdAt ?? "")
-      ? [
-          {
-            text: "unsend",
-            onPress: onUnSendPress,
-            iconName: "unsend",
-          },
-          {
-            text: "edit",
-            onPress: async (threadMessage: IThreadMessage) => {
-              setIsEditingMessage(threadMessage);
-              setMail(threadMessage.text);
+  const onEditPress = useCallback((threadMessage: IThreadMessage) => {
+    setIsEditingMessage(threadMessage);
+    setMail(threadMessage.text);
+  }, []);
+
+  const senderMenu = useCallback(
+    (item: IThreadMessage) =>
+      !isTimelimitExceeded(item.createdAt ?? "")
+        ? [
+            {
+              text: "unsend",
+              onPress: onUnSendPress,
+              iconName: "unsend",
             },
-            iconName: "edit",
-          },
-          ...commonMenu,
-        ]
-      : [...commonMenu];
+            {
+              text: "edit",
+              onPress: onEditPress,
+              iconName: "edit",
+            },
+            ...commonMenu,
+          ]
+        : [...commonMenu],
+    [onUnSendPress]
+  );
 
-  const receiverMenu = [...commonMenu];
+  const receiverMenu = useMemo(() => [...commonMenu], [commonMenu]);
 
-  const onContentSizeChange = () => {
-    scrollViewRef.current?.scrollToEnd({ animated: false });
-  };
+  const onNavigateToRepliedMessage = useCallback(
+    (item: IThreadMessage) => {
+      const repliedMessageIndex = allMessages.findIndex(
+        (message) => message?.headerId === item?.replyTo?.id
+      );
 
-  const onNavigateToRepliedMessage = (item: IThreadMessage) => {
-    const repliedMessageIndex = allMessages.findIndex(
-      (message) => message?.headerId === item?.replyTo?.id
-    );
-
-    scrollViewRef?.current?.scrollToIndex({
-      animated: true,
-      index: repliedMessageIndex,
-    });
-  };
+      scrollViewRef?.current?.scrollToIndex({
+        animated: true,
+        index: repliedMessageIndex,
+      });
+    },
+    [allMessages, scrollViewRef?.current?.scrollToIndex]
+  );
 
   const onCloseEdit = useCallback(() => {
     setMail("");
     setIsEditingMessage(undefined);
   }, []);
 
-  const renderMessageItem = ({
-    item,
-    index,
-  }: {
-    item: IThreadMessage;
-    index: number;
-  }) => {
+  const renderMessageItem = ({ item }: { item: IThreadMessage }) => {
     const isNotCurrentMessageEditing =
-      !!isEditingMessage && messageToEdit?.index !== index;
+      !!isEditingMessage && messageToEdit?.messageId !== item.messageId;
     const isCurrentMessageEditing =
-      !!isEditingMessage && messageToEdit?.index === index;
+      !!isEditingMessage && messageToEdit?.messageId === item.messageId;
+    const replyToMessageContent = item?.replyTo
+      ? allMessages.find((message) => message?.headerId === item?.replyTo?.id)
+      : undefined;
+
+    const isReplying =
+      item.messageId !== undefined &&
+      replyToMessage?.messageId === item.messageId;
+
     return (
       <>
         {isNotCurrentMessageEditing && (
@@ -542,21 +542,14 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
               item={item}
               senderMenu={senderMenu}
               receiverMenu={receiverMenu}
-              index={index}
-              isReplying={replyToMessage?.index === index}
+              isReplying={isReplying}
               onUnBookMarkedPress={onUnBookMarkedPress}
               isSelectAllActivated={isSelectAllActivated}
-              isSelected={selectedIndexes[index]}
+              isSelected={selectedMessageIds[item.messageId as string]}
               onSelectPress={onSelectPress}
               onPressReplyToMessage={onPressReplyToMessage}
-              replyToMessageContent={
-                item?.replyTo
-                  ? allMessages.find(
-                      (message) => message?.headerId === item?.replyTo?.id
-                    )
-                  : undefined
-              }
-              isAllFromUnSend={isAllFromUnSend}
+              replyToMessageContent={replyToMessageContent}
+              isAllFromUnSend={others.isAllFromUnSend}
               onNavigateToRepliedMessage={onNavigateToRepliedMessage}
               isCurrentMessageEditing={isCurrentMessageEditing}
               onCloseEdit={onCloseEdit}
@@ -568,50 +561,50 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
     );
   };
 
-  if (!hasData || isError) {
-    return (
-      <LoadingScreen
-        loadingText={isError ? "Something Wrong" : "Loading"}
-        loadingIndecatorSize={20}
-      />
-    );
-  }
+  const overrideItemLayout = useCallback(
+    (_: any, __: any, index: number) => ({
+      length: 150,
+      offset: 150 * index,
+      index,
+    }),
+    []
+  );
 
-  const keyExtractor = (item: IThreadMessage, index: number) =>
-    `message-${item?.messageId}`;
-  const endReached = async () => {
-    await loadNextPageData();
-  };
+  const endReached = useCallback(() => {
+    loadNextPageData();
+  }, []);
+
+  const scrollIndicatorInsets = useMemo(() => ({ right: 1 }), []);
+
+  const keyExtractor = useCallback(
+    (item: IThreadMessage, index: number) => `message-${item?.messageId}`,
+    []
+  );
+
+  const onEndReached = useCallback(() => {
+    setRenderCount((prevCount) => prevCount + 10);
+  }, []);
+
   const renderChat = () => {
     return (
       <View style={styles.chatWrapper}>
         {hasData && (
-          <View style={{ flex: 1 }}>
-            <View style={{ minHeight: 2, minWidth: 2, flex: 1 }}>
-              <FlashList
-                ref={scrollViewRef}
-                data={[...failedMessages, ...allMessages]}
-                renderItem={renderMessageItem}
-                keyExtractor={keyExtractor}
-                onEndReachedThreshold={0.5}
-                scrollIndicatorInsets={{ right: 1 }}
-                onEndReached={endReached}
-                indicatorStyle="white"
-                showsVerticalScrollIndicator={true}
-                contentContainerStyle={{ paddingHorizontal: 5 }}
-                estimatedItemSize={60}
-                overrideItemLayout={(_, data, index) => ({
-                  length: 150,
-                  offset: 150 * index,
-                  index,
-                })}
-                keyboardShouldPersistTaps="handled"
-                removeClippedSubviews={true}
-                onContentSizeChange={onContentSizeChange}
-              />
-            </View>
-            <View style={{ height: 35 }} />
-          </View>
+          <FlatList
+            data={[...allMessages, ...failedMessages].slice(0, renderCount)}
+            renderItem={renderMessageItem}
+            keyExtractor={keyExtractor}
+            scrollIndicatorInsets={scrollIndicatorInsets}
+            indicatorStyle="white"
+            onEndReachedThreshold={0.1}
+            showsVerticalScrollIndicator
+            contentContainerStyle={styles.contentContainerStyle}
+            estimatedItemSize={60}
+            overrideItemLayout={overrideItemLayout}
+            keyboardShouldPersistTaps="handled"
+            inverted
+            onEndReached={onEndReached}
+            ref={scrollViewRef}
+          />
         )}
         {attachmentsLocalURI.length > 0 && (
           <>
@@ -666,45 +659,48 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
         {replyToMessage !== undefined && (
           <ReplyToMessage
             item={replyToMessage}
-            onReplyToPress={onReplyToPress}
+            onReplyToPress={scrollToIndex}
             onCancelPress={onCancelPress}
           />
         )}
       </View>
     );
   };
-  const onReplyToPress = (index: number) => {
+  const scrollToIndex = useCallback((index: number) => {
     scrollViewRef?.current?.scrollToIndex({
       animated: true,
       index,
     });
-  };
-
-  const onCancelPress = () => {
+  }, []);
+  const onCancelPress = useCallback(() => {
     setReplyTo(undefined);
-  };
-  const onSelectAllCancelPress = () => {
+  }, []);
+  const onSelectAllCancelPress = useCallback(() => {
     setIsSelectAllActivated(false);
-    setSelectedIndexes({});
-  };
-  const onSelectAllPress = () => {
-    const obj = Object.fromEntries(
-      Array.from({ length: allMessages.length }, (_, i) => [i, true])
-    );
+    setSelectedMessageIds({});
+  }, []);
+  const onSelectAllPress = useCallback(() => {
+    const obj = {};
 
-    setSelectedIndexes(obj);
-  };
-  const onSelectPress = (index: number) => {
-    setSelectedIndexes((prevSelectedIndexes) => ({
+    allMessages.forEach((message) => {
+      obj[message?.messageId] = true;
+    });
+
+    setSelectedMessageIds(obj);
+  }, [allMessages]);
+  const onSelectPress = useCallback((messageId: string) => {
+    setSelectedMessageIds((prevSelectedIndexes) => ({
       ...prevSelectedIndexes,
-      [index]: !prevSelectedIndexes[index],
+      [messageId]: !prevSelectedIndexes[messageId],
     }));
-  };
-
-  const onSelectAllDeletePress = async () => {
+  }, []);
+  const onSelectAllDeletePress = useCallback(async () => {
     const deletedMessageIds: string[] = [];
-    const unDeletedMessage = allMessages.slice().filter((message, i) => {
-      if (selectedIndexes[i] === undefined || selectedIndexes[i] === false) {
+    const unDeletedMessage = allMessages.slice().filter((message) => {
+      if (
+        selectedMessageIds[message?.messageId] === undefined ||
+        selectedMessageIds[message?.messageId] === false
+      ) {
         return true;
       } else {
         deletedMessageIds.push(message?.messageId);
@@ -712,35 +708,45 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
     });
 
     setAllMessages(unDeletedMessage);
+    onSelectAllCancelPress();
 
     await deleteMessagesApi({
       ids: deletedMessageIds,
     });
-
+  }, [allMessages, selectedMessageIds]);
+  const onSelectAllBookMarkPress = useCallback(() => {
     onSelectAllCancelPress();
-  };
-
-  const onSelectAllBookMarkPress = () => {
-    onSelectAllCancelPress();
-  };
-
-  const onPressViewOriginalEmail = (html: string) => {
+  }, []);
+  const onPressViewOriginalEmail = useCallback((html: string) => {
     setOriginalHtml(html);
-  };
-
-  const onPressViewSummarizedEmail = () => {
+  }, []);
+  const onPressViewSummarizedEmail = useCallback(() => {
     setOriginalHtml("");
-  };
+  }, []);
+
+  const receiver = useMemo(
+    () => getThreadParticipantsUserName(others.others),
+    [others.others]
+  );
 
   const ThreadHeaderComponent = hasData && (
     <ThreadDetailsHeader
-      receiver={getThreadParticipantsUserName(others)}
+      receiver={receiver}
       subject={subject}
       firtMessageDate={firstMessageDate}
       navigation={navigation}
       favicon={favicon}
     />
   );
+
+  if (!hasData || isError) {
+    return (
+      <LoadingScreen
+        loadingText={isError ? "Something Wrong" : "Loading"}
+        loadingIndecatorSize={20}
+      />
+    );
+  }
 
   return (
     <KeyboardAvoidingView
@@ -759,7 +765,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
           <OriginalEmailViewContainerWrapper
             onPressViewSummarizedEmail={onPressViewSummarizedEmail}
             html={originalHtml}
-            Header={ThreadHeaderComponent}
+            Header={ThreadHeaderComponent as JSX.Element}
           >
             {ThreadHeaderComponent}
 
@@ -786,6 +792,11 @@ const styles = StyleSheet.create({
     flex: 1,
     marginTop: Platform.OS === "ios" ? 20 : 0,
     position: "relative",
+  },
+  contentContainerStyle: {
+    paddingHorizontal: 5,
+    flexGrow: 1,
+    justifyContent: "flex-end",
   },
   titleText: {
     height: 25,

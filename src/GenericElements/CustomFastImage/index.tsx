@@ -1,22 +1,22 @@
-import React, { useRef } from 'react';
-import * as FileSystem from 'expo-file-system';
-import { ICustomFastImageProps } from './types';
-import { useEffect, useState } from 'react';
+import React, { useRef } from "react";
+import * as FileSystem from "expo-file-system";
+import { ICustomFastImageProps } from "./types";
+import { useEffect, useState } from "react";
 import {
   DownloadProgressData,
   FileSystemNetworkTaskProgressCallback,
-} from 'expo-file-system';
-import { Alert, Image, View, ActivityIndicator } from 'react-native';
+} from "expo-file-system";
+import { Alert, Image, View, ActivityIndicator } from "react-native";
 
 const getImgXtension = (uri: string) => {
-  var basename = uri.split(/[\\/]/).pop() ?? '';
+  var basename = uri.split(/[\\/]/).pop() ?? "";
   return /[.]/.exec(basename) ? /[^.]+$/.exec(basename) : undefined;
 };
 
 const findImageInCache = async (uri: string) => {
   try {
     let info = await FileSystem.getInfoAsync(uri);
-    console.log('INFO -------->', info);
+
     return { ...info, err: false };
   } catch (error) {
     return {
@@ -61,7 +61,7 @@ const CustomFastImage: React.FC<ICustomFastImageProps> = (props) => {
     style,
   } = props;
 
-  const [imgUri, setUri] = useState<string>('');
+  const [imgUri, setUri] = useState<string>("");
   const isMounted = useRef(true);
 
   useEffect(() => {
@@ -72,16 +72,13 @@ const CustomFastImage: React.FC<ICustomFastImageProps> = (props) => {
         return;
       }
       const cacheFileUri = `${FileSystem.cacheDirectory}${cacheKey}.${imgXt[0]}`;
-      console.log(cacheFileUri);
       let imgXistsInCache = await findImageInCache(cacheFileUri);
       if (imgXistsInCache.exists) {
-        console.log('cached!');
         setUri(cacheFileUri);
       } else {
         let cached = await cacheImage(uri, cacheFileUri, () => {});
         if (cached.cached) {
-          console.log('cached NEw!');
-          setUri(cached.path ?? '');
+          setUri(cached.path ?? "");
         } else {
           Alert.alert(`Couldn't load Image!`);
         }
@@ -99,7 +96,7 @@ const CustomFastImage: React.FC<ICustomFastImageProps> = (props) => {
         <Image source={{ uri: imgUri }} style={style} />
       ) : (
         <View
-          style={{ ...style, alignItems: 'center', justifyContent: 'center' }}
+          style={{ ...style, alignItems: "center", justifyContent: "center" }}
         >
           <ActivityIndicator size={33} />
         </View>

@@ -1,10 +1,10 @@
-import { useInfiniteQuery } from 'react-query';
+import { useInfiniteQuery } from "react-query";
 
 import {
   getThreadMessagesApi,
   MESSAGES_LIMIT,
-} from '@followBack/Apis/ThreadMessages';
-import { IThreadMessagesAPIResponse } from '@followBack/Apis/ThreadMessages/types';
+} from "@followBack/Apis/ThreadMessages";
+import { IThreadMessagesAPIResponse } from "@followBack/Apis/ThreadMessages/types";
 
 export const useFetchThreadMessages = ({
   id,

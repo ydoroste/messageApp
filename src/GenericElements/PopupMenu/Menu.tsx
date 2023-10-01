@@ -19,6 +19,7 @@ import { View } from "react-native";
 import Emojis from "./Components/Emojis";
 import BlurredModal from "../BlurredModal/BlurredModal";
 import { iconsType } from "../IconButton/types";
+import { IThreadMessage } from "@followBack/Apis/ThreadMessages/types";
 
 const { width: layoutWidth, height: layoutHeight } = Dimensions.get("window");
 
@@ -36,18 +37,16 @@ const Menu = ({
   emojis,
   onEmojiPress,
   MessageContent,
-  index,
   disabled,
   containerStyle,
 }: {
-  menuOptions: MenuOption[];
+  menuOptions: (item: IThreadMessage) => MenuOption[];
   children: React.ReactNode;
   item: any;
   onPress: () => void;
   onEmojiPress: (emojiName: string) => void;
   emojis: string[];
   MessageContent: React.ReactNode;
-  index: number;
   disabled: boolean;
   containerStyle: StyleProp<ViewStyle>;
 }) => {
@@ -101,16 +100,18 @@ const Menu = ({
             onEmojiPress={onEmojiPress}
           />
 
-          {menuOptions.map((menuOption: MenuOption, menuIndex: number) => {
-            return (
-              <MenuItem
-                closeModal={closeModal}
-                text={menuOption.text}
-                onPress={() => menuOption.onPress({ ...item, index })}
-                iconName={menuOption.iconName}
-              />
-            );
-          })}
+          {menuOptions(item).map(
+            (menuOption: MenuOption, menuIndex: number) => {
+              return (
+                <MenuItem
+                  closeModal={closeModal}
+                  text={menuOption.text}
+                  onPress={() => menuOption.onPress(item)}
+                  iconName={menuOption.iconName}
+                />
+              );
+            }
+          )}
         </View>
       </BlurredModal>
     </View>

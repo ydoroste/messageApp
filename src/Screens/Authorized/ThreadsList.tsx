@@ -75,7 +75,6 @@ const ThreadList: React.FC = () => {
       }
       const contactsFromAPI = await getContactsListApi({ searchValue: "" });
       await setContacts(JSON.stringify(contactsFromAPI.contacts));
-      console.log("contacts from API", contactsFromAPI);
     };
     getContactsData();
   });

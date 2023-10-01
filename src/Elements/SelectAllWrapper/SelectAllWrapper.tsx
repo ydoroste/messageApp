@@ -108,7 +108,7 @@ const SelectAllWrapper = ({
   );
 };
 
-export default SelectAllWrapper;
+export default React.memo(SelectAllWrapper);
 
 const useStyles = useStylesWithTheme((theme) => ({
   headerContainer: {
@@ -135,7 +135,7 @@ const useStyles = useStylesWithTheme((theme) => ({
     borderColor: "white",
   },
   bottomContainer: {
-    height: 90,
+    height: 56,
     flexDirection: "row",
     paddingHorizontal: 20,
     alignItems: "center",

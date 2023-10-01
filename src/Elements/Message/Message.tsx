@@ -42,29 +42,27 @@ const Message = ({
   item,
   senderMenu,
   receiverMenu,
-  index,
   isReplying,
-  onUnBookMarkedPress,
   isSelectAllActivated,
   isSelected,
-  onSelectPress,
   replyToMessageContent,
-  onNavigateToRepliedMessage,
-  onPressReplyToMessage,
   isAllFromUnSend,
   isCurrentMessageEditing,
+  onUnBookMarkedPress,
+  onSelectPress,
+  onNavigateToRepliedMessage,
+  onPressReplyToMessage,
   onCloseEdit,
   onPressViewOriginalEmail,
 }: {
   item: IThreadMessage;
   senderMenu: any;
   receiverMenu: any;
-  index: number;
   isReplying: boolean;
   onUnBookMarkedPress: (item: IThreadMessage) => void;
   isSelectAllActivated: boolean;
   isSelected: boolean;
-  onSelectPress: (index: number) => void;
+  onSelectPress: (index: string) => void;
   replyToMessageContent: IThreadMessage | undefined;
   onNavigateToRepliedMessage: (item: IThreadMessage) => void;
   onPressReplyToMessage: (threadMessage: IThreadMessage) => void;
@@ -153,11 +151,11 @@ const Message = ({
   };
   const menuProps = {
     key: `message-${item.messageId}`,
-    menuOptions: isOwnMessage ? senderMenu(item) : receiverMenu,
+    menuOptions: isOwnMessage ? senderMenu : () => receiverMenu,
     item: item,
     onPress: () => {
       if (isSelectAllActivated) {
-        onSelectPress(index);
+        onSelectPress(item.messageId as string);
       } else {
         setShowDate((prevState) => !prevState);
       }
@@ -167,7 +165,6 @@ const Message = ({
     MessageContent: (
       <MessageContent item={item} isAllFromUnSend={isAllFromUnSend} />
     ),
-    index: index,
     disabled: isSelectAllActivated,
     containerStyle: [
       adjustPositionStyle,
@@ -183,7 +180,7 @@ const Message = ({
   ];
 
   const _onUnBookMarkedPress = () => {
-    onUnBookMarkedPress({ ...item, index });
+    onUnBookMarkedPress(item);
   };
 
   const _onNavigateToRepliedMessage = () => {
@@ -202,7 +199,7 @@ const Message = ({
     onEnd(event, context) {
       x.value = withSpring(0);
       if (x.value >= 100) {
-        runOnJS(onPressReplyToMessage)({ ...item, index });
+        runOnJS(onPressReplyToMessage)(item);
       }
     },
   });
@@ -266,7 +263,7 @@ const Message = ({
           <SelectedDot
             isSelected={isSelected}
             onSelectPress={onSelectPress}
-            index={index}
+            messageId={item.messageId as string}
           />
         )}
         {DateSection}
@@ -346,5 +343,11 @@ const useStyles = useStylesWithTheme((theme) => ({
 export default React.memo(
   Message,
   (prevProps, nextProps) =>
-    JSON.stringify(prevProps) === JSON.stringify(nextProps)
+    prevProps.isSelectAllActivated === nextProps.isSelectAllActivated &&
+    prevProps.isSelected === nextProps.isSelected &&
+    prevProps.item === nextProps.item &&
+    prevProps.isReplying === nextProps.isReplying &&
+    prevProps.replyToMessageContent === nextProps.replyToMessageContent &&
+    prevProps.isAllFromUnSend === nextProps.isAllFromUnSend &&
+    prevProps.isCurrentMessageEditing === nextProps.isCurrentMessageEditing
 );
