@@ -590,7 +590,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
       <View style={styles.chatWrapper}>
         {hasData && (
           <FlatList
-            data={[...allMessages, ...failedMessages].slice(0, renderCount)}
+            data={[...failedMessages, ...allMessages].slice(0, renderCount)}
             renderItem={renderMessageItem}
             keyExtractor={keyExtractor}
             scrollIndicatorInsets={scrollIndicatorInsets}
