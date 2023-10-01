@@ -105,7 +105,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
   >({});
   const [renderCount, setRenderCount] = useState(10);
 
-  const scrollViewRef = useRef<FlatList<IThreadMessage[]> | null>(null);
+  const scrollViewRef = useRef<FlatList<any> | null>(null);
   const hasData = allMessages.length > 0;
   const firstMessage = allMessages[0];
 
