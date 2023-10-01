@@ -103,7 +103,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
   const [selectedMessageIds, setSelectedMessageIds] = useState<
     Record<string, boolean>
   >({});
-  const [renderCount, setRenderCount] = useState(15);
+  const [renderCount, setRenderCount] = useState(10);
 
   const scrollViewRef = useRef<FlatList<any> | null>(null);
   const hasData = allMessages.length > 0;
