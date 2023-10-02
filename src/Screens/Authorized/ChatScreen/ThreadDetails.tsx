@@ -259,8 +259,10 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
           (message) => message?.messageId === newMessage.messageId
         );
         if (data) {
-          allMessagesCopy = [...allMessagesCopy];
-          allMessagesCopy[newMessageIndex] = { ...data };
+          allMessagesCopy.splice(newMessageIndex, 1, {
+            ...allMessagesCopy[newMessageIndex],
+            notConfirmedNewMessage: false,
+          });
           setAllMessages(allMessagesCopy);
         } else {
           const allMessagesWithoutTheFailed = allMessagesCopy.filter(
