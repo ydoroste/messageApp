@@ -215,25 +215,23 @@ const ThreadList: React.FC = () => {
 
   const renderThreadItem = ({ item }: { item: Thread }) => {
     return (
-      <GestureHandlerRootView>
-        <Swipeable
-          rightButtons={renderRightActions(item)}
-          rightButtonWidth={30}
-          leftButtons={renderLeftActions(item)}
+      <Swipeable
+        rightButtons={renderRightActions(item)}
+        rightButtonWidth={30}
+        leftButtons={renderLeftActions(item)}
+      >
+        <Pressable
+          style={{ marginVertical: 5 }}
+          onPress={() => {
+            nav.navigate(AuthorizedScreensEnum.threadsListStack, {
+              screen: AuthorizedScreensEnum.threadDetails,
+              params: { threadInfo: item },
+            });
+          }}
         >
-          <Pressable
-            style={{ marginVertical: 5 }}
-            onPress={() => {
-              nav.navigate(AuthorizedScreensEnum.threadsListStack, {
-                screen: AuthorizedScreensEnum.threadDetails,
-                params: { threadInfo: item },
-              });
-            }}
-          >
-            <ThreadCard threadItem={item} />
-          </Pressable>
-        </Swipeable>
-      </GestureHandlerRootView>
+          <ThreadCard threadItem={item} />
+        </Pressable>
+      </Swipeable>
     );
   };
   return (

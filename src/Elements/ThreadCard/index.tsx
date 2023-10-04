@@ -131,7 +131,7 @@ const ThreadCard: React.FC<IthreadCardProps> = ({ threadItem }) => {
             )}
           </View>
         </View>
-        <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+        <View style={styles.messageContainer}>
           <Typography
             type={isMessageSeen ? "mediumRegularBody" : "mediumBoldBody"}
             color={textColor}
@@ -140,7 +140,7 @@ const ThreadCard: React.FC<IthreadCardProps> = ({ threadItem }) => {
           >
             {message === "<no message>" && attachmentsLength
               ? `${attachmentsLength} attachments`
-              : adjustMessage(message, isMessageSeen ? 30 : 25)}
+              : adjustMessage(message, isMessageSeen ? 25 : 25)}
           </Typography>
           <Typography
             type={isMessageSeen ? "smallRegularBody" : "smallBoldBody"}
@@ -192,5 +192,10 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
     alignItems: "center",
     height: 15,
+  },
+  messageContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "baseline",
   },
 });
