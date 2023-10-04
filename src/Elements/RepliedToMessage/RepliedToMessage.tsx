@@ -70,7 +70,7 @@ const useStyles = useStylesWithTheme((theme) => ({
   leftLine: {
     height: 50,
     marginTop: -20,
-    marginBottom: -20,
+    marginBottom: -30,
     borderRightWidth: 1,
     borderTopRightRadius: 7,
     borderBottomWidth: 1,

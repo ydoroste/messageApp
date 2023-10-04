@@ -140,7 +140,7 @@ const ThreadCard: React.FC<IthreadCardProps> = ({ threadItem }) => {
           >
             {message === "<no message>" && attachmentsLength
               ? `${attachmentsLength} attachments`
-              : adjustMessage(message, 37)}
+              : adjustMessage(message, 30)}
           </Typography>
           <Typography
             type={isMessageSeen ? "smallRegularBody" : "smallBoldBody"}

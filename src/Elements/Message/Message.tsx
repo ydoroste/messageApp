@@ -262,7 +262,6 @@ const Message = ({
 
         <RepliedToMessage
           isVisible={!!replyToMessageContent}
-          isRepliedMessageMyOwn={isRepliedMessageMyOwn}
           isOwnMessage={isOwnMessage}
           onNavigateToRepliedMessage={_onNavigateToRepliedMessage}
         >

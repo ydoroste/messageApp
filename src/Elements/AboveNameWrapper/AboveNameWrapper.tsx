@@ -35,7 +35,7 @@ const AboveNameWrapper = ({
   );
 };
 
-export default AboveNameWrapper;
+export default React.memo(AboveNameWrapper);
 
 const styles = StyleSheet.create({
   Container: {
