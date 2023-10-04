@@ -32,6 +32,7 @@ const Typography: React.FC<ITypographyProps> = ({
         { ...props.style },
       ]}
       {...props}
+      allowFontScaling={false}
     >
       {children}
     </Text>

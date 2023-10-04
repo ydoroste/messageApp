@@ -53,11 +53,13 @@ const AvatarItem: React.FC<IAvatarProps> = ({
             )}
 
             {!image && isFirstUser && (
-              <Text style={userInitialsStyles}>{firstChar?.toUpperCase()}</Text>
+              <Text allowFontScaling={false} style={userInitialsStyles}>
+                {firstChar?.toUpperCase()}
+              </Text>
             )}
 
             {isOthers && (
-              <Text style={userInitialsStyles}>
+              <Text allowFontScaling={false} style={userInitialsStyles}>
                 {hasTwoUsers ? firstChar.toUpperCase() : `+${users.length - 1}`}
               </Text>
             )}

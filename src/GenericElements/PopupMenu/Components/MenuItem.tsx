@@ -38,7 +38,9 @@ const MenuItem: React.FC<MenuItem> = ({
         ...(isLastIndex ? [{ borderBottomWidth: 0 }] : [{}]),
       ]}
     >
-      <Text style={styles.text}>{text}</Text>
+      <Text allowFontScaling={false} style={styles.text}>
+        {text}
+      </Text>
       <IconButton
         onPress={handleOnPress}
         disabled

@@ -53,7 +53,9 @@ const EmojiWrapper = ({
             })}
             {reactionCount >= 2 && (
               <View style={messageStyle}>
-                <Text style={[styles.text]}>+{reactionCount}</Text>
+                <Text allowFontScaling={false} style={[styles.text]}>
+                  +{reactionCount}
+                </Text>
               </View>
             )}
           </View>
