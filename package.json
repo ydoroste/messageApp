@@ -75,6 +75,7 @@
     "react-native-select-dropdown": "^3.0.3",
     "react-native-skeleton-content": "^1.0.28",
     "react-native-svg": "13.4.0",
+    "react-native-swipeable": "^0.6.0",
     "react-native-web": "~0.18.7",
     "react-native-webview": "11.26.0",
     "react-native-wizard": "^2.1.0",

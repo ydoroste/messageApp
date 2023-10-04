@@ -29,4 +29,13 @@ export type iconsType =
   | "unselected"
   | "more"
   | "forward"
-  | "verified";
+  | "verified"
+  | "about"
+  | "trash"
+  | "settings"
+  | "message"
+  | "addwithcircle"
+  | "verticalline"
+  | "smallpin"
+  | "alert"
+  | "bigalert";

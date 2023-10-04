@@ -4,6 +4,7 @@ import { View, Text, Image } from "react-native";
 import useStylesWithTheme from "@followBack/Hooks/useStylesWithTheme";
 import Hidden from "@followBack/Theme/Icons/Hidden";
 import { IContact } from "@followBack/Apis/Contacts/types";
+import generateColor from "./utils";
 
 const AvatarItem: React.FC<IAvatarProps> = ({
   users,
@@ -86,7 +87,7 @@ const useStyles = useStylesWithTheme((theme) => ({
     borderRadius: 55 / 2,
     width: 55,
     height: 55,
-    backgroundColor: theme.colors.grey01,
+    backgroundColor: generateColor(),
     position: "relative",
   },
 
@@ -94,7 +95,7 @@ const useStyles = useStylesWithTheme((theme) => ({
     borderRadius: 34 / 2,
     width: 34,
     height: 34,
-    backgroundColor: theme.colors.grey01,
+    backgroundColor: generateColor(),
     position: "relative",
   },
 
@@ -106,7 +107,7 @@ const useStyles = useStylesWithTheme((theme) => ({
   othersAvatarPosition: {
     position: "absolute",
     top: 34 / 2,
-    backgroundColor: theme.colors.grey01,
+    backgroundColor: generateColor(),
     left: 34 / 2,
     borderRadius: 34 / 2,
     width: 34,
@@ -129,7 +130,6 @@ const useStyles = useStylesWithTheme((theme) => ({
   multiUsersInitials: {
     color: theme.colors.grey03,
     fontWeight: "700",
-
     fontSize: theme.fontSizes.small,
   },
 }));

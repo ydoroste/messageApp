@@ -1,7 +1,6 @@
-import { IThreadMessage } from "@followBack/Apis/ThreadMessages/types";
 import useStylesWithTheme from "@followBack/Hooks/useStylesWithTheme";
 import * as React from "react";
-import { Text, View, StyleSheet, Pressable } from "react-native";
+import { View, Pressable } from "react-native";
 
 interface RepliedToMessageProps {
   children: React.ReactNode;

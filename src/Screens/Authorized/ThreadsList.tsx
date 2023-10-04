@@ -8,6 +8,7 @@ import {
   View,
   Dimensions,
   ViewStyle,
+  Text,
 } from "react-native";
 
 import useTheme from "@followBack/Hooks/useTheme";
@@ -21,7 +22,7 @@ import { authorizedStackNavigationProps } from "@followBack/Navigation/Authorize
 import { useMailBoxes } from "@followBack/Hooks/useMailboxes";
 import LoadingScreen from "@followBack/Elements/LoadingScreen/LoadingScreen.index";
 import { Thread } from "@followBack/Apis/threadsList/type";
-import { Swipeable } from "react-native-gesture-handler";
+import Swipeable from "react-native-swipeable";
 import IconButton from "@followBack/GenericElements/IconButton";
 import { editBookmark } from "@followBack/Apis/Bookmarks";
 import { getContactsListApi } from "@followBack/Apis/Contacts";
@@ -32,6 +33,8 @@ import {
 } from "@followBack/Utils/contactDetails";
 import SkeletonContent from "react-native-skeleton-content";
 import SkeletonLoader from "expo-skeleton-loader";
+import SideOptions from "@followBack/GenericElements/SideOptions";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
@@ -91,20 +94,56 @@ const ThreadList: React.FC = () => {
     await editBookmark({ threadId: item.threadId, bookmark: !item.favorite });
   };
 
-  const renderRightActions = (item: Thread | undefined) => {
-    if (!item) return <></>;
-    return (
-      <View style={{ width: windowWidth / 10, justifyContent: "center" }}>
+  const rightActions = [
+    {
+      iconName: "pin",
+      width: 22,
+      height: 25,
+      onPress: onBookmarkPressed,
+      getColor: (item: Thread) =>
+        item.favorite ? colors.white : colors.grey02,
+    },
+    { iconName: "verticalline", width: 20, height: 27, onPress: () => {} },
+    { iconName: "forward", width: 22, height: 25, onPress: () => {} },
+    { iconName: "verticalline", width: 20, height: 27, onPress: () => {} },
+    { iconName: "about", width: 22, height: 25, onPress: () => {} },
+    { iconName: "verticalline", width: 20, height: 27, onPress: () => {} },
+    { iconName: "bookmark", width: 22, height: 25, onPress: () => {} },
+    { iconName: "verticalline", width: 20, height: 27, onPress: () => {} },
+    { iconName: "trash", width: 22, height: 25, onPress: () => {} },
+  ];
+
+  const renderLeftActions = (item: Thread | undefined) => {
+    return [
+      <View style={styles.leftActionContainer}>
         <IconButton
-          onPress={() => {
-            onBookmarkPressed(item);
-          }}
-          name="pin"
-          width={25}
-          height={31}
-          color={item.favorite ? colors.white : colors.grey01}
+          onPress={() => {}}
+          name={"bigalert"}
+          width={22}
+          height={25}
+          color={colors.grey02}
         />
-      </View>
+      </View>,
+    ];
+  };
+
+  const renderRightActions = (item: Thread | undefined) => {
+    if (!item) return [];
+    return rightActions.map(
+      ({ height, iconName, onPress, width, getColor }, index) => {
+        return (
+          <View style={{ justifyContent: "center", flex: 1 }}>
+            <IconButton
+              onPress={() => onPress(item)}
+              disabled={iconName === "verticalline"}
+              name={iconName}
+              width={width}
+              height={height}
+              color={getColor?.(item) ?? colors.grey02}
+            />
+          </View>
+        );
+      }
     );
   };
 
@@ -176,22 +215,25 @@ const ThreadList: React.FC = () => {
 
   const renderThreadItem = ({ item }: { item: Thread }) => {
     return (
-      <Swipeable
-        renderRightActions={(progress, dragX) => renderRightActions(item)}
-        rightThreshold={windowWidth / 10}
-      >
-        <Pressable
-          style={{ marginVertical: 5 }}
-          onPress={() => {
-            nav.navigate(AuthorizedScreensEnum.threadsListStack, {
-              screen: AuthorizedScreensEnum.threadDetails,
-              params: { threadInfo: item },
-            });
-          }}
+      <GestureHandlerRootView>
+        <Swipeable
+          rightButtons={renderRightActions(item)}
+          rightButtonWidth={30}
+          leftButtons={renderLeftActions(item)}
         >
-          <ThreadCard threadItem={item} />
-        </Pressable>
-      </Swipeable>
+          <Pressable
+            style={{ marginVertical: 5 }}
+            onPress={() => {
+              nav.navigate(AuthorizedScreensEnum.threadsListStack, {
+                screen: AuthorizedScreensEnum.threadDetails,
+                params: { threadInfo: item },
+              });
+            }}
+          >
+            <ThreadCard threadItem={item} />
+          </Pressable>
+        </Swipeable>
+      </GestureHandlerRootView>
     );
   };
   return (
@@ -235,6 +277,8 @@ const ThreadList: React.FC = () => {
           />
         </View>
       )}
+
+      <SideOptions style={styles.sideOptionsContainer} />
     </KeyboardAvoidingView>
   );
 };
@@ -258,5 +302,16 @@ const styles = StyleSheet.create({
     height: "100%",
     backgroundColor: "black",
     paddingTop: 50,
+  },
+  sideOptionsContainer: {
+    bottom: 33,
+    right: 10,
+  },
+  leftActionContainer: {
+    flexGrow: 1,
+    width: "100%",
+    alignItems: "flex-end",
+    justifyContent: "center",
+    paddingRight: 35,
   },
 });

@@ -51,6 +51,15 @@ const ThreadCard: React.FC<IthreadCardProps> = ({ threadItem }) => {
   const isMessageSeen = threadItem.seen;
   const textColor = isMessageSeen ? "secondary" : "chat";
 
+  const adjustMessage = (text: string, length: number) => {
+    return text
+      .substring(0, length)
+      .trim()
+      .concat(text.length > length ? "..." : "");
+  };
+
+  const attachmentsLength = threadItem.lastHeader.attachments.length;
+
   return (
     <View style={styles.container}>
       <View style={{ ...styles.avatar }}>
@@ -67,7 +76,21 @@ const ThreadCard: React.FC<IthreadCardProps> = ({ threadItem }) => {
           >
             {getThreadParticipantsUserName(others)}
           </Typography>
-          {threadItem.favicon && <VerifiedIcon />}
+          {threadItem.favicon && (
+            <View style={styles.iconContainer}>
+              <VerifiedIcon />
+            </View>
+          )}
+
+          {threadItem.favorite && (
+            <IconButton
+              name={"smallpin"}
+              width={10}
+              disabled
+              height={16}
+              color={colors.purple}
+            />
+          )}
         </View>
 
         <View style={{ marginBottom: 3, flexDirection: "row" }}>
@@ -77,17 +100,36 @@ const ThreadCard: React.FC<IthreadCardProps> = ({ threadItem }) => {
             ellipsizeMode="tail"
             numberOfLines={1}
           >
-            {subject}
+            {adjustMessage(subject, 30)}
           </Typography>
-          {threadItem.lastHeader.attachments.length > 0 && (
+          {attachmentsLength > 0 && (
             <IconButton
               onPress={() => {}}
               name="attachment"
-              width={12}
-              height={20}
-              color={colors.grey01}
+              width={9}
+              height={16}
+              color={colors.skyBlue}
             />
           )}
+
+          <View style={styles.draftAndMuteContainer}>
+            {threadItem.isDraft && ( //TODO:
+              <Typography type={"smallBoldBody"} color={"error"}>
+                draft
+              </Typography>
+            )}
+
+            {threadItem.isMute && ( //TODO:
+              <IconButton
+                onPress={() => {}}
+                name="alert"
+                width={14}
+                disabled
+                height={16}
+                color={colors.yellow}
+              />
+            )}
+          </View>
         </View>
         <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
           <Typography
@@ -96,7 +138,9 @@ const ThreadCard: React.FC<IthreadCardProps> = ({ threadItem }) => {
             ellipsizeMode="tail"
             numberOfLines={1}
           >
-            {message}
+            {message === "<no message>" && attachmentsLength
+              ? `${attachmentsLength} attachments`
+              : adjustMessage(message, 37)}
           </Typography>
           <Typography
             type={isMessageSeen ? "smallRegularBody" : "smallBoldBody"}
@@ -119,11 +163,11 @@ export default memo(ThreadCard);
 
 const styles = StyleSheet.create({
   container: {
-    height: 80,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "flex-start",
     flex: 1,
+    marginVertical: 16,
   },
 
   avatar: {
@@ -137,5 +181,16 @@ const styles = StyleSheet.create({
   headerIconContainer: {
     flexDirection: "row",
     alignItems: "flex-start",
+  },
+  iconContainer: {
+    top: -3,
+    marginRight: "auto",
+  },
+  draftAndMuteContainer: {
+    flexDirection: "row",
+    flex: 1,
+    justifyContent: "flex-end",
+    alignItems: "center",
+    height: 15,
   },
 });

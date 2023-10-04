@@ -31,7 +31,7 @@ const BookMarkWrapper = ({
             name={"bookmark"}
             width={16}
             height={16}
-            color={colors.white}
+            color={isOwnMessage ? colors.white : colors.grey02}
           />
         </View>
       )}

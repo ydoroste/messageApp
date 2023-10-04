@@ -37,6 +37,9 @@ import { PanGestureHandler } from "react-native-gesture-handler";
 import IconButton from "@followBack/GenericElements/IconButton";
 import CloseWrapper from "../CloseWrapper/CloseWrapper";
 import OriginalEmailWrapper from "../OriginalEmailWrapper/OriginalEmailWrapper";
+import useTheme from "@followBack/Hooks/useTheme";
+import useMessageSenderDetails from "@followBack/Hooks/useMessageSenderDetails";
+import AboveNameWrapper from "../AboveNameWrapper/AboveNameWrapper";
 
 const Message = ({
   item,
@@ -76,6 +79,8 @@ const Message = ({
     item.reactions || []
   );
 
+  const { colors } = useTheme();
+
   useEffect(() => {
     setReactions(item.reactions || []);
   }, [JSON.stringify(item.reactions)]);
@@ -84,6 +89,11 @@ const Message = ({
   const isOwnMessage = !item?.from?.address
     ? true
     : userDetails.user_name === emailNameParcer(item?.from?.address);
+
+  const isRepliedMessageMyOwn = !replyToMessageContent?.from?.address
+    ? true
+    : userDetails.user_name ===
+      emailNameParcer(replyToMessageContent?.from?.address);
 
   const [showDate, setShowDate] = useState(false);
 
@@ -161,7 +171,9 @@ const Message = ({
       }
     },
     onEmojiPress: _onEmojiPress,
-    emojis: ["thumbsup", "heart", "joy", "open_mouth", "pray", "cry"],
+    emojis: item?.promotional
+      ? []
+      : ["thumbsup", "heart", "joy", "open_mouth", "pray", "cry"],
     MessageContent: (
       <MessageContent item={item} isAllFromUnSend={isAllFromUnSend} />
     ),
@@ -186,6 +198,8 @@ const Message = ({
   const _onNavigateToRepliedMessage = () => {
     onNavigateToRepliedMessage(item);
   };
+
+  const { isGroupChat, text, userFirstName } = useMessageSenderDetails(item);
 
   const startPosition = 0;
   const x = useSharedValue(startPosition);
@@ -248,12 +262,16 @@ const Message = ({
 
         <RepliedToMessage
           isVisible={!!replyToMessageContent}
+          isRepliedMessageMyOwn={isRepliedMessageMyOwn}
           isOwnMessage={isOwnMessage}
           onNavigateToRepliedMessage={_onNavigateToRepliedMessage}
         >
           <MessageContent
             item={replyToMessageContent as IThreadMessage}
-            containerStyle={styles.repliedToMessage}
+            containerStyle={{
+              ...styles.repliedToMessage,
+              ...(!isRepliedMessageMyOwn ? { borderColor: colors.grey01 } : {}),
+            }}
             textColor="secondary"
             isAllFromUnSend={isAllFromUnSend}
           />
@@ -268,42 +286,49 @@ const Message = ({
         )}
         {DateSection}
         <Menu {...menuProps}>
-          <BookMarkWrapper
-            isBookMarked={item?.isBookMarked as boolean}
-            isOwnMessage={isOwnMessage}
-            onUnBookMarkedPress={_onUnBookMarkedPress}
+          <AboveNameWrapper
+            isVisible={isGroupChat && !isOwnMessage}
+            userFirstName={userFirstName as string}
           >
-            <EditedWrapper
-              isEdited={item?.edited}
+            <BookMarkWrapper
+              isBookMarked={item?.isBookMarked as boolean}
               isOwnMessage={isOwnMessage}
-              editedDate={item.updatedAt as string}
+              onUnBookMarkedPress={_onUnBookMarkedPress}
             >
-              <OriginalEmailWrapper
-                isPromotional={(item?.promotional && item.html) as boolean}
-                html={item.html}
-                onPressViewOriginalEmail={onPressViewOriginalEmail}
+              <EditedWrapper
+                isEdited={item?.edited}
+                isOwnMessage={isOwnMessage}
+                editedDate={item.updatedAt as string}
               >
-                <EmojiWrapper
-                  onReactedEmojiPress={onReactedEmojiPress}
-                  reactions={uniqueReactions}
-                  reactionCount={reactions.length}
-                  myReactionIndex={myReactionIndex}
+                <OriginalEmailWrapper
+                  isPromotional={(item?.promotional && item.html) as boolean}
+                  html={item.html}
+                  onPressViewOriginalEmail={onPressViewOriginalEmail}
                 >
-                  <BorderWrapper isReplying={isReplying}>
-                    <CloseWrapper
-                      isCurrentMessageEditing={isCurrentMessageEditing}
-                      onCloseEdit={onCloseEdit}
-                    >
-                      <MessageContent
-                        item={item}
-                        isAllFromUnSend={isAllFromUnSend}
-                      />
-                    </CloseWrapper>
-                  </BorderWrapper>
-                </EmojiWrapper>
-              </OriginalEmailWrapper>
-            </EditedWrapper>
-          </BookMarkWrapper>
+                  <EmojiWrapper
+                    onReactedEmojiPress={onReactedEmojiPress}
+                    reactions={uniqueReactions}
+                    reactionCount={reactions.length}
+                    myReactionIndex={myReactionIndex}
+                    isAllFromUnSend={isAllFromUnSend}
+                    isOwnMessage={isOwnMessage}
+                  >
+                    <BorderWrapper isReplying={isReplying}>
+                      <CloseWrapper
+                        isCurrentMessageEditing={isCurrentMessageEditing}
+                        onCloseEdit={onCloseEdit}
+                      >
+                        <MessageContent
+                          item={item}
+                          isAllFromUnSend={isAllFromUnSend}
+                        />
+                      </CloseWrapper>
+                    </BorderWrapper>
+                  </EmojiWrapper>
+                </OriginalEmailWrapper>
+              </EditedWrapper>
+            </BookMarkWrapper>
+          </AboveNameWrapper>
         </Menu>
       </Animated.View>
     </PanGestureHandler>
@@ -321,11 +346,12 @@ const useStyles = useStylesWithTheme((theme) => ({
 
   repliedToMessage: {
     backgroundColor: "transparent",
-    borderWidth: 2,
+    borderWidth: 1,
     borderColor: theme.colors.purple,
     maxWidth: 200,
     maxHeight: 200,
     overflow: "hidden",
+    zIndex: 1000000,
   },
   replyIconContainer: {
     position: "absolute",

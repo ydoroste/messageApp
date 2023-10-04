@@ -36,6 +36,21 @@ const UnSend = React.lazy(() => import("@followBack/Theme/Icons/UnSend"));
 const Done = React.lazy(() => import("@followBack/Theme/Icons/Done"));
 const Verified = React.lazy(() => import("@followBack/Theme/Icons/Verified"));
 
+const About = React.lazy(() => import("@followBack/Theme/Icons/About"));
+const SmallPin = React.lazy(() => import("@followBack/Theme/Icons/SmallPin"));
+const Trash = React.lazy(() => import("@followBack/Theme/Icons/Trash"));
+const Settings = React.lazy(() => import("@followBack/Theme/Icons/Settings"));
+const Message = React.lazy(() => import("@followBack/Theme/Icons/Message"));
+const AddWithCircle = React.lazy(
+  () => import("@followBack/Theme/Icons/AddWithCircle")
+);
+
+const VerticalLine = React.lazy(
+  () => import("@followBack/Theme/Icons/VerticalLine")
+);
+const Alert = React.lazy(() => import("@followBack/Theme/Icons/Alert"));
+const BigAlert = React.lazy(() => import("@followBack/Theme/Icons/BigAlert"));
+
 const iconMap: Record<iconsType, React.FC<IIconProps>> = {
   close: Close,
   hidden: Hidden,
@@ -59,6 +74,15 @@ const iconMap: Record<iconsType, React.FC<IIconProps>> = {
   more: More,
   forward: Forward,
   verified: Verified,
+  about: About,
+  trash: Trash,
+  settings: Settings,
+  message: Message,
+  addwithcircle: AddWithCircle,
+  verticalline: VerticalLine,
+  smallpin: SmallPin,
+  alert: Alert,
+  bigalert: BigAlert,
 };
 const IconButton: React.FC<IIconButtonProps> = ({
   name,

@@ -11,6 +11,7 @@ import { colorTypes } from "@followBack/GenericElements/Typography/types";
 import RenderHTML, { MixedStyleDeclaration } from "react-native-render-html";
 import { colorsToTheme } from "@followBack/GenericElements/Typography/utils";
 import useTheme from "@followBack/Hooks/useTheme";
+import useMessageSenderDetails from "@followBack/Hooks/useMessageSenderDetails";
 
 const MessageContent = ({
   item,
@@ -29,33 +30,7 @@ const MessageContent = ({
 
   const { colors } = useTheme();
 
-  const { text, to, from, cc, bcc } = item;
-  const { userDetails } = useUserDetails();
-  const isOwnMessage = !item?.from?.address
-    ? true
-    : userDetails.user_name === emailNameParcer(item?.from?.address);
-
-  const sender = from ?? {
-    name: userDetails.user_name,
-    address: userDetails.email,
-  };
-  const toList = to ?? [];
-  const ccList = cc ?? [];
-  const bccList = bcc ?? [];
-
-  const chatUsers = [...toList, ...ccList, ...bccList, sender];
-
-  const others = excludeUser({
-    users: chatUsers,
-    userAddress: `${userDetails.user_name}@${MAIL_DOMAIN}`,
-  });
-
-  const isGroupChat = others.length > 1;
-  const messageSender = sender;
-  const userFirstName =
-    messageSender?.name?.length ?? -1 > 0
-      ? messageSender?.name?.split(" ")?.[0]
-      : messageSender.address;
+  const { isOwnMessage, text } = useMessageSenderDetails(item);
 
   const messageStyle =
     !isAllFromUnSend && isOwnMessage
@@ -63,12 +38,6 @@ const MessageContent = ({
       : isOwnMessage
       ? styles.ownMessageStyle
       : styles.otherMessagesStyle;
-
-  const isSomeOneInGroup = isGroupChat && !isOwnMessage;
-
-  const injectedHtml = isSomeOneInGroup
-    ? `<strong>${userFirstName}  </strong>`
-    : "";
 
   return (
     <View style={[styles.contentContainer, messageStyle, containerStyle]}>
@@ -78,7 +47,7 @@ const MessageContent = ({
             { ...styles.html, color: colors[color] } as MixedStyleDeclaration
           }
           source={{
-            html: injectedHtml + text,
+            html: text,
           }}
         />
       )}

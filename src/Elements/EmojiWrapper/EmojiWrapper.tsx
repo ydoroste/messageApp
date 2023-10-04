@@ -10,6 +10,8 @@ interface EmojiWrapperProps {
   reactions: string[];
   myReactionIndex: number;
   reactionCount: number;
+  isAllFromUnSend: boolean;
+  isOwnMessage: boolean;
 }
 
 const EmojiWrapper = ({
@@ -18,8 +20,21 @@ const EmojiWrapper = ({
   reactions,
   myReactionIndex,
   reactionCount,
+  isAllFromUnSend,
+  isOwnMessage,
 }: EmojiWrapperProps) => {
   const { styles } = useStyles();
+  const messageStyle =
+    !isAllFromUnSend && isOwnMessage
+      ? styles.ownUnSendMessageStyle
+      : isOwnMessage
+      ? styles.ownMessageStyle
+      : styles.otherMessagesStyle;
+
+  const emojisContainer = isOwnMessage
+    ? styles.ownEmojisContainer
+    : styles.otherEmojisContainer;
+
   return (
     <>
       <View style={styles.childrenContainer}>{children}</View>
@@ -28,12 +43,18 @@ const EmojiWrapper = ({
           disabled={myReactionIndex === -1}
           onPress={onReactedEmojiPress}
         >
-          <View style={styles.emojisContainer}>
-            {reactions.map((name) => (
-              <Emoji name={name} />
-            ))}
+          <View style={emojisContainer}>
+            {reactions.map((name) => {
+              return (
+                <View style={messageStyle}>
+                  <Emoji name={name} />
+                </View>
+              );
+            })}
             {reactionCount >= 2 && (
-              <Text style={styles.text}>{reactionCount}</Text>
+              <View style={messageStyle}>
+                <Text style={[styles.text]}>+{reactionCount}</Text>
+              </View>
             )}
           </View>
         </Pressable>
@@ -48,12 +69,36 @@ const useStyles = useStylesWithTheme((theme) => ({
   childrenContainer: {
     marginLeft: "auto",
   },
-  emojisContainer: {
+  ownEmojisContainer: {
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    marginTop: -10,
+  },
+  otherEmojisContainer: {
     flexDirection: "row",
     justifyContent: "flex-end",
+    marginTop: -10,
   },
   text: {
-    color: theme.colors.grey01,
-    marginLeft: 5,
+    color: theme.colors.grey02,
+    textAlign: "center",
+  },
+  ownMessageStyle: {
+    backgroundColor: theme.colors.purple,
+    borderRadius: 30,
+    padding: 2,
+    marginLeft: -11,
+  },
+  ownUnSendMessageStyle: {
+    backgroundColor: theme.colors.green01,
+    borderRadius: 30,
+    padding: 2,
+    marginLeft: -11,
+  },
+  otherMessagesStyle: {
+    backgroundColor: theme.colors.dark04,
+    borderRadius: 30,
+    padding: 2,
+    marginLeft: -11,
   },
 }));

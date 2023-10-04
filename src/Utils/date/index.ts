@@ -14,7 +14,7 @@ export const formatMessageDate = (date: string) => {
     return momentDate.format("h:mm A");
   }
   if (dateDiff === -1) {
-    return "Yesterday";
+    return "yda";
   }
   const years = moment().diff(momentDate, "years", false);
   const format = years > 1 ? "MMM DD, YYYY" : "MMM DD";
