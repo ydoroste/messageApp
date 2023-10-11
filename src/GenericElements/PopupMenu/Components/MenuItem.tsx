@@ -63,6 +63,7 @@ const useStyles = useStylesWithTheme((theme) => ({
     alignItems: "center",
     borderBottomColor: theme.colors.grey01,
     borderBottomWidth: 1,
+    paddingHorizontal: 10,
   },
   text: {
     color: theme.colors.white,

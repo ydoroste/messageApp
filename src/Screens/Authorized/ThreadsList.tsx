@@ -31,7 +31,6 @@ import {
   getContacts,
   setContacts,
 } from "@followBack/Utils/contactDetails";
-import SkeletonContent from "react-native-skeleton-content";
 import SkeletonLoader from "expo-skeleton-loader";
 import SideOptions from "@followBack/GenericElements/SideOptions";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -260,7 +259,7 @@ const ThreadList: React.FC = () => {
         )}
       </View>
 
-      {isSuccess && !!threadsList && !isEmptyList && (
+      {isSuccess && !!threadsList && !isEmptyList && threadsList[0] && (
         <View style={styles.container}>
           <FlashList
             keyExtractor={(item, index) => {

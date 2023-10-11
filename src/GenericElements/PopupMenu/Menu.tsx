@@ -23,7 +23,7 @@ import { IThreadMessage } from "@followBack/Apis/ThreadMessages/types";
 
 const { width: layoutWidth, height: layoutHeight } = Dimensions.get("window");
 
-type MenuOption = {
+export type MenuOption = {
   text: string;
   onPress: (props: { item: any; index: number }) => void;
   iconName: iconsType;
@@ -39,6 +39,7 @@ const Menu = ({
   MessageContent,
   disabled,
   containerStyle,
+  isAttachmentsImageOpened,
 }: {
   menuOptions: (item: IThreadMessage) => MenuOption[];
   children: React.ReactNode;
@@ -49,6 +50,7 @@ const Menu = ({
   MessageContent: React.ReactNode;
   disabled: boolean;
   containerStyle: StyleProp<ViewStyle>;
+  isAttachmentsImageOpened: boolean;
 }) => {
   const triggerWrapperRef = useRef<View | null>(null);
 
@@ -83,6 +85,8 @@ const Menu = ({
         }}
         onPress={onPress}
         ref={triggerWrapperRef}
+        disabled={isAttachmentsImageOpened}
+        pointerEvents={item.notConfirmedNewMessage ? "none" : "auto"}
       >
         {children}
       </Pressable>

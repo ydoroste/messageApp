@@ -6,7 +6,9 @@ import * as React from "react";
 import { IIconProps } from "@followBack/Theme/Icons/types/IconTypes";
 import { IconButton as CustomIconButton } from "react-native-paper";
 
+const Play = React.lazy(() => import("@followBack/Theme/Icons/Play"));
 const Close = React.lazy(() => import("@followBack/Theme/Icons/Close"));
+const CloseBold = React.lazy(() => import("@followBack/Theme/Icons/CloseBold"));
 const Hidden = React.lazy(() => import("@followBack/Theme/Icons/Hidden"));
 const Shown = React.lazy(() => import("@followBack/Theme/Icons/Shown"));
 const Send = React.lazy(() => import("@followBack/Theme/Icons/Send"));
@@ -50,6 +52,17 @@ const VerticalLine = React.lazy(
 );
 const Alert = React.lazy(() => import("@followBack/Theme/Icons/Alert"));
 const BigAlert = React.lazy(() => import("@followBack/Theme/Icons/BigAlert"));
+const Files = React.lazy(() => import("@followBack/Theme/Icons/Files"));
+const Photo = React.lazy(() => import("@followBack/Theme/Icons/Photo"));
+
+const Camera = React.lazy(() => import("@followBack/Theme/Icons/Camera"));
+const Gif = React.lazy(() => import("@followBack/Theme/Icons/Gif"));
+const VoiceNote = React.lazy(() => import("@followBack/Theme/Icons/VoiceNote"));
+const Location = React.lazy(() => import("@followBack/Theme/Icons/Location"));
+const Contact = React.lazy(() => import("@followBack/Theme/Icons/Contact"));
+const SaveAll = React.lazy(() => import("@followBack/Theme/Icons/SaveAll"));
+const File = React.lazy(() => import("@followBack/Theme/Icons/File"));
+const Download = React.lazy(() => import("@followBack/Theme/Icons/Download"));
 
 const iconMap: Record<iconsType, React.FC<IIconProps>> = {
   close: Close,
@@ -83,6 +96,18 @@ const iconMap: Record<iconsType, React.FC<IIconProps>> = {
   smallpin: SmallPin,
   alert: Alert,
   bigalert: BigAlert,
+  photo: Photo,
+  files: Files,
+  camera: Camera,
+  contact: Contact,
+  gif: Gif,
+  location: Location,
+  voicenote: VoiceNote,
+  closebold: CloseBold,
+  play: Play,
+  saveall: SaveAll,
+  file: File,
+  download: Download,
 };
 const IconButton: React.FC<IIconButtonProps> = ({
   name,

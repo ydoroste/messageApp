@@ -38,4 +38,16 @@ export type iconsType =
   | "verticalline"
   | "smallpin"
   | "alert"
-  | "bigalert";
+  | "bigalert"
+  | "photo"
+  | "files"
+  | "camera"
+  | "gif"
+  | "contact"
+  | "location"
+  | "voicenote"
+  | "closebold"
+  | "play"
+  | "saveall"
+  | "file"
+  | "download";

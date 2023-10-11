@@ -141,7 +141,7 @@ const useStyles = useStylesWithTheme((theme) => ({
     alignItems: "center",
     justifyContent: "space-between",
     position: "absolute",
-    bottom: 0,
+    bottom: 20,
     left: 0,
     right: 0,
     zIndex: 1000000,

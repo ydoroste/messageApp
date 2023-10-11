@@ -17,12 +17,13 @@ const MailSender = ({
   text,
   isLoading = false,
   onPressAttachments,
-  tempAttachments,
+  isUploadingAttachment,
   isUploading,
   isFocus = false,
   isEditingMessage,
+  disabled,
 }: {
-  tempAttachments: string[];
+  isUploadingAttachment: boolean;
   isLoading?: boolean;
   onPressCompose: (e: GestureResponderEvent) => void;
   onChangeMailContent: Function;
@@ -31,6 +32,7 @@ const MailSender = ({
   isUploading?: boolean;
   isFocus?: boolean;
   isEditingMessage: boolean;
+  disabled: boolean;
 }) => {
   const { colors } = useTheme();
   const [focused, setFocused] = useState(true);
@@ -88,9 +90,10 @@ const MailSender = ({
             onPress={onPressCompose}
             name={isEditingMessage ? "done" : "send"}
             width={17}
+            disabled={disabled}
             height={17}
             color={
-              tempAttachments.length > 0 || text || isUploading
+              isUploadingAttachment || text.trim() || isUploading
                 ? colors.grey03
                 : colors.grey01
             }

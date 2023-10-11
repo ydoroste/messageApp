@@ -97,6 +97,9 @@ const Message = ({
 
   const [showDate, setShowDate] = useState(false);
 
+  const [isAttachmentsImageOpened, setIsAttachmentsImageOpened] =
+    useState(false);
+
   const myReactionIndex = reactions.findIndex(
     (reaction: Reaction) => reaction.byUserId === userDetails.wildduck_user_id
   );
@@ -175,16 +178,21 @@ const Message = ({
       ? []
       : ["thumbsup", "heart", "joy", "open_mouth", "pray", "cry"],
     MessageContent: (
-      <MessageContent item={item} isAllFromUnSend={isAllFromUnSend} />
+      <MessageContent
+        item={item}
+        isAllFromUnSend={isAllFromUnSend}
+        isViewOnly
+      />
     ),
     disabled: isSelectAllActivated,
     containerStyle: [
       adjustPositionStyle,
       {
-        maxWidth: "80%",
+        maxWidth: isAttachmentsImageOpened ? "100%" : "80%",
         ...(!isOwnMessage && isSelectAllActivated ? { marginLeft: 41 } : {}),
       },
     ],
+    isAttachmentsImageOpened,
   };
 
   const uniqueReactions = [
@@ -248,6 +256,7 @@ const Message = ({
       onGestureEvent={eventHandler}
       failOffsetY={[-5, 5]}
       activeOffsetX={[-5, 5]}
+      enabled={!isAttachmentsImageOpened}
     >
       <Animated.View style={[styles.swipeContainer, uas]}>
         <Animated.View style={[styles.replyIconContainer, replyStyle]}>
@@ -271,6 +280,7 @@ const Message = ({
               ...styles.repliedToMessage,
               ...(!isRepliedMessageMyOwn ? { borderColor: colors.grey01 } : {}),
             }}
+            isViewOnly
             textColor="secondary"
             isAllFromUnSend={isAllFromUnSend}
           />
@@ -320,6 +330,9 @@ const Message = ({
                         <MessageContent
                           item={item}
                           isAllFromUnSend={isAllFromUnSend}
+                          setIsAttachmentsImageOpened={
+                            setIsAttachmentsImageOpened
+                          }
                         />
                       </CloseWrapper>
                     </BorderWrapper>

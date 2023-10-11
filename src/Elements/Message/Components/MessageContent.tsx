@@ -1,28 +1,34 @@
 import React from "react";
-import { View, Image, ImageStyle, StyleProp, ViewStyle } from "react-native";
+import { View, StyleProp, ViewStyle, Dimensions } from "react-native";
 import useStylesWithTheme from "@followBack/Hooks/useStylesWithTheme";
-import { useUserDetails } from "@followBack/Hooks/useUserDetails";
-import { excludeUser } from "@followBack/Utils/messages";
-import { emailNameParcer } from "@followBack/Utils/email";
 import { IThreadMessage } from "@followBack/Apis/ThreadMessages/types";
-import { ScrollView } from "react-native-gesture-handler";
-import { MAIL_DOMAIN } from "@followBack/Apis/constants";
 import { colorTypes } from "@followBack/GenericElements/Typography/types";
 import RenderHTML, { MixedStyleDeclaration } from "react-native-render-html";
 import { colorsToTheme } from "@followBack/GenericElements/Typography/utils";
 import useTheme from "@followBack/Hooks/useTheme";
 import useMessageSenderDetails from "@followBack/Hooks/useMessageSenderDetails";
+import { getFileDetails } from "@followBack/Utils/stringUtils";
+import ImagesPreview from "./ImagesPreview/ImagesPreview";
+import FilesPreview from "./FilesPreview/FilesPreview";
+
+const { width } = Dimensions.get("window");
 
 const MessageContent = ({
   item,
   containerStyle,
   textColor = "chat",
   isAllFromUnSend,
+  setIsAttachmentsImageOpened,
+  isViewOnly,
+  onNavigateToRepliedMessage,
 }: {
   item: IThreadMessage;
   containerStyle?: StyleProp<ViewStyle>;
   textColor?: colorTypes;
   isAllFromUnSend: boolean;
+  isViewOnly?: boolean;
+  setIsAttachmentsImageOpened?: React.Dispatch<React.SetStateAction<boolean>>;
+  onNavigateToRepliedMessage?: () => void;
 }) => {
   const { styles } = useStyles();
 
@@ -39,6 +45,23 @@ const MessageContent = ({
       ? styles.ownMessageStyle
       : styles.otherMessagesStyle;
 
+  const ImageAttachments = [],
+    FileAttachments = [];
+
+  //  TODO:: show attachments for android
+
+  if (item.attachments?.length > 0) {
+    for (const attachment of item.attachments) {
+      const FileDetails = getFileDetails(attachment.title);
+
+      if (FileDetails.isImage || FileDetails.isVideo) {
+        ImageAttachments.push(attachment);
+      } else {
+        FileAttachments.push(attachment);
+      }
+    }
+  }
+
   return (
     <View style={[styles.contentContainer, messageStyle, containerStyle]}>
       {text && (
@@ -49,22 +72,28 @@ const MessageContent = ({
           source={{
             html: text,
           }}
+          contentWidth={width}
         />
       )}
-      {item.attachments && item.attachments.length > 0 && (
-        <ScrollView horizontal style={{ maxHeight: 100 }}>
-          {item.attachments.map((attachment) => {
-            return (
-              <Image
-                key={attachment.id}
-                style={styles.imageStyle as StyleProp<ImageStyle>}
-                source={{ uri: attachment.url, cache: "force-cache" }}
-                resizeMethod="scale"
-                resizeMode="cover"
-              />
-            );
-          })}
-        </ScrollView>
+
+      {ImageAttachments.length > 0 && (
+        <ImagesPreview
+          ImageAttachments={ImageAttachments}
+          notConfirmedNewMessage={item.notConfirmedNewMessage as boolean}
+          setIsAttachmentsImageOpened={setIsAttachmentsImageOpened}
+          isMarginTop={!!text}
+          isViewOnly={!!isViewOnly}
+          onNavigateToRepliedMessage={onNavigateToRepliedMessage}
+        />
+      )}
+
+      {FileAttachments.length > 0 && (
+        <FilesPreview
+          FileAttachments={FileAttachments}
+          notConfirmedNewMessage={item.notConfirmedNewMessage as boolean}
+          isMarginTop={!!text}
+          isViewOnly={!!isViewOnly}
+        />
       )}
     </View>
   );
@@ -78,8 +107,8 @@ const useStyles = useStylesWithTheme((theme) => ({
     backgroundColor: theme.colors.dark02,
   },
   imageStyle: {
-    width: 80,
-    height: 80,
+    width: 224,
+    height: 224,
     margin: 5,
     borderRadius: 5,
   },

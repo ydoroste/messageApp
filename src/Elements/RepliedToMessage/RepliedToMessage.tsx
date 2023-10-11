@@ -29,7 +29,7 @@ const RepliedToMessage = ({
                 : styles.leftChildrenContainer
             }
           >
-            {children}
+            {React.cloneElement(children, { onNavigateToRepliedMessage })}
           </View>
           <View style={isOwnMessage ? styles.rightLine : styles.leftLine} />
         </View>

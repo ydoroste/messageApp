@@ -9,8 +9,6 @@ npm-debug.*
 *.mobileprovision
 *.orig.*
 web-build/
-android/
-ios/
 
 # macOS
 .DS_Store
@@ -42,6 +40,8 @@ DerivedData
 *.xcuserstate
 project.xcworkspace
 
+
+
 # Android/IntelliJ
 #
 build/
@@ -51,7 +51,7 @@ local.properties
 *.iml
 *.hprof
 .cxx/
-android/
+
 
 # node.js
 #
@@ -70,7 +70,7 @@ buck-out/
 
 # CocoaPods
 /ios/Pods/
-ios/
+
 
 # Expo
 .expo/

@@ -11,27 +11,29 @@ import {
   Platform,
   StyleSheet,
   Alert,
-  Image,
-  Pressable,
   InteractionManager,
   FlatList,
 } from "react-native";
+
 import { setStringAsync } from "expo-clipboard";
+import * as DocumentPicker from "expo-document-picker";
 import useTheme from "@followBack/Hooks/useTheme";
 import { useFetchThreadMessages } from "@followBack/Hooks/Apis/ThreadMessages";
 import Message from "@followBack/Elements/Message/Message";
 import MailSender from "@followBack/Elements/MailSender/MailSender";
 import ThreadDetailsHeader from "@followBack/Elements/Headers/Authorized/ThreadDetailsHeader/threadDetailsHeader.index";
-import { excludeUser, makeid } from "@followBack/Utils/messages";
+import { excludeUser } from "@followBack/Utils/messages";
 import { useUserDetails } from "@followBack/Hooks/useUserDetails";
-import { getThreadParticipantsUserName } from "@followBack/Utils/stringUtils";
+import {
+  getFileDetails,
+  getThreadParticipantsUserName,
+} from "@followBack/Utils/stringUtils";
 import {
   conversationDateTime,
   isTimelimitExceeded,
 } from "@followBack/Utils/date";
 import { IComposeApiRequest } from "@followBack/Apis/Compose/types";
 import LoadingScreen from "@followBack/Elements/LoadingScreen/LoadingScreen.index";
-import { FlashList } from "@shopify/flash-list";
 import { useFailedMessages } from "@followBack/Hooks/useFailedMessages";
 import FailedMessage from "@followBack/Elements/FailedMessage/FailedMessage.index";
 import { composeApi, editMessageApi } from "@followBack/Apis/Compose";
@@ -42,7 +44,6 @@ import {
   createAttachment,
   getUploadLinkApi,
 } from "@followBack/Apis/GetAttachmentUploadLink";
-import { ScrollView } from "react-native-gesture-handler";
 import * as mime from "mime";
 import { ICreateAttachmentRequest } from "@followBack/Apis/GetAttachmentUploadLink/types";
 import { Thread } from "@followBack/Apis/threadsList/type";
@@ -52,12 +53,14 @@ import {
 } from "@followBack/Apis/ThreadMessages";
 import { Buffer } from "buffer";
 import * as FileSystem from "expo-file-system";
-import { ActivityIndicator } from "react-native-paper";
 import { MAIL_DOMAIN } from "@followBack/Apis/constants";
 import ReplyToMessage from "@followBack/Elements/ReplyToMessage/ReplyToMessage";
 import SelectAllWrapper from "@followBack/Elements/SelectAllWrapper/SelectAllWrapper";
 import { BlurView } from "expo-blur";
 import OriginalEmailViewContainerWrapper from "@followBack/Elements/OriginalEmailViewContainer/OriginalEmailViewContainer";
+import BottomSheetUpload from "@followBack/Elements/BottomSheetUpload/BottomSheetUpload";
+import AttachmentsPreview from "@followBack/Elements/AttachmentsPreview/AttachmentsPreview";
+import FastImage from "react-native-fast-image";
 
 const ThreadDetails: React.FC = ({ navigation, route }) => {
   const { threadInfo } = route.params;
@@ -87,8 +90,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
   });
   const [isUploadingAttachment, setIsUploadingAttachment] =
     useState<boolean>(false);
-  const [attachments, setAttachments] = useState<string[]>([]);
-  const [attachmentsLocalURI, setAttachmentsLocalURI] = useState<string[]>([]);
+  const [attachmentsLocalURI, setAttachmentsLocalURI] = useState<any[]>([]);
   const [originalHtml, setOriginalHtml] = useState("");
   const [messageToEdit, setIsEditingMessage] = useState<
     IThreadMessage | undefined
@@ -97,6 +99,10 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
     undefined
   );
 
+  const [imagesLoading, setImagesLoading] = useState<boolean>(true);
+
+  const attachmentsUrls = useRef([]);
+
   const [isSelectAllActivated, setIsSelectAllActivated] =
     useState<boolean>(false);
 
@@ -104,6 +110,8 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
     Record<string, boolean>
   >({});
   const [renderCount, setRenderCount] = useState(10);
+  const [isBottomSheetActivated, setIsBottomSheetActivated] =
+    useState<boolean>(false);
 
   const scrollViewRef = useRef<FlatList<any> | null>(null);
   const hasData = allMessages.length > 0;
@@ -163,7 +171,15 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
         : [];
     setLastMessageData(flattenData[flattenData.length - 1]);
     setAllMessages([...flattenData].reverse());
+
+    setImagesLoading(false);
   }, [data]);
+
+  useEffect(() => {
+    if (attachmentsLocalURI.length === 0) {
+      setIsUploadingAttachment(false);
+    }
+  }, [attachmentsLocalURI.length]);
 
   const isEditingMessage = !!messageToEdit;
 
@@ -187,6 +203,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
     if (lastFromEndPoint !== `${userDetails.user_name}@${MAIL_DOMAIN}`) {
       toEndPoints?.push({ address: lastFromEndPoint });
     }
+
     let composeRequest: IComposeApiRequest = {
       topicId: topicId,
       subject: subject,
@@ -195,7 +212,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
       ccList: formatEndPoints(lastMessageData?.cc ?? []),
       bccList: formatEndPoints(lastHeader?.bccList ?? []),
       from: `${userDetails?.user_name}@${MAIL_DOMAIN}`,
-      attachments: attachments,
+      attachments: [],
     };
     if (messageToEdit) {
       composeRequest = { ...composeRequest, id: messageToEdit?.messageId };
@@ -204,6 +221,61 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
       composeRequest = { ...composeRequest, replyTo: replyToMessage?.headerId };
     }
     return composeRequest;
+  };
+
+  const getAttachmentsIds = async () => {
+    const ids = [];
+    for (const asset of attachmentsLocalURI) {
+      if (asset?.fileSize > 25 * 1024 * 1024) {
+        Alert.alert("Error", "Attachment size is bigger than 25 MB!!!");
+      } else {
+        try {
+          const attachmentId = await uploadProcess(asset);
+          ids.push(attachmentId ?? "");
+        } catch (error) {}
+      }
+    }
+
+    return ids;
+  };
+
+  const onMessageSentSuccessfully = (
+    allMessagesCopy: IThreadMessage[],
+    newMessage: IThreadMessage
+  ) => {
+    const newMessageIndex = allMessagesCopy.findIndex(
+      (message) => message?.messageId === newMessage.messageId
+    );
+
+    allMessagesCopy.splice(newMessageIndex, 1, {
+      ...allMessagesCopy[newMessageIndex],
+      notConfirmedNewMessage: false,
+    });
+    setAllMessages(allMessagesCopy);
+  };
+
+  const onMessageFailed = (
+    allMessagesCopy: IThreadMessage[],
+    newMessage: IThreadMessage
+  ) => {
+    const allMessagesWithoutTheFailed = allMessagesCopy.filter(
+      (item) => !item?.notConfirmedNewMessage
+    );
+    setAllMessages(allMessagesWithoutTheFailed);
+    const failedMeessage = { ...newMessage, failedToSend: true };
+    setFailedMessages(() => {
+      const faildMessagesCopy = [...failedMessages];
+      faildMessagesCopy.unshift(failedMeessage);
+      return faildMessagesCopy;
+    });
+    const newFailedMEssagesObj = {
+      ...failedMessagesData,
+      [id]: [
+        ...(failedMessagesData?.[id] ? failedMessagesData?.[id] : []),
+        failedMeessage,
+      ],
+    };
+    setFailedMessagesData && setFailedMessagesData(newFailedMEssagesObj);
   };
 
   // MARK: - Send new message in chat/thread
@@ -227,14 +299,6 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
       return;
     }
     try {
-      if (
-        (!mail && !(attachments.length > 0)) ||
-        (isUploadingAttachment &&
-          attachments.length != attachmentsLocalURI.length)
-      ) {
-        return;
-      }
-
       const newMessage = {
         text: mail?.trim(),
         messageId: new Date().getTime().toString(),
@@ -242,50 +306,38 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
         ...(replyToMessage?.headerId
           ? { replyTo: { id: replyToMessage?.headerId } }
           : {}),
+        attachments: attachmentsLocalURI,
       };
 
       let allMessagesCopy = [newMessage, ...allMessages];
 
-      setMail("");
-      setReplyTo(undefined);
-      setAllMessages(allMessagesCopy);
-      setAttachments([]);
-      setAttachmentsLocalURI([]);
-      setIsUploadingAttachment(false);
-
       InteractionManager.runAfterInteractions(async () => {
-        const data = await composeApi(createComposeRequest(mail?.trim()));
-        const newMessageIndex = allMessagesCopy.findIndex(
-          (message) => message?.messageId === newMessage.messageId
-        );
+        const request = await createComposeRequest(mail?.trim());
+
+        const attachmentsIds = await getAttachmentsIds();
+
+        request.attachments = attachmentsIds;
+
+        const data = await composeApi(request);
         if (data) {
-          allMessagesCopy.splice(newMessageIndex, 1, {
-            ...allMessagesCopy[newMessageIndex],
-            notConfirmedNewMessage: false,
-          });
-          setAllMessages(allMessagesCopy);
-        } else {
-          const allMessagesWithoutTheFailed = allMessagesCopy.filter(
-            (item) => !item?.notConfirmedNewMessage
+          onMessageSentSuccessfully(
+            allMessagesCopy as IThreadMessage[],
+            newMessage as unknown as IThreadMessage
           );
-          setAllMessages(allMessagesWithoutTheFailed);
-          const failedMeessage = { ...newMessage, failedToSend: true };
-          setFailedMessages(() => {
-            const faildMessagesCopy = [...failedMessages];
-            faildMessagesCopy.unshift(failedMeessage);
-            return faildMessagesCopy;
-          });
-          const newFailedMEssagesObj = {
-            ...failedMessagesData,
-            [id]: [
-              ...(failedMessagesData?.[id] ? failedMessagesData?.[id] : []),
-              failedMeessage,
-            ],
-          };
-          setFailedMessagesData && setFailedMessagesData(newFailedMEssagesObj);
+        } else {
+          onMessageFailed(
+            allMessagesCopy as IThreadMessage[],
+            newMessage as unknown as IThreadMessage
+          );
         }
         scrollToIndex(0);
       });
+
+      setMail("");
+      setReplyTo(undefined);
+      setAllMessages(allMessagesCopy as IThreadMessage[]);
+      setAttachmentsLocalURI([]);
+      setIsUploadingAttachment(false);
     } catch (error) {}
   };
 
@@ -316,55 +368,104 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
       });
   };
 
+  const uploadProcess = async (asset: any) => {
+    try {
+      let link = await getUploadLinkApi({
+        filename: asset.fileName ?? "", //TODO::
+      });
+      const mimeType = mime.getType(asset.fileName ?? ""); // => 'application/pdf'
+      const base64 = await FileSystem.readAsStringAsync(asset.uri, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+      const buffer = Buffer.from(base64 ?? "", "base64");
+
+      let res = await fetch(link.link, {
+        method: "PUT",
+        body: buffer,
+        headers: {
+          "Content-Type": `${mimeType}`,
+        },
+      });
+
+      if (res.status == 200) {
+        let createAttachmentReq: ICreateAttachmentRequest = {
+          url: link.link,
+          title: asset.fileName ?? "",
+          type: mimeType ?? "",
+          size: asset.fileSize ?? 0,
+        };
+
+        let createRes = await createAttachment(createAttachmentReq);
+        return createRes.id;
+      }
+
+      return Promise.reject("error");
+    } catch (error) {
+      console.log(error);
+      return Promise.reject(error);
+    }
+  };
+
+  const getTempFileName = (asset) => {
+    const date = new Date();
+    const fileExtension = getFileDetails(
+      asset.fileName ?? asset.uri
+    ).fileExtension;
+
+    const tempTitle =
+      Math.floor(date.getTime() + date.getSeconds() / 2) + "." + fileExtension;
+
+    return tempTitle;
+  };
+
   // MARK:- add new attachments
-  const onPressAttachments = async () => {
+  const handleUploadImages = async () => {
     setIsUploadingAttachment(true);
-    let attachmentsToUpload: string[] =
-      attachments.length > 0 ? attachments : [];
-    let attachmentsToShow: string[] =
-      attachmentsLocalURI.length > 0 ? attachmentsLocalURI : [];
+    let attachmentsToShow: any[] = [];
+
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
       allowsMultipleSelection: true,
       orderedSelection: true,
-      quality: 0,
     });
-    if (result) {
-      result.assets?.forEach(async (asset) => {
-        attachmentsToShow.push(asset.uri);
-      });
-      await setAttachmentsLocalURI(attachmentsToShow);
-      await result.assets?.forEach(async (asset) => {
-        if (asset.fileSize && asset.fileSize > 25 * 1024 * 1024) {
-          Alert.alert("Error", "Attachment size is bigger than 25 MB!!!");
-        } else {
-          let link = await getUploadLinkApi({ filename: asset.fileName ?? "" });
-          const mimeType = mime.getType(asset.fileName ?? ""); // => 'application/pdf'
-          const base64 = await FileSystem.readAsStringAsync(asset.uri, {
-            encoding: FileSystem.EncodingType.Base64,
-          });
-          const buffer = Buffer.from(base64 ?? "", "base64");
-          let res = await fetch(link.link, {
-            method: "PUT",
-            body: buffer,
-            headers: {
-              "Content-Type": `${mimeType}`,
-            },
-          });
-          if (res.status == 200) {
-            let createAttachmentReq: ICreateAttachmentRequest = {
-              url: link.link,
-              title: asset.fileName ?? "",
-              type: mimeType ?? "",
-              size: asset.fileSize ?? 0,
-            };
-            let createRes = await createAttachment(createAttachmentReq);
-            attachmentsToUpload.push(createRes.id ?? "");
-          }
-        }
-      });
+    if (result?.assets) {
+      for (const asset of result.assets) {
+        const tempTitle = getTempFileName(asset);
+
+        attachmentsToShow.push({
+          ...asset,
+          url: asset.uri,
+          title: asset.fileName ?? tempTitle,
+          ...(asset?.fileName
+            ? { fileName: asset?.fileName }
+            : { fileName: tempTitle }),
+        });
+      }
+
+      setAttachmentsLocalURI(attachmentsToShow);
     }
-    setAttachments(attachmentsToUpload);
+  };
+
+  // MARK:- add new attachments
+  const handleUploadFiles = async () => {
+    setIsUploadingAttachment(true);
+    let attachmentsToShow: any[] = [];
+
+    const result = await DocumentPicker.getDocumentAsync();
+
+    const tempTitle = getTempFileName(result);
+
+    if (result.type === "success") {
+      attachmentsToShow.push({
+        ...result,
+        type: "file",
+        title: result.name,
+        url: result.uri,
+        fileName: result.name ?? tempTitle,
+      });
+
+      setAttachmentsLocalURI(attachmentsToShow);
+    }
   };
 
   const onPressReplyToMessage = (threadMessage: IThreadMessage) => {
@@ -610,56 +711,11 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
             ref={scrollViewRef}
           />
         )}
-        {attachmentsLocalURI.length > 0 && (
-          <>
-            <ScrollView
-              horizontal
-              style={{ maxHeight: 95, marginBottom: 60 }}
-              showsHorizontalScrollIndicator
-              scrollIndicatorInsets={{ bottom: 1 }}
-            >
-              <View style={{ height: 90, flexDirection: "row" }}>
-                {attachmentsLocalURI.map((att, index) => {
-                  return (
-                    <Pressable
-                      key={`attachment-${att}`}
-                      onPress={() => {
-                        var currentToCompare = attachmentsLocalURI.slice();
-                        currentToCompare.splice(index, 1);
-                        setAttachmentsLocalURI(currentToCompare);
-                        var newAttachments = attachments.slice();
-                        newAttachments.splice(index, 1);
-                        setAttachments(newAttachments);
-                      }}
-                      style={{ justifyContent: "center" }}
-                    >
-                      <Image
-                        key={makeid(index)}
-                        source={{ uri: att }}
-                        style={{
-                          width: 80,
-                          height: 80,
-                          margin: 5,
-                          borderRadius: 5,
-                        }}
-                      />
-                      {attachments.length < attachmentsLocalURI.length && (
-                        <ActivityIndicator
-                          size="small"
-                          color={colors.white}
-                          style={{
-                            position: "absolute",
-                            alignSelf: "center",
-                          }}
-                        />
-                      )}
-                    </Pressable>
-                  );
-                })}
-              </View>
-            </ScrollView>
-          </>
-        )}
+        <AttachmentsPreview
+          attachments={attachmentsLocalURI}
+          setAttachmentsLocalURI={setAttachmentsLocalURI}
+        />
+
         {replyToMessage !== undefined && (
           <ReplyToMessage
             item={replyToMessage}
@@ -744,6 +800,58 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
     [others.others]
   );
 
+  const toggleBottomSheet = useCallback(() => {
+    setIsBottomSheetActivated((prev) => !prev);
+  }, []);
+
+  const onSheetActionPress = useCallback((cb: () => {}) => {
+    return () => {
+      toggleBottomSheet();
+      cb();
+    };
+  }, []);
+
+  const bottomSheetOptions = useMemo(
+    () => [
+      {
+        text: "camera",
+        onPress: onSheetActionPress(() => {}),
+        iconName: "camera",
+      },
+      {
+        text: "photo & video album",
+        onPress: onSheetActionPress(handleUploadImages),
+        iconName: "photo",
+      },
+      {
+        text: "gif",
+        onPress: onSheetActionPress(() => {}),
+        iconName: "gif",
+      },
+      {
+        text: "files",
+        onPress: onSheetActionPress(handleUploadFiles),
+        iconName: "files",
+      },
+      {
+        text: "contact",
+        onPress: onSheetActionPress(() => {}),
+        iconName: "contact",
+      },
+      {
+        text: "location",
+        onPress: onSheetActionPress(() => {}),
+        iconName: "location",
+      },
+      {
+        text: "voice note",
+        onPress: onSheetActionPress(() => {}),
+        iconName: "voicenote",
+      },
+    ],
+    [handleUploadImages]
+  );
+
   const ThreadHeaderComponent = hasData && (
     <ThreadDetailsHeader
       receiver={receiver}
@@ -754,7 +862,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
     />
   );
 
-  if (!hasData || isError) {
+  if (!hasData || isError || imagesLoading) {
     return (
       <LoadingScreen
         loadingText={isError ? "Something Wrong" : "Loading"}
@@ -762,6 +870,8 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
       />
     );
   }
+
+  const shouldShowMailSender = !isSelectAllActivated && !isBottomSheetActivated;
 
   return (
     <KeyboardAvoidingView
@@ -782,18 +892,31 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
             html={originalHtml}
             Header={ThreadHeaderComponent as JSX.Element}
           >
-            {ThreadHeaderComponent}
+            <BottomSheetUpload
+              bottomSheetOptions={bottomSheetOptions}
+              isBottomSheetActivated={isBottomSheetActivated}
+              toggleBottomSheet={toggleBottomSheet}
+            >
+              {ThreadHeaderComponent}
 
-            {renderChat()}
+              {renderChat()}
 
-            <MailSender
-              text={mail}
-              onChangeMailContent={onChangeMailContent}
-              onPressCompose={onPressCompose}
-              onPressAttachments={onPressAttachments}
-              tempAttachments={attachments}
-              isEditingMessage={isEditingMessage}
-            />
+              {shouldShowMailSender && (
+                <MailSender
+                  text={mail}
+                  disabled={
+                    isUploadingAttachment
+                      ? attachmentsLocalURI.length === 0
+                      : !mail.trim()
+                  }
+                  onChangeMailContent={onChangeMailContent}
+                  onPressCompose={onPressCompose}
+                  onPressAttachments={toggleBottomSheet}
+                  isUploadingAttachment={attachmentsLocalURI.length !== 0}
+                  isEditingMessage={isEditingMessage}
+                />
+              )}
+            </BottomSheetUpload>
           </OriginalEmailViewContainerWrapper>
         </SelectAllWrapper>
       </View>
