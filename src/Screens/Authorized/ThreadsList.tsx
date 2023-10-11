@@ -270,7 +270,7 @@ const ThreadList: React.FC = () => {
             renderItem={renderThreadItem}
             estimatedItemSize={100}
             onEndReached={loadNextPageData}
-            onEndReachedThreshold={0.2}
+            onEndReachedThreshold={1}
           />
         </View>
       )}
