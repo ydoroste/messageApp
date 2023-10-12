@@ -1,5 +1,5 @@
 import * as FileSystem from "expo-file-system";
-import { Platform } from "react-native";
+import { PermissionsAndroid, Platform } from "react-native";
 
 import RNFetchBlob from "rn-fetch-blob";
 
@@ -20,6 +20,28 @@ export const downloadFile = async (url: string, name: string) => {
     return uri;
   } catch (error) {
     console.error("Error downloading image:", error);
+  }
+};
+
+const requestWriteFilePermission = async () => {
+  try {
+    const granted = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+      {
+        title: "Unsend needs WRITE EXTERNAL STORAGE Permission",
+        message: "Unsend needs WRITE EXTERNAL STORAGE Permission",
+        buttonNeutral: "Ask Me Later",
+        buttonNegative: "Cancel",
+        buttonPositive: "OK",
+      }
+    );
+    if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+      return true;
+    } else {
+      return Promise.reject(false);
+    }
+  } catch (err) {
+    return Promise.reject(false);
   }
 };
 
@@ -50,6 +72,10 @@ export const saveFile = async (url: string, title: string) => {
     let fileName = `${Math.floor(date.getTime() + date.getSeconds() / 2)}.${
       FileDetails.fileExtension
     }`;
+
+    if (Platform.OS === "android") {
+      await requestWriteFilePermission();
+    }
 
     if (FileDetails.isVideo || FileDetails.isImage) {
       let uri = await downloadFile(url, fileName);
