@@ -41,8 +41,8 @@ const windowHeight = Dimensions.get("window").height;
 
 const ThreadList: React.FC = () => {
   const nav = useNavigation<authorizedStackNavigationProps["navigation"]>();
-  const { data: mail } = useMailBoxes();
-  const { id } = mail?.data.mailboxes?.find(
+  const { mailboxes } = useMailBoxes();
+  const { id } = mailboxes?.find(
     (t) => t.mailbox.toLowerCase() === "inbox"
   ) ?? { id: "" };
   const { colors } = useTheme();
