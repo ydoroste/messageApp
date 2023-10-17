@@ -52,7 +52,11 @@ const ThreadList: React.FC = () => {
   });
 
   const { data, isLoading, isError, hasNextPage, fetchNextPage } =
-    useFetchthreadsList({ id, searchValue, refetchData: true });
+    useFetchthreadsList({
+      id,
+      searchValue,
+      refetchData: true,
+    });
 
   const isEmptyList = threadsList.length === 0;
 

@@ -14,7 +14,7 @@ import axios, { InternalAxiosRequestConfig } from "axios";
 import { getAccessToken } from "./Utils/accessToken";
 import { AUTH_SERVICE_URL, CORE_SERVICE_URL } from "./Apis/constants";
 import { ApiEndpoints } from "./Apis";
-import { UserProvider } from "./Contexts/UserContext";
+import { UserProvider, UserContext } from "./Contexts/UserContext";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const queryClient = new QueryClient({
@@ -42,9 +42,11 @@ const getBaseURL = (request: InternalAxiosRequestConfig) => {
   return CORE_SERVICE_URL;
 };
 
+let isAuthenticatedRef = false;
+
 const MainApp: React.FC = () => {
   const [isAppLoaded] = useInitialLoading();
-  const { isAuthenticated } = useUserDetails();
+
   const safeAreaInsets = useSafeAreaInsets();
   if (!isAppLoaded) {
     return null;
@@ -53,7 +55,7 @@ const MainApp: React.FC = () => {
   axios.interceptors.request.use(
     async function (request) {
       request.baseURL = getBaseURL(request);
-      if (!isAuthenticated) return request;
+      if (!isAuthenticatedRef) return request;
       const token = await getAccessToken();
       request.headers["Authorization"] = `Bearer ${token}`;
       return request;
@@ -67,18 +69,32 @@ const MainApp: React.FC = () => {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <PaperProvider>
-          <View style={{ flex: 1 }}>
-            <NavigationContainer>
-              <StatusBar style="light" />
-              {isAuthenticated ? (
-                <MailBoxesProvider>
-                  <AuthorizedNavigation />
-                </MailBoxesProvider>
-              ) : (
-                <UnauthorizedNavigation />
-              )}
-            </NavigationContainer>
-          </View>
+          <UserProvider>
+            <View style={{ flex: 1 }}>
+              <UserContext.Consumer>
+                {({ isAuthenticated }) => {
+                  isAuthenticatedRef = isAuthenticated;
+                  return (
+                    <NavigationContainer>
+                      <StatusBar style="light" />
+                      {(() => {
+                        if (isAuthenticated) {
+                          return (
+                            <MailBoxesProvider>
+                              <AuthorizedNavigation />
+                            </MailBoxesProvider>
+                          );
+                        } else if (isAuthenticated === false)
+                          return <UnauthorizedNavigation />;
+
+                        return <></>;
+                      })()}
+                    </NavigationContainer>
+                  );
+                }}
+              </UserContext.Consumer>
+            </View>
+          </UserProvider>
         </PaperProvider>
       </ThemeProvider>
     </QueryClientProvider>

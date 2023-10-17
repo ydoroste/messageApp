@@ -24,7 +24,7 @@ export interface GetDetailsAPIResponse {
 
 export const UserProvider: React.FC<IUserProviderProp> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState<null | boolean>(null);
   const netInfo = useNetInfo();
 
   const [userDetails, setUserDetails] = useState<IUserDetails>({
@@ -83,8 +83,9 @@ export const UserProvider: React.FC<IUserProviderProp> = ({ children }) => {
   };
 
   useEffect(() => {
-    if (!isAuthenticated) return;
-    getUserDetails();
+    if (isAuthenticated) {
+      getUserDetails();
+    }
   }, [isAuthenticated]);
 
   return (

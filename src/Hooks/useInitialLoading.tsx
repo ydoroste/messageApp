@@ -1,22 +1,27 @@
 import useFonts from "./useFonts";
-import * as SplashScreen from 'expo-splash-screen';
-import {useEffect} from "react";
-import {useUserDetails} from "@followBack/Hooks/useUserDetails";
+import * as SplashScreen from "expo-splash-screen";
+import { useEffect, useState } from "react";
+import { useUserDetails } from "@followBack/Hooks/useUserDetails";
+import CachingLayer from "@followBack/Classes/CachingLayer";
 
 SplashScreen.preventAutoHideAsync();
 
-export default () =>{
-    const [fontLoaded]= useFonts();
-    const {isLoading} = useUserDetails();
-    const isAppLoaded = fontLoaded && !isLoading;
+export default () => {
+  const [fontLoaded] = useFonts();
+  const { isLoading } = useUserDetails();
+  const [isAppLoaded, setIsAppLoaded] = useState(false);
 
-        useEffect(()=>{
-            const loadApp = async () => {
-                await SplashScreen.hideAsync();
-            };
-            isAppLoaded && loadApp();
-        }, [isAppLoaded]);
+  useEffect(() => {
+    const loadApp = async () => {
+      if (!isLoading && fontLoaded) {
+        await CachingLayer.loadCachedData();
+        await SplashScreen.hideAsync();
 
-    return [isAppLoaded] as const;
+        setIsAppLoaded(true);
+      }
+    };
+    loadApp();
+  }, [isLoading, fontLoaded]);
+
+  return [isAppLoaded] as const;
 };
-
