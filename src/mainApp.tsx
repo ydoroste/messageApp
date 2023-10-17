@@ -71,11 +71,9 @@ const MainApp: React.FC = () => {
             <NavigationContainer>
               <StatusBar style="light" />
               {isAuthenticated ? (
-                <UserProvider>
-                  <MailBoxesProvider>
-                    <AuthorizedNavigation />
-                  </MailBoxesProvider>
-                </UserProvider>
+                <MailBoxesProvider>
+                  <AuthorizedNavigation />
+                </MailBoxesProvider>
               ) : (
                 <UnauthorizedNavigation />
               )}

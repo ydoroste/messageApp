@@ -34,6 +34,7 @@ import {
 import SkeletonLoader from "expo-skeleton-loader";
 import SideOptions from "@followBack/GenericElements/SideOptions";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import CachingLayer from "@followBack/Classes/CachingLayer";
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
@@ -46,28 +47,16 @@ const ThreadList: React.FC = () => {
   ) ?? { id: "" };
   const { colors } = useTheme();
   const { searchValue } = useSearch();
-  const [isInitialLoading, setIsInitialLoading] = useState(true);
-  const [threadsList, setthreadsList] = useState<Thread[]>([]);
-  const [refetchData, setRefetchData] = useState(false);
-  const { data, isLoading, isError, isSuccess, hasNextPage, fetchNextPage } =
-    useFetchthreadsList({ id, searchValue, refetchData });
+  const [threadsList, setthreadsList] = useState<Thread[]>(() => {
+    return CachingLayer.mailBoxes.inbox.data ?? [];
+  });
 
-  const loadNextPageData = () => {
-    if (hasNextPage) {
-      fetchNextPage();
-    }
-  };
+  const { data, isLoading, isError, hasNextPage, fetchNextPage } =
+    useFetchthreadsList({ id, searchValue, refetchData: true });
 
-  useEffect(() => {
-    if (!isInitialLoading) return;
-    setIsInitialLoading(isLoading);
-  }, [isLoading]);
+  const isEmptyList = threadsList.length === 0;
 
-  useFocusEffect(
-    useCallback(() => {
-      setRefetchData(true);
-    }, [])
-  );
+  const shouldShowData = !!threadsList && !isEmptyList && !!threadsList[0];
 
   useFocusEffect(() => {
     const getContactsData = async () => {
@@ -86,8 +75,16 @@ const ThreadList: React.FC = () => {
     let flattenData = data?.pages
       ? data.pages.flatMap((page) => page?.data)
       : [];
+
+    CachingLayer.saveInBoxToDir(id, flattenData);
     setthreadsList(flattenData);
   }, [data]);
+
+  const loadNextPageData = () => {
+    if (hasNextPage) {
+      fetchNextPage();
+    }
+  };
 
   const onBookmarkPressed = async (item: Thread) => {
     await editBookmark({ threadId: item.threadId, bookmark: !item.favorite });
@@ -146,72 +143,6 @@ const ThreadList: React.FC = () => {
     );
   };
 
-  if (isLoading) {
-    return <LoadingScreen loadingText={"Loading"} loadingIndecatorSize={20} />;
-  }
-  if (isError)
-    return (
-      <View style={styles.emptyOrErrorMessageContainer}>
-        <Typography color="secondary" type="largeRegularBody">
-          An error occurred while fetching data
-        </Typography>
-      </View>
-    );
-
-  const isEmptyList = threadsList.length === 0;
-  if (isEmptyList) {
-    return (
-      <View style={styles.emptyOrErrorMessageContainer}>
-        <Typography color="secondary" type="largeRegularBody">
-          no results
-        </Typography>
-      </View>
-    );
-  }
-
-  const AvatarLayout = ({
-    size = 100,
-    style,
-  }: {
-    size?: number;
-    style?: ViewStyle;
-  }) => (
-    <SkeletonLoader>
-      <SkeletonLoader.Container
-        style={[{ flex: 1, flexDirection: "row" }, style]}
-      >
-        <SkeletonLoader.Item
-          style={{
-            width: size,
-            height: size,
-            borderRadius: size / 2,
-            marginRight: 20,
-          }}
-        />
-        <SkeletonLoader.Container style={{ paddingVertical: 10 }}>
-          <SkeletonLoader.Item
-            style={{ width: 220, height: 20, marginBottom: 5 }}
-          />
-          <SkeletonLoader.Item style={{ width: 150, height: 20 }} />
-        </SkeletonLoader.Container>
-      </SkeletonLoader.Container>
-    </SkeletonLoader>
-  );
-
-  const PostLayout = () => (
-    <SkeletonLoader style={{ marginVertical: 10 }}>
-      <AvatarLayout style={{ marginBottom: 10 }} />
-
-      <SkeletonLoader.Item
-        style={{
-          width: windowWidth,
-          height: windowHeight / 3.5,
-          marginVertical: 10,
-        }}
-      />
-    </SkeletonLoader>
-  );
-
   const renderThreadItem = ({ item }: { item: Thread }) => {
     return (
       <Swipeable
@@ -233,38 +164,17 @@ const ThreadList: React.FC = () => {
       </Swipeable>
     );
   };
-  return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
-      keyboardVerticalOffset={100}
-      style={{ flex: 1, backgroundColor: colors.black }}
-    >
-      {isLoading && (
-        <Typography color="secondary" type="smallBoldBody">
-          Loading...
-        </Typography>
-      )}
 
-      <View
-        style={
-          isEmptyList
-            ? [styles.searchCountWrapper, styles.moveSearchCounter]
-            : styles.searchCountWrapper
-        }
+  if (shouldShowData) {
+    return (
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        keyboardVerticalOffset={100}
+        style={{ flex: 1, backgroundColor: colors.black }}
       >
-        {isSuccess && !!searchValue && (
-          <Typography type="largeRegularBody" color="secondary">
-            {threadsList.length} search results{" "}
-          </Typography>
-        )}
-      </View>
-
-      {isSuccess && !!threadsList && !isEmptyList && threadsList[0] && (
         <View style={styles.container}>
           <FlashList
-            keyExtractor={(item, index) => {
-              return item?.threadId ?? "" + "_" + index;
-            }}
+            keyExtractor={(item, index) => item?.threadId ?? "" + "_" + index}
             scrollIndicatorInsets={{ right: 1 }}
             data={threadsList}
             renderItem={renderThreadItem}
@@ -273,11 +183,29 @@ const ThreadList: React.FC = () => {
             onEndReachedThreshold={1}
           />
         </View>
-      )}
-
-      <SideOptions style={styles.sideOptionsContainer} />
-    </KeyboardAvoidingView>
-  );
+        <SideOptions style={styles.sideOptionsContainer} />
+      </KeyboardAvoidingView>
+    );
+  } else if (isLoading) {
+    return <LoadingScreen loadingText={"Loading"} loadingIndecatorSize={20} />;
+  } else if (isError)
+    return (
+      <View style={styles.emptyOrErrorMessageContainer}>
+        <Typography color="secondary" type="largeRegularBody">
+          An error occurred while fetching data
+        </Typography>
+      </View>
+    );
+  else if (isEmptyList) {
+    return (
+      <View style={styles.emptyOrErrorMessageContainer}>
+        <Typography color="secondary" type="largeRegularBody">
+          no results
+        </Typography>
+      </View>
+    );
+  }
+  return null;
 };
 export default memo(ThreadList);
 
@@ -312,3 +240,68 @@ const styles = StyleSheet.create({
     paddingRight: 35,
   },
 });
+
+// {
+//   isLoading && (
+//     <Typography color="secondary" type="smallBoldBody">
+//       Loading...
+//     </Typography>
+//   );
+// }
+
+// <View
+//   style={
+//     isEmptyList
+//       ? [styles.searchCountWrapper, styles.moveSearchCounter]
+//       : styles.searchCountWrapper
+//   }
+// >
+//   {isSuccess && !!searchValue && (
+//     <Typography type="largeRegularBody" color="secondary">
+//       {threadsList.length} search results{" "}
+//     </Typography>
+//   )}
+// </View>;
+
+// const AvatarLayout = ({
+//   size = 100,
+//   style,
+// }: {
+//   size?: number;
+//   style?: ViewStyle;
+// }) => (
+//   <SkeletonLoader>
+//     <SkeletonLoader.Container
+//       style={[{ flex: 1, flexDirection: "row" }, style]}
+//     >
+//       <SkeletonLoader.Item
+//         style={{
+//           width: size,
+//           height: size,
+//           borderRadius: size / 2,
+//           marginRight: 20,
+//         }}
+//       />
+//       <SkeletonLoader.Container style={{ paddingVertical: 10 }}>
+//         <SkeletonLoader.Item
+//           style={{ width: 220, height: 20, marginBottom: 5 }}
+//         />
+//         <SkeletonLoader.Item style={{ width: 150, height: 20 }} />
+//       </SkeletonLoader.Container>
+//     </SkeletonLoader.Container>
+//   </SkeletonLoader>
+// );
+
+// const PostLayout = () => (
+//   <SkeletonLoader style={{ marginVertical: 10 }}>
+//     <AvatarLayout style={{ marginBottom: 10 }} />
+
+//     <SkeletonLoader.Item
+//       style={{
+//         width: windowWidth,
+//         height: windowHeight / 3.5,
+//         marginVertical: 10,
+//       }}
+//     />
+//   </SkeletonLoader>
+// );

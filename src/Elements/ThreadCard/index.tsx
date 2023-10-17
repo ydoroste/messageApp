@@ -154,7 +154,6 @@ const ThreadCard: React.FC<IthreadCardProps> = ({ threadItem }) => {
           </Typography>
         </View>
       </View>
-      <View style={{ alignSelf: "flex-end" }}></View>
     </View>
   );
 };
@@ -196,6 +195,5 @@ const styles = StyleSheet.create({
   messageContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "baseline",
   },
 });

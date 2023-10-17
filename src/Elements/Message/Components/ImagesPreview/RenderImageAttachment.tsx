@@ -1,4 +1,5 @@
 import { ICreateAttachmentApiResponse } from "@followBack/Apis/GetAttachmentUploadLink/types";
+import CachingLayer from "@followBack/Classes/CachingLayer";
 import IconButton from "@followBack/GenericElements/IconButton";
 import useStylesWithTheme from "@followBack/Hooks/useStylesWithTheme";
 import useTheme from "@followBack/Hooks/useTheme";
@@ -36,7 +37,7 @@ const RenderImageAttachment = ({
           <Video
             style={styles.imageStyle}
             source={{
-              uri: url,
+              uri: CachingLayer.media[id] ?? url,
             }}
             useNativeControls
             resizeMode={ResizeMode.CONTAIN}
@@ -50,7 +51,7 @@ const RenderImageAttachment = ({
           key={id}
           style={styles.imageStyle as StyleProp<ImageStyle>}
           source={{
-            uri: url,
+            uri: CachingLayer.media[id] ?? url,
             priority: FastImage.priority.normal,
           }}
           resizeMode={FastImage.resizeMode.cover}

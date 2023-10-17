@@ -8,6 +8,7 @@ import RenderImageAttachment from "./RenderImageAttachment";
 import { saveFile } from "../../Utils";
 import MediaPreview from "@followBack/GenericElements/MediaPreview/MediaPreview";
 import { FlashList } from "@shopify/flash-list";
+import CachingLayer from "@followBack/Classes/CachingLayer";
 
 interface ImagesPreviewProps {
   ImageAttachments: any[];
@@ -61,7 +62,8 @@ const ImagesPreview = ({
     try {
       setIsDownloadStarted(true);
       for (const attachment of ImageAttachments) {
-        await saveFile(attachment.url, attachment.title);
+        const url = CachingLayer.media[attachment.id] ?? attachment.url;
+        await saveFile(url, attachment.title);
       }
       alert("All Media Have Been Saved Successfully");
     } catch (error) {

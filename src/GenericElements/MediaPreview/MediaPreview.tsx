@@ -12,6 +12,7 @@ import { Video, ResizeMode } from "expo-av";
 import IconButton from "../IconButton";
 import FastImage from "react-native-fast-image";
 import { getFileDetails } from "@followBack/Utils/stringUtils";
+import CachingLayer from "@followBack/Classes/CachingLayer";
 
 const { height, width } = Dimensions.get("window");
 
@@ -35,13 +36,15 @@ const MediaPreview: React.FC<MediaPreviewProps> = ({
       </Pressable>
       <FlatList
         renderItem={({ item, index }) => {
-          const { isVideo } = getFileDetails(item.title ?? item.fileName); //TODO:
+          const { isVideo } = getFileDetails(item.title ?? item.fileName);
+
+          const uri = CachingLayer.media[item.id] ?? item.url;
 
           return isVideo ? (
             <Video
               style={styles.media}
               source={{
-                uri: item.url,
+                uri,
               }}
               useNativeControls
               resizeMode={ResizeMode.CONTAIN}
@@ -51,7 +54,7 @@ const MediaPreview: React.FC<MediaPreviewProps> = ({
               key={item.id}
               style={styles.media}
               source={{
-                uri: item.url,
+                uri,
                 priority: FastImage.priority.normal,
               }}
               resizeMode={FastImage.resizeMode.contain}

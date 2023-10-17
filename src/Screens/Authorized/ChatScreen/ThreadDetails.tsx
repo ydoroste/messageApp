@@ -60,7 +60,7 @@ import { BlurView } from "expo-blur";
 import OriginalEmailViewContainerWrapper from "@followBack/Elements/OriginalEmailViewContainer/OriginalEmailViewContainer";
 import BottomSheetUpload from "@followBack/Elements/BottomSheetUpload/BottomSheetUpload";
 import AttachmentsPreview from "@followBack/Elements/AttachmentsPreview/AttachmentsPreview";
-import FastImage from "react-native-fast-image";
+import CachingLayer from "@followBack/Classes/CachingLayer";
 
 const ThreadDetails: React.FC = ({ navigation, route }) => {
   const { threadInfo } = route.params;
@@ -74,7 +74,10 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
   } = threadInfo as Thread;
   const [allMessages, setAllMessages] = useState<
     (IThreadMessage | undefined)[]
-  >([]);
+  >(() => {
+    return CachingLayer.messages[id] ?? [];
+  });
+
   const [failedMessages, setFailedMessages] = useState<
     (IThreadMessage | undefined)[]
   >([]);
@@ -99,10 +102,6 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
     undefined
   );
 
-  const [imagesLoading, setImagesLoading] = useState<boolean>(true);
-
-  const attachmentsUrls = useRef([]);
-
   const [isSelectAllActivated, setIsSelectAllActivated] =
     useState<boolean>(false);
 
@@ -115,6 +114,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
 
   const scrollViewRef = useRef<FlatList<any> | null>(null);
   const hasData = allMessages.length > 0;
+
   const firstMessage = allMessages[0];
   const isFirstTimeRender = useRef(true);
 
@@ -170,9 +170,11 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
         ? data?.pages.flatMap((page) => page?.data)
         : [];
     setLastMessageData(flattenData[flattenData.length - 1]);
-    setAllMessages([...flattenData].reverse());
+    const newMessages = [...flattenData].reverse();
 
-    setImagesLoading(false);
+    CachingLayer.saveMessagesToDir(id, newMessages);
+
+    setAllMessages(newMessages);
   }, [data]);
 
   useEffect(() => {
@@ -312,7 +314,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
       let allMessagesCopy = [newMessage, ...allMessages];
 
       InteractionManager.runAfterInteractions(async () => {
-        const request = await createComposeRequest(mail?.trim());
+        const request = createComposeRequest(mail?.trim());
 
         const attachmentsIds = await getAttachmentsIds();
 
@@ -861,8 +863,59 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
       favicon={favicon}
     />
   );
+  const shouldShowMailSender = !isSelectAllActivated && !isBottomSheetActivated;
 
-  if (!hasData || isError || imagesLoading) {
+  if (hasData) {
+    return (
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 35 : 100}
+        style={{ flex: 1, backgroundColor: colors.black }}
+      >
+        <View style={styles.container}>
+          <SelectAllWrapper
+            isSelectAllActivated={isSelectAllActivated}
+            onSelectAllCancelPress={onSelectAllCancelPress}
+            onSelectAllPress={onSelectAllPress}
+            onSelectAllDeletePress={onSelectAllDeletePress}
+            onSelectAllBookMarkPress={onSelectAllBookMarkPress}
+          >
+            <OriginalEmailViewContainerWrapper
+              onPressViewSummarizedEmail={onPressViewSummarizedEmail}
+              html={originalHtml}
+              Header={ThreadHeaderComponent as JSX.Element}
+            >
+              <BottomSheetUpload
+                bottomSheetOptions={bottomSheetOptions}
+                isBottomSheetActivated={isBottomSheetActivated}
+                toggleBottomSheet={toggleBottomSheet}
+              >
+                {ThreadHeaderComponent}
+
+                {renderChat()}
+
+                {shouldShowMailSender && (
+                  <MailSender
+                    text={mail}
+                    disabled={
+                      isUploadingAttachment
+                        ? attachmentsLocalURI.length === 0
+                        : !mail.trim()
+                    }
+                    onChangeMailContent={onChangeMailContent}
+                    onPressCompose={onPressCompose}
+                    onPressAttachments={toggleBottomSheet}
+                    isUploadingAttachment={attachmentsLocalURI.length !== 0}
+                    isEditingMessage={isEditingMessage}
+                  />
+                )}
+              </BottomSheetUpload>
+            </OriginalEmailViewContainerWrapper>
+          </SelectAllWrapper>
+        </View>
+      </KeyboardAvoidingView>
+    );
+  } else if (!hasData || isError) {
     return (
       <LoadingScreen
         loadingText={isError ? "Something Wrong" : "Loading"}
@@ -871,57 +924,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
     );
   }
 
-  const shouldShowMailSender = !isSelectAllActivated && !isBottomSheetActivated;
-
-  return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 35 : 100}
-      style={{ flex: 1, backgroundColor: colors.black }}
-    >
-      <View style={styles.container}>
-        <SelectAllWrapper
-          isSelectAllActivated={isSelectAllActivated}
-          onSelectAllCancelPress={onSelectAllCancelPress}
-          onSelectAllPress={onSelectAllPress}
-          onSelectAllDeletePress={onSelectAllDeletePress}
-          onSelectAllBookMarkPress={onSelectAllBookMarkPress}
-        >
-          <OriginalEmailViewContainerWrapper
-            onPressViewSummarizedEmail={onPressViewSummarizedEmail}
-            html={originalHtml}
-            Header={ThreadHeaderComponent as JSX.Element}
-          >
-            <BottomSheetUpload
-              bottomSheetOptions={bottomSheetOptions}
-              isBottomSheetActivated={isBottomSheetActivated}
-              toggleBottomSheet={toggleBottomSheet}
-            >
-              {ThreadHeaderComponent}
-
-              {renderChat()}
-
-              {shouldShowMailSender && (
-                <MailSender
-                  text={mail}
-                  disabled={
-                    isUploadingAttachment
-                      ? attachmentsLocalURI.length === 0
-                      : !mail.trim()
-                  }
-                  onChangeMailContent={onChangeMailContent}
-                  onPressCompose={onPressCompose}
-                  onPressAttachments={toggleBottomSheet}
-                  isUploadingAttachment={attachmentsLocalURI.length !== 0}
-                  isEditingMessage={isEditingMessage}
-                />
-              )}
-            </BottomSheetUpload>
-          </OriginalEmailViewContainerWrapper>
-        </SelectAllWrapper>
-      </View>
-    </KeyboardAvoidingView>
-  );
+  return null;
 };
 export default ThreadDetails;
 

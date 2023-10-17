@@ -1,6 +1,8 @@
 import * as FileSystem from "expo-file-system";
 import { PermissionsAndroid, Platform } from "react-native";
 
+import RNFS from "react-native-fs";
+
 import RNFetchBlob from "rn-fetch-blob";
 
 import * as Sharing from "expo-sharing";
@@ -15,6 +17,8 @@ export const downloadFile = async (url: string, name: string) => {
   const downloadResumable = FileSystem.createDownloadResumable(url, fileUri);
 
   try {
+    if (url.startsWith("file://")) return url;
+
     const { uri } = await downloadResumable.downloadAsync(); // Perform the download
 
     return uri;
@@ -79,6 +83,7 @@ export const saveFile = async (url: string, title: string) => {
 
     if (FileDetails.isVideo || FileDetails.isImage) {
       let uri = await downloadFile(url, fileName);
+
       await CameraRoll.save(uri);
     }
 
@@ -102,4 +107,20 @@ export const saveFile = async (url: string, title: string) => {
     console.log(error);
     return Promise.reject(error);
   }
+};
+
+const getVideoUrl = (url: string, filename: string) => {
+  return new Promise((resolve, reject) => {
+    RNFS.readDir(RNFS.DocumentDirectoryPath)
+      .then((result) => {
+        result.forEach((element) => {
+          if (element.name == filename.replace(/%20/g, "_")) {
+            resolve(element.path);
+          }
+        });
+      })
+      .catch((err) => {
+        reject(url);
+      });
+  });
 };

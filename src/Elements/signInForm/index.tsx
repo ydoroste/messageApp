@@ -1,33 +1,34 @@
-import { useForm, Controller } from 'react-hook-form';
-import { ISignInFormValues } from '@followBack/Elements/signInForm/types';
-import { View, StyleSheet } from 'react-native';
-import InputField from '@followBack/GenericElements/InputField';
-import * as React from 'react';
-import PasswordInput from '@followBack/GenericElements/PasswordInput';
-import Button from '@followBack/GenericElements/Button';
-import { getTranslatedText } from '@followBack/Localization';
-import Typography from '@followBack/GenericElements/Typography';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { UnauthorizedStackNavigationProps } from '@followBack/Navigation/Unauthorized/types';
-import { AuthStackScreensEnum } from '@followBack/Navigation/Unauthorized/constants';
-import { useCallback, useState } from 'react';
-import { useLogin } from '@followBack/Hooks/Apis/Login';
+import { useForm, Controller } from "react-hook-form";
+import { ISignInFormValues } from "@followBack/Elements/signInForm/types";
+import { View, StyleSheet } from "react-native";
+import InputField from "@followBack/GenericElements/InputField";
+import * as React from "react";
+import PasswordInput from "@followBack/GenericElements/PasswordInput";
+import Button from "@followBack/GenericElements/Button";
+import { getTranslatedText } from "@followBack/Localization";
+import Typography from "@followBack/GenericElements/Typography";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { UnauthorizedStackNavigationProps } from "@followBack/Navigation/Unauthorized/types";
+import { AuthStackScreensEnum } from "@followBack/Navigation/Unauthorized/constants";
+import { useCallback, useState } from "react";
+import { useLogin } from "@followBack/Hooks/Apis/Login";
 import {
   ILoginApiRequest,
   ILoginApiResponseData,
-} from '@followBack/Apis/Login/types';
-import { setAccessToken } from '@followBack/Utils/accessToken';
-import { useUserDetails } from '@followBack/Hooks/useUserDetails';
+} from "@followBack/Apis/Login/types";
+import { setAccessToken } from "@followBack/Utils/accessToken";
+import { useUserDetails } from "@followBack/Hooks/useUserDetails";
 import {
   IForgetPasswordApiRequest,
   IForgetPasswordData,
   ResetMethod,
-} from '@followBack/Apis/ForgetPassword/types';
-import { useForgetPassword } from '@followBack/Hooks/Apis/ForgetPassword';
-import { MAIL_DOMAIN } from '@followBack/Apis/constants';
+} from "@followBack/Apis/ForgetPassword/types";
+import { useForgetPassword } from "@followBack/Hooks/Apis/ForgetPassword";
+import { MAIL_DOMAIN } from "@followBack/Apis/constants";
+import CachingLayer from "@followBack/Classes/CachingLayer";
 
 const SignInForm: React.FC = () => {
-  const nav = useNavigation<UnauthorizedStackNavigationProps['navigation']>();
+  const nav = useNavigation<UnauthorizedStackNavigationProps["navigation"]>();
 
   const [showVerifyLink, setShowVerifyLink] = useState(false);
   const {
@@ -40,10 +41,10 @@ const SignInForm: React.FC = () => {
     setError,
   } = useForm<ISignInFormValues>({
     defaultValues: {
-      userNameOrPhone: '',
-      password: '',
+      userNameOrPhone: "",
+      password: "",
     },
-    mode: 'onChange',
+    mode: "onChange",
   });
 
   const values = watch();
@@ -63,7 +64,7 @@ const SignInForm: React.FC = () => {
   const onVerifyAccountClick = async () => {
     const { data, isError, error } = await refetchForgetPassword();
     if (isError) {
-      setError('userNameOrPhone', {
+      setError("userNameOrPhone", {
         message: error?.response?.data?.message,
       });
       return;
@@ -90,18 +91,18 @@ const SignInForm: React.FC = () => {
         error?.response?.data?.message === "User isn't verified"
       );
 
-      if (error?.response?.data?.message === 'your account has been locked') {
+      if (error?.response?.data?.message === "your account has been locked") {
         nav.navigate(AuthStackScreensEnum.lockedAccount, {
           userName: values.userNameOrPhone,
         });
       }
-      setError('userNameOrPhone', {
+      setError("userNameOrPhone", {
         message: error?.response?.data?.message,
       });
       return;
     }
     const signInData = data?.data as ILoginApiResponseData;
-    if (signInData.accessToken && signInData.accessToken !== '') {
+    if (signInData.accessToken && signInData.accessToken !== "") {
       await setAccessToken(signInData.accessToken);
       let signedinUser = signInData.user;
       let userInfo = {
@@ -115,6 +116,9 @@ const SignInForm: React.FC = () => {
         gender: signedinUser.gender,
         wildduck_user_id: signedinUser.wildduck_user_id,
       };
+
+      CachingLayer.saveUserDetailsToDir(userInfo);
+
       setUserDetails(userInfo);
       // await setUserData(JSON.stringify(userInfo));
       setIsAuthenticated(true);
@@ -123,7 +127,7 @@ const SignInForm: React.FC = () => {
 
   useFocusEffect(
     useCallback(() => {
-      setFocus('userNameOrPhone');
+      setFocus("userNameOrPhone");
       return () => {
         reset();
       };
@@ -134,13 +138,13 @@ const SignInForm: React.FC = () => {
     <>
       <Controller
         control={control}
-        name='userNameOrPhone'
+        name="userNameOrPhone"
         render={({ field: { onChange, value, ref } }) => (
           <View style={styles.textInput}>
             <InputField
               // @ts-ignore
               ref={ref}
-              placeholder={getTranslatedText('userNameOrPhone')}
+              placeholder={getTranslatedText("userNameOrPhone")}
               onChangeText={onChange}
               value={value}
             />
@@ -152,51 +156,51 @@ const SignInForm: React.FC = () => {
         rules={{
           required: true,
           minLength: {
-            message: 'you need at least 8 characters ',
+            message: "you need at least 8 characters ",
             value: 8,
           },
         }}
         render={({ field: { onChange, value } }) => (
           <View style={styles.passwordField}>
             <PasswordInput
-              placeholder={getTranslatedText('password')}
+              placeholder={getTranslatedText("password")}
               onChangeText={onChange}
               value={value}
             />
           </View>
         )}
-        name='password'
+        name="password"
       />
       <View style={styles.forgetPasswordLink}>
-        <Button type='ternary' onPress={onForgetPasswordPress}>
-          {getTranslatedText('forgetPasswordLink')}
+        <Button type="ternary" onPress={onForgetPasswordPress}>
+          {getTranslatedText("forgetPasswordLink")}
         </Button>
       </View>
       <View style={styles.errorStyle}>
-        <Typography color='error' type='smallRegularBody' textAlign='center'>
+        <Typography color="error" type="smallRegularBody" textAlign="center">
           {errors?.userNameOrPhone?.message}
         </Typography>
       </View>
       {showVerifyLink && errors?.userNameOrPhone?.message && (
-        <Button type='secondary' onPress={onVerifyAccountClick}>
+        <Button type="secondary" onPress={onVerifyAccountClick}>
           press here to verify your account
         </Button>
       )}
 
       <View style={styles.button}>
         <Button
-          type='primary'
+          type="primary"
           disabled={!isValid || isSubmitting}
           loading={isSubmitting}
           onPress={handleSubmit(onSubmit)}
         >
-          {getTranslatedText('signIn')}
+          {getTranslatedText("signIn")}
         </Button>
       </View>
 
       <View style={styles.createAccountLink}>
-        <Button type='secondary' onPress={onSignUpPress}>
-          {getTranslatedText('createAccountLink')}
+        <Button type="secondary" onPress={onSignUpPress}>
+          {getTranslatedText("createAccountLink")}
         </Button>
       </View>
     </>
@@ -207,15 +211,15 @@ export default SignInForm;
 
 const styles = StyleSheet.create({
   textInput: {
-    width: '100%',
+    width: "100%",
     marginTop: 0,
   },
   passwordField: {
-    width: '100%',
+    width: "100%",
     marginTop: 30,
   },
   forgetPasswordLink: {
-    alignSelf: 'flex-end',
+    alignSelf: "flex-end",
     marginTop: 10,
   },
   createAccountLink: {
@@ -223,7 +227,7 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: 45,
-    width: '90%',
+    width: "90%",
   },
   errorStyle: {
     marginTop: 45,

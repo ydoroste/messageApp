@@ -10,6 +10,7 @@ import useMessageSenderDetails from "@followBack/Hooks/useMessageSenderDetails";
 import { getFileDetails } from "@followBack/Utils/stringUtils";
 import ImagesPreview from "./ImagesPreview/ImagesPreview";
 import FilesPreview from "./FilesPreview/FilesPreview";
+import CachingLayer from "@followBack/Classes/CachingLayer";
 
 const { width } = Dimensions.get("window");
 
@@ -48,13 +49,17 @@ const MessageContent = ({
   const ImageAttachments = [],
     FileAttachments = [];
 
-  //  TODO:: show attachments for android
-
   if (item.attachments?.length > 0) {
     for (const attachment of item.attachments) {
       const FileDetails = getFileDetails(attachment.title);
 
       if (FileDetails.isImage || FileDetails.isVideo) {
+        CachingLayer.saveMediaToDir(
+          attachment.id,
+          FileDetails.fileExtension,
+          attachment.url
+        );
+
         ImageAttachments.push(attachment);
       } else {
         FileAttachments.push(attachment);
