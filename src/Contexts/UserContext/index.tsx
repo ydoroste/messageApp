@@ -10,8 +10,6 @@ import {
   getAccessToken,
 } from "@followBack/Utils/accessToken";
 
-import { useNetInfo } from "@react-native-community/netinfo";
-
 import { ApiEndpoints } from "@followBack/Apis";
 import { GetApi } from "@followBack/Utils/httpApis/apis";
 import { AUTH_SERVICE_URL } from "@followBack/Apis/constants";
@@ -25,7 +23,6 @@ export interface GetDetailsAPIResponse {
 export const UserProvider: React.FC<IUserProviderProp> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState<null | boolean>(null);
-  const netInfo = useNetInfo();
 
   const [userDetails, setUserDetails] = useState<IUserDetails>({
     birth_date: "",
@@ -63,22 +60,22 @@ export const UserProvider: React.FC<IUserProviderProp> = ({ children }) => {
   const getUserDetails = async () => {
     try {
       const token = await getAccessToken();
-      let userData = CachingLayer.userDetails;
 
-      if (netInfo.isInternetReachable) {
-        const { data } = await GetApi<GetDetailsAPIResponse>(
-          `${AUTH_SERVICE_URL}${ApiEndpoints.userDetailsPath}`,
-          undefined,
-          {
-            headers: { "x-auth-token": token },
-          }
-        );
-        userData = data.data;
-      }
+      const { data } = await GetApi<GetDetailsAPIResponse>(
+        `${AUTH_SERVICE_URL}${ApiEndpoints.userDetailsPath}`,
+        undefined,
+        {
+          headers: { "x-auth-token": token },
+        }
+      );
 
-      setUserDetails(userData);
+      setUserDetails(data.data);
     } catch (e) {
-      setIsAuthenticated(false);
+      if (Object.keys(CachingLayer.userDetails).length === 0) {
+        setIsAuthenticated(false);
+      } else {
+        setUserDetails(CachingLayer.userDetails);
+      }
     }
   };
 
