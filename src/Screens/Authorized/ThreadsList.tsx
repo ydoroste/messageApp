@@ -179,11 +179,10 @@ const ThreadList: React.FC = () => {
     );
   };
 
-  const updateThreadListSeen = () => {
+  const updateThreadListSeen = (topicId: string) => {
     setThreadsList((prevThreadList) => {
       let newThreadList = [...prevThreadList];
-      const topicIdIndex =
-        threadListIndexesRef.current[currentOpenedTopicId.current];
+      const topicIdIndex = threadListIndexesRef.current[topicId];
       newThreadList[topicIdIndex] = {
         ...newThreadList[topicIdIndex],
         seen: true,
@@ -202,8 +201,8 @@ const ThreadList: React.FC = () => {
 
     // without timeout that make navigation made slowly
     setTimeout(() => {
-      updateThreadListSeen();
-    }, 2000);
+      updateThreadListSeen(item.topicId);
+    }, 0);
   };
 
   const renderThreadItem = ({ item }: { item: Thread }) => {
