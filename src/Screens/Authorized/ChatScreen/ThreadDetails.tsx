@@ -316,14 +316,14 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
   const getAttachmentsIds = async () => {
     const ids = [];
     for (const asset of attachmentsLocalURI) {
-      if (asset?.fileSize > 25 * 1024 * 1024) {
-        Alert.alert("Error", "Attachment size is bigger than 25 MB!!!");
-      } else {
-        try {
-          const attachmentId = await uploadProcess(asset);
-          ids.push(attachmentId ?? "");
-        } catch (error) {}
-      }
+      // if (asset?.fileSize > 25 * 1024 * 1024) {
+      // Alert.alert("Error", "Attachment size is bigger than 25 MB!!!");
+      // } else {
+      try {
+        const attachmentId = await uploadProcess(asset);
+        ids.push(attachmentId ?? "");
+      } catch (error) {}
+      // }
     }
 
     return ids;
