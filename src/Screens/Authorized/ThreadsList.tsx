@@ -179,23 +179,31 @@ const ThreadList: React.FC = () => {
     );
   };
 
-  const onPress = (item: Thread) => {
+  const updateThreadListSeen = () => {
     setThreadsList((prevThreadList) => {
       let newThreadList = [...prevThreadList];
-      const topicIdIndex = threadListIndexesRef.current[item.topicId];
+      const topicIdIndex =
+        threadListIndexesRef.current[currentOpenedTopicId.current];
       newThreadList[topicIdIndex] = {
         ...newThreadList[topicIdIndex],
         seen: true,
       };
       return newThreadList;
     });
+  };
 
+  const onPress = (item: Thread) => {
     currentOpenedTopicId.current = item.topicId;
 
     nav.navigate(AuthorizedScreensEnum.threadsListStack, {
       screen: AuthorizedScreensEnum.threadDetails,
       params: { threadInfo: item },
     });
+
+    // without timeout that make navigation made slowly
+    setTimeout(() => {
+      updateThreadListSeen();
+    }, 2000);
   };
 
   const renderThreadItem = ({ item }: { item: Thread }) => {
