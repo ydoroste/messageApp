@@ -31,5 +31,5 @@ export interface Thread {
     attachments: string[];
   };
   seen: boolean;
-  favicon: string; //TODO:
+  favicon: string;
 }

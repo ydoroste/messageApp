@@ -84,7 +84,8 @@
     "react-native-webview": "11.26.0",
     "react-native-wizard": "^2.1.0",
     "react-query": "^3.39.2",
-    "rn-fetch-blob": "^0.12.0"
+    "rn-fetch-blob": "^0.12.0",
+    "socket.io-client": "^4.7.2"
   },
   "devDependencies": {
     "@babel/core": "^7.19.3",

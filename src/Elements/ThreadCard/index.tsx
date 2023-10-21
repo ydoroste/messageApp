@@ -113,13 +113,13 @@ const ThreadCard: React.FC<IthreadCardProps> = ({ threadItem }) => {
           )}
 
           <View style={styles.draftAndMuteContainer}>
-            {threadItem.isDraft && ( //TODO:
+            {threadItem.isDraft && (
               <Typography type={"smallBoldBody"} color={"error"}>
                 draft
               </Typography>
             )}
 
-            {threadItem.isMute && ( //TODO:
+            {threadItem.isMute && (
               <IconButton
                 onPress={() => {}}
                 name="alert"

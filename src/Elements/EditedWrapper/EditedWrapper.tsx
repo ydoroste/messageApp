@@ -16,8 +16,13 @@ const EditedWrapper = ({
   editedDate,
 }: EditedWrapperProps) => {
   const getMinutesDiff = () => {
+    const date = editedDate
+      ? editedDate.includes("Z")
+        ? editedDate
+        : editedDate.replace(/(\d{3})$/, "Z")
+      : undefined;
     return Math.floor(
-      Math.abs(new Date().getTime() - new Date(editedDate).getTime()) / 60000
+      Math.abs(new Date().getTime() - new Date(date).getTime()) / 60000
     );
   };
 

@@ -6,13 +6,7 @@ import {
 } from "@followBack/Apis/ThreadMessages";
 import { IThreadMessagesAPIResponse } from "@followBack/Apis/ThreadMessages/types";
 
-export const useFetchThreadMessages = ({
-  id,
-  refetchData,
-}: {
-  id: string;
-  refetchData: boolean;
-}) => {
+export const useFetchThreadMessages = ({ id }: { id: string }) => {
   return useInfiniteQuery(
     [`threadMessages`, id],
     ({ pageParam = 0 }) => getThreadMessagesApi({ id, pageParam }),
@@ -28,11 +22,10 @@ export const useFetchThreadMessages = ({
         return nextPage;
       },
       keepPreviousData: true,
-      enabled: refetchData,
-      refetchInterval: 1000,
+      enabled: true,
       refetchOnWindowFocus: true,
       refetchOnReconnect: true,
-      refetchOnMount: true,
+      cacheTime: 0,
     }
   );
 };

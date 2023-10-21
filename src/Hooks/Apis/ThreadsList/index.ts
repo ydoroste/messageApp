@@ -1,16 +1,14 @@
-import { useInfiniteQuery } from 'react-query';
+import { useInfiniteQuery } from "react-query";
 
-import { getThreadListApi, THREADS_LIMIT } from '@followBack/Apis/threadsList';
-import { IthreadsListAPIResponse } from '@followBack/Apis/threadsList/type';
+import { getThreadListApi, THREADS_LIMIT } from "@followBack/Apis/threadsList";
+import { IthreadsListAPIResponse } from "@followBack/Apis/threadsList/type";
 
 export const useFetchthreadsList = ({
   id,
   searchValue,
-  refetchData,
 }: {
   id: string;
   searchValue: string;
-  refetchData: boolean;
 }) => {
   return useInfiniteQuery(
     [`threadsList-${id}`, searchValue],
@@ -26,12 +24,8 @@ export const useFetchthreadsList = ({
             : undefined;
         return nextPage;
       },
-      keepPreviousData: true,
-      enabled: refetchData,
-      refetchInterval: 350,
-      refetchOnWindowFocus: true,
-      refetchOnReconnect: true,
-      refetchOnMount: true,
+      refetchOnWindowFocus: "always",
+      refetchOnReconnect: "always",
     }
   );
 };

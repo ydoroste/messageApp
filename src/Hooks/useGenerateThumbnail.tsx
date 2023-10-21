@@ -14,7 +14,6 @@ const useGenerateThumbnail = (url: string, title: string) => {
   }, [url, title]);
 
   const generateThumbnail = async () => {
-    //TODO: should be replaced with another solution and download images and files to ios and android
     try {
       const { uri } = await VideoThumbnails.getThumbnailAsync(url);
       setUri(uri);

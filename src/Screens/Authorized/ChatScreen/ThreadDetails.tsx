@@ -49,6 +49,7 @@ import { ICreateAttachmentRequest } from "@followBack/Apis/GetAttachmentUploadLi
 import { Thread } from "@followBack/Apis/threadsList/type";
 import {
   deleteMessagesApi,
+  getThreadMessagesApi,
   unSendMessagesApi,
 } from "@followBack/Apis/ThreadMessages";
 import { Buffer } from "buffer";
@@ -61,6 +62,8 @@ import OriginalEmailViewContainerWrapper from "@followBack/Elements/OriginalEmai
 import BottomSheetUpload from "@followBack/Elements/BottomSheetUpload/BottomSheetUpload";
 import AttachmentsPreview from "@followBack/Elements/AttachmentsPreview/AttachmentsPreview";
 import CachingLayer from "@followBack/Classes/CachingLayer";
+import Socket from "@followBack/Classes/Socket";
+import useApiRequest from "@followBack/Hooks/useApiRequest";
 
 const ThreadDetails: React.FC = ({ navigation, route }) => {
   const { threadInfo } = route.params;
@@ -89,8 +92,10 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
   const [lastMessageData, setLastMessageData] = useState<IThreadMessage>();
   const { data, isError, hasNextPage, fetchNextPage } = useFetchThreadMessages({
     id,
-    refetchData: true,
   });
+
+  // const {data , isError , } = useApiRequest(getThreadMessagesApi, { id, pageParam: 0 });
+
   const [isUploadingAttachment, setIsUploadingAttachment] =
     useState<boolean>(false);
   const [attachmentsLocalURI, setAttachmentsLocalURI] = useState<any[]>([]);
@@ -159,6 +164,91 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
     }
   }, [hasNextPage, fetchNextPage]);
 
+  useEffect(() => {
+    CachingLayer.saveMessagesToDir(id, allMessages);
+  }, [allMessages]);
+
+  const onTopicEventFired = ({
+    data,
+    eventType,
+  }: {
+    data: string[];
+    eventType: string;
+  }) => {
+    if (Socket.EventTypes.Delete === eventType) {
+      setAllMessages((prevAllMessages) => {
+        let newAllMessages = prevAllMessages.filter((prevMessage) => {
+          if (data.includes(prevMessage?.headerId?.toString() as string)) {
+            return false;
+          }
+          return true;
+        });
+
+        return newAllMessages;
+      });
+    }
+  };
+
+  const updateMessage = (message: IThreadMessage) => {
+    setAllMessages((prevAllMessages) => {
+      let newAllMessages = [...prevAllMessages];
+      const messageIdIndex = newAllMessages.findIndex(
+        (prevMessage) => prevMessage?.headerId === message.headerId
+      );
+
+      if (messageIdIndex !== -1) {
+        newAllMessages[messageIdIndex] = { ...message };
+        setLastMessageData(newAllMessages[0]);
+      }
+
+      return newAllMessages;
+    });
+  };
+
+  const onThreadEventFired = ({
+    message,
+    eventType,
+  }: {
+    message: IThreadMessage;
+    eventType: string;
+  }) => {
+    if (Socket.EventTypes.Create === eventType) {
+      let shouldBeUpdated = false;
+
+      setAllMessages((prevAllMessages) => {
+        const isIdExists = prevAllMessages.some(
+          (obj) => obj?.headerId == message.headerId
+        );
+
+        if (isIdExists) {
+          shouldBeUpdated = true;
+          return prevAllMessages;
+        }
+        setLastMessageData(message);
+        return [message, ...prevAllMessages];
+      });
+
+      if (shouldBeUpdated) {
+        updateMessage(message);
+      }
+    } else if (Socket.EventTypes.Update === eventType) {
+      updateMessage(message);
+    }
+  };
+
+  useEffect(() => {
+    Socket.instance.emit("subscribe", topicId);
+    Socket.instance.emit("subscribe", id);
+
+    Socket.instance.on(topicId, onTopicEventFired);
+    Socket.instance.on(id, onThreadEventFired);
+
+    return () => {
+      Socket.instance.emit("unsubscribe", topicId);
+      Socket.instance.emit("unsubscribe", id);
+    };
+  }, []);
+
   // MARK: - Load thread messages from API
   useEffect(() => {
     if (typeof data === typeof undefined) return;
@@ -171,8 +261,6 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
         : [];
     setLastMessageData(flattenData[flattenData.length - 1]);
     const newMessages = [...flattenData].reverse();
-
-    CachingLayer.saveMessagesToDir(id, newMessages);
 
     setAllMessages(newMessages);
   }, [data]);
@@ -243,16 +331,18 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
 
   const onMessageSentSuccessfully = (
     allMessagesCopy: IThreadMessage[],
-    newMessage: IThreadMessage
+    newMessage: IThreadMessage,
+    fullMessageData: IThreadMessage
   ) => {
     const newMessageIndex = allMessagesCopy.findIndex(
       (message) => message?.messageId === newMessage.messageId
     );
 
     allMessagesCopy.splice(newMessageIndex, 1, {
-      ...allMessagesCopy[newMessageIndex],
+      ...fullMessageData,
       notConfirmedNewMessage: false,
     });
+
     setAllMessages(allMessagesCopy);
   };
 
@@ -320,11 +410,13 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
 
         request.attachments = attachmentsIds;
 
-        const data = await composeApi(request);
-        if (data) {
+        const fullMessageData = await composeApi(request);
+
+        if (fullMessageData) {
           onMessageSentSuccessfully(
             allMessagesCopy as IThreadMessage[],
-            newMessage as unknown as IThreadMessage
+            newMessage as unknown as IThreadMessage,
+            fullMessageData as unknown as IThreadMessage
           );
         } else {
           onMessageFailed(
@@ -373,7 +465,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
   const uploadProcess = async (asset: any) => {
     try {
       let link = await getUploadLinkApi({
-        filename: asset.fileName ?? "", //TODO::
+        filename: asset.fileName ?? "",
       });
       const mimeType = mime.getType(asset.fileName ?? ""); // => 'application/pdf'
       const base64 = await FileSystem.readAsStringAsync(asset.uri, {
@@ -769,6 +861,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
   }, []);
   const onSelectAllDeletePress = useCallback(async () => {
     const deletedMessageIds: string[] = [];
+    const deletedHeaderIds: string[] = [];
     const unDeletedMessage = allMessages.slice().filter((message) => {
       if (
         selectedMessageIds[message?.messageId] === undefined ||
@@ -777,6 +870,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
         return true;
       } else {
         deletedMessageIds.push(message?.messageId);
+        deletedHeaderIds.push(message?.headerId);
       }
     });
 
@@ -786,6 +880,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
     await deleteMessagesApi({
       ids: deletedMessageIds,
     });
+    Socket.instance.emit("delete", { channel: topicId, ids: deletedHeaderIds });
   }, [allMessages, selectedMessageIds]);
   const onSelectAllBookMarkPress = useCallback(() => {
     onSelectAllCancelPress();

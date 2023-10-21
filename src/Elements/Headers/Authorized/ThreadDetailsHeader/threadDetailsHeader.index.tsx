@@ -18,9 +18,7 @@ const ThreadDetailsHeader: React.FC<ThreadDetailsHeaderProps> = ({
   favicon,
 }) => {
   const onBackButtonPress = () => {
-    navigation?.navigate(AuthorizedScreensEnum.threadsListStack, {
-      screen: AuthorizedScreensEnum.threadsList,
-    });
+    navigation?.goBack();
   };
   const { colors } = useTheme();
   const { styles } = useStyles();

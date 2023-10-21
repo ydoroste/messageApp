@@ -241,7 +241,6 @@ const Message = ({
   });
 
   if (item.isDeleted) {
-    //TODO:
     return (
       <View style={adjustPositionStyle}>
         <Typography type="mediumRegularBody" color="secondary">

@@ -1,15 +1,14 @@
 import Typography from "@followBack/GenericElements/Typography";
-import React, { memo, useCallback, useEffect, useState } from "react";
+import React, { memo, useEffect, useRef, useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
   StyleSheet,
   View,
-  Dimensions,
-  ViewStyle,
-  Text,
 } from "react-native";
+
+import Socket from "@followBack/Classes/Socket";
 
 import useTheme from "@followBack/Hooks/useTheme";
 import { FlashList } from "@shopify/flash-list";
@@ -26,18 +25,10 @@ import Swipeable from "react-native-swipeable";
 import IconButton from "@followBack/GenericElements/IconButton";
 import { editBookmark } from "@followBack/Apis/Bookmarks";
 import { getContactsListApi } from "@followBack/Apis/Contacts";
-import {
-  deleteContacts,
-  getContacts,
-  setContacts,
-} from "@followBack/Utils/contactDetails";
-import SkeletonLoader from "expo-skeleton-loader";
+import { getContacts, setContacts } from "@followBack/Utils/contactDetails";
 import SideOptions from "@followBack/GenericElements/SideOptions";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
 import CachingLayer from "@followBack/Classes/CachingLayer";
-
-const windowWidth = Dimensions.get("window").width;
-const windowHeight = Dimensions.get("window").height;
+import { useUserDetails } from "@followBack/Hooks/useUserDetails";
 
 const ThreadList: React.FC = () => {
   const nav = useNavigation<authorizedStackNavigationProps["navigation"]>();
@@ -45,17 +36,21 @@ const ThreadList: React.FC = () => {
   const { id } = mailboxes?.find(
     (t) => t.mailbox.toLowerCase() === "inbox"
   ) ?? { id: "" };
+
+  const { userDetails } = useUserDetails();
   const { colors } = useTheme();
   const { searchValue } = useSearch();
-  const [threadsList, setthreadsList] = useState<Thread[]>(() => {
+  const [threadsList, setThreadsList] = useState<Thread[]>(() => {
     return CachingLayer.mailBoxes.inbox.data ?? [];
   });
+
+  const threadListIndexesRef = useRef<string, number>({});
+  const currentOpenedTopicId = useRef<string>("");
 
   const { data, isLoading, isError, hasNextPage, fetchNextPage } =
     useFetchthreadsList({
       id,
       searchValue,
-      refetchData: true,
     });
 
   const isEmptyList = threadsList.length === 0;
@@ -63,6 +58,7 @@ const ThreadList: React.FC = () => {
   const shouldShowData = !!threadsList && !isEmptyList && !!threadsList[0];
 
   useFocusEffect(() => {
+    currentOpenedTopicId.current = "";
     const getContactsData = async () => {
       const contactsList = await getContacts();
       if (typeof contactsList !== typeof undefined && contactsList !== null) {
@@ -71,8 +67,37 @@ const ThreadList: React.FC = () => {
       const contactsFromAPI = await getContactsListApi({ searchValue: "" });
       await setContacts(JSON.stringify(contactsFromAPI.contacts));
     };
+
     getContactsData();
   });
+
+  useEffect(() => {
+    Socket.initialize().then(() => {
+      Socket.instance.on(
+        userDetails.wildduck_user_id,
+        ({ thread, eventType }: { thread: Thread; eventType: string }) => {
+          if (Socket.EventTypes.Create === eventType) {
+            setThreadsList((prevThreadList) => {
+              let newThreadList = [...prevThreadList];
+              const topicIdIndex = threadListIndexesRef.current[thread.topicId];
+
+              if (topicIdIndex !== undefined) {
+                newThreadList.splice(topicIdIndex, 1);
+              }
+              newThreadList = [
+                {
+                  ...thread,
+                  seen: currentOpenedTopicId.current === thread.topicId,
+                },
+                ...newThreadList,
+              ];
+              return newThreadList;
+            });
+          }
+        }
+      );
+    });
+  }, [userDetails.wildduck_user_id]);
 
   useEffect(() => {
     if (typeof data === typeof undefined) return;
@@ -80,9 +105,16 @@ const ThreadList: React.FC = () => {
       ? data.pages.flatMap((page) => page?.data)
       : [];
 
-    CachingLayer.saveInBoxToDir(id, flattenData);
-    setthreadsList(flattenData);
+    setThreadsList(flattenData);
   }, [data]);
+
+  useEffect(() => {
+    threadListIndexesRef.current = {};
+    threadsList.forEach((thread, index) => {
+      threadListIndexesRef.current[thread.topicId] = index;
+    });
+    CachingLayer.saveInBoxToDir(id, threadsList);
+  }, [threadsList]);
 
   const loadNextPageData = () => {
     if (hasNextPage) {
@@ -113,7 +145,7 @@ const ThreadList: React.FC = () => {
     { iconName: "trash", width: 22, height: 25, onPress: () => {} },
   ];
 
-  const renderLeftActions = (item: Thread | undefined) => {
+  const renderLeftActions = () => {
     return [
       <View style={styles.leftActionContainer}>
         <IconButton
@@ -130,7 +162,7 @@ const ThreadList: React.FC = () => {
   const renderRightActions = (item: Thread | undefined) => {
     if (!item) return [];
     return rightActions.map(
-      ({ height, iconName, onPress, width, getColor }, index) => {
+      ({ height, iconName, onPress, width, getColor }) => {
         return (
           <View style={{ justifyContent: "center", flex: 1 }}>
             <IconButton
@@ -147,6 +179,25 @@ const ThreadList: React.FC = () => {
     );
   };
 
+  const onPress = (item: Thread) => {
+    setThreadsList((prevThreadList) => {
+      let newThreadList = [...prevThreadList];
+      const topicIdIndex = threadListIndexesRef.current[item.topicId];
+      newThreadList[topicIdIndex] = {
+        ...newThreadList[topicIdIndex],
+        seen: true,
+      };
+      return newThreadList;
+    });
+
+    currentOpenedTopicId.current = item.topicId;
+
+    nav.navigate(AuthorizedScreensEnum.threadsListStack, {
+      screen: AuthorizedScreensEnum.threadDetails,
+      params: { threadInfo: item },
+    });
+  };
+
   const renderThreadItem = ({ item }: { item: Thread }) => {
     return (
       <Swipeable
@@ -154,15 +205,7 @@ const ThreadList: React.FC = () => {
         rightButtonWidth={30}
         leftButtons={renderLeftActions(item)}
       >
-        <Pressable
-          style={{ marginVertical: 5 }}
-          onPress={() => {
-            nav.navigate(AuthorizedScreensEnum.threadsListStack, {
-              screen: AuthorizedScreensEnum.threadDetails,
-              params: { threadInfo: item },
-            });
-          }}
-        >
+        <Pressable style={{ marginVertical: 5 }} onPress={() => onPress(item)}>
           <ThreadCard threadItem={item} />
         </Pressable>
       </Swipeable>
