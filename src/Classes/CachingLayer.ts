@@ -32,6 +32,25 @@ class CachingLayer {
       if (!existDir) await RNFS.mkdir(path);
     }
   };
+
+  static clearCache = async (
+    dirsNames: string[] = Object.keys(CachingLayer.dirNames)
+  ) => {
+    for (const dirname of dirsNames) {
+      const path = RNFS.DocumentDirectoryPath + "/" + dirname;
+      await RNFS.unlink(path);
+    }
+
+    await this.createDirs(Object.keys(CachingLayer.dirNames));
+
+    this.media = {};
+    this.messages = {};
+    this.mailBoxes = {
+      inbox: { id: "", data: [] },
+    };
+    this.userDetails = {};
+    this.mailBoxesIds = [];
+  };
   static async loadCachedMedia() {
     const cachedMediaPath =
       RNFS.DocumentDirectoryPath +

@@ -54,12 +54,13 @@ const MessageContent = ({
       const FileDetails = getFileDetails(attachment.title);
 
       if (FileDetails.isImage || FileDetails.isVideo) {
-        CachingLayer.saveMediaToDir(
-          attachment.id,
-          FileDetails.fileExtension,
-          attachment.url
-        );
-
+        if (attachment.id) {
+          CachingLayer.saveMediaToDir(
+            attachment.id,
+            FileDetails.fileExtension,
+            attachment.url
+          );
+        }
         ImageAttachments.push(attachment);
       } else {
         FileAttachments.push(attachment);

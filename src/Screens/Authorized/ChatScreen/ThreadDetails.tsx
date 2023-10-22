@@ -339,8 +339,9 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
     );
 
     allMessagesCopy.splice(newMessageIndex, 1, {
-      ...fullMessageData,
+      ...allMessagesCopy[newMessageIndex],
       notConfirmedNewMessage: false,
+      headerId: fullMessageData.headerId,
     });
 
     setAllMessages(allMessagesCopy);

@@ -1,10 +1,10 @@
-import { GetApi } from '@followBack/Utils/httpApis/apis';
-import { CORE_SERVICE_URL } from '@followBack/Apis/constants';
-import { ApiEndpoints } from '@followBack/Apis';
-import { IthreadsListAPIRequest, IthreadsListAPIResponse } from './type';
-import { sortDataSet } from '@followBack/Utils/sortedDataUponDate';
+import { GetApi } from "@followBack/Utils/httpApis/apis";
+import { CORE_SERVICE_URL } from "@followBack/Apis/constants";
+import { ApiEndpoints } from "@followBack/Apis";
+import { IthreadsListAPIRequest, IthreadsListAPIResponse } from "./type";
+import { sortDataSet } from "@followBack/Utils/sortedDataUponDate";
 
-export const THREADS_LIMIT = 5;
+export const THREADS_LIMIT = 20;
 
 export const getThreadListApi = async (req: IthreadsListAPIRequest) => {
   return GetApi<IthreadsListAPIResponse>(
