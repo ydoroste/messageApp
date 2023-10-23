@@ -76,7 +76,10 @@ const ThreadList: React.FC = () => {
       Socket.instance.on(
         userDetails.wildduck_user_id,
         ({ thread, eventType }: { thread: Thread; eventType: string }) => {
-          if (Socket.EventTypes.Create === eventType) {
+          if (
+            Socket.EventTypes.Create === eventType ||
+            Socket.EventTypes.Update === eventType
+          ) {
             setThreadsList((prevThreadList) => {
               let newThreadList = [...prevThreadList];
               const topicIdIndex = threadListIndexesRef.current[thread.topicId];
