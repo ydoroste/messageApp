@@ -64,6 +64,7 @@ import AttachmentsPreview from "@followBack/Elements/AttachmentsPreview/Attachme
 import CachingLayer from "@followBack/Classes/CachingLayer";
 import Socket from "@followBack/Classes/Socket";
 import useApiRequest from "@followBack/Hooks/useApiRequest";
+import useInternetFetchData from "@followBack/Hooks/useInternetFetchData";
 
 const ThreadDetails: React.FC = ({ navigation, route }) => {
   const { threadInfo } = route.params;
@@ -90,9 +91,12 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
   const { failedMessagesData, setFailedMessagesData } = useFailedMessages();
   const onChangeMailContent = ({ value }: { value: string }) => setMail(value);
   const [lastMessageData, setLastMessageData] = useState<IThreadMessage>();
-  const { data, isError, hasNextPage, fetchNextPage } = useFetchThreadMessages({
-    id,
-  });
+  const { data, isError, hasNextPage, fetchNextPage, refetch } =
+    useFetchThreadMessages({
+      id,
+    });
+
+  useInternetFetchData(refetch);
 
   // const {data , isError , } = useApiRequest(getThreadMessagesApi, { id, pageParam: 0 });
 

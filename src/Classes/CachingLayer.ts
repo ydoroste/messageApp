@@ -1,3 +1,4 @@
+import { IUserDetails } from "@followBack/Contexts/UserContext/types";
 import RNFS from "react-native-fs";
 
 class CachingLayer {
@@ -6,7 +7,7 @@ class CachingLayer {
   static mailBoxes = {
     inbox: { id: "", data: [] },
   };
-  static userDetails = {};
+  static userDetails: IUserDetails = {} as IUserDetails;
   static mailBoxesIds = [];
 
   static dirNames = {
@@ -104,10 +105,10 @@ class CachingLayer {
     try {
       const result = await RNFS.readDir(cachedEmailsPath);
 
-      for (const element of result) {
-        const boxID = element.name.split(".")[0];
+      if (result[0]) {
+        const boxID = result[0].name.split(".")[0];
 
-        const fileContent = JSON.parse(await RNFS.readFile(element.path));
+        const fileContent = JSON.parse(await RNFS.readFile(result[0].path));
 
         this.setNewCachedInBoxEmails(boxID, fileContent);
       }

@@ -24,17 +24,19 @@ export const UserProvider: React.FC<IUserProviderProp> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState<null | boolean>(null);
 
-  const [userDetails, setUserDetails] = useState<IUserDetails>({
-    birth_date: "",
-    first_name: "",
-    gender: "",
-    id: "",
-    last_name: "",
-    phone_number: "",
-    user_name: "",
-    wildduck_user_id: "",
-    email: "",
-  });
+  const [userDetails, setUserDetails] = useState<IUserDetails>(
+    CachingLayer.userDetails ?? {
+      birth_date: "",
+      first_name: "",
+      gender: "",
+      id: "",
+      last_name: "",
+      phone_number: "",
+      user_name: "",
+      wildduck_user_id: "",
+      email: "",
+    }
+  );
 
   useEffect(() => {
     const getToken = async () => {
@@ -81,6 +83,7 @@ export const UserProvider: React.FC<IUserProviderProp> = ({ children }) => {
 
   useEffect(() => {
     if (isAuthenticated) {
+      // if there is a token then get user details
       getUserDetails();
     }
   }, [isAuthenticated]);

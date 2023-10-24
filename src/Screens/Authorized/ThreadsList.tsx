@@ -30,6 +30,8 @@ import SideOptions from "@followBack/GenericElements/SideOptions";
 import CachingLayer from "@followBack/Classes/CachingLayer";
 import { useUserDetails } from "@followBack/Hooks/useUserDetails";
 
+import useInternetFetchData from "@followBack/Hooks/useInternetFetchData";
+
 const ThreadList: React.FC = () => {
   const nav = useNavigation<authorizedStackNavigationProps["navigation"]>();
   const { mailboxes } = useMailBoxes();
@@ -47,11 +49,13 @@ const ThreadList: React.FC = () => {
   const threadListIndexesRef = useRef<string, number>({});
   const currentOpenedTopicId = useRef<string>("");
 
-  const { data, isLoading, isError, hasNextPage, fetchNextPage } =
+  const { data, isLoading, isError, hasNextPage, fetchNextPage, refetch } =
     useFetchthreadsList({
       id,
       searchValue,
     });
+
+  useInternetFetchData(refetch);
 
   const isEmptyList = threadsList.length === 0;
 
@@ -113,10 +117,12 @@ const ThreadList: React.FC = () => {
 
   useEffect(() => {
     threadListIndexesRef.current = {};
+    if (id?.length !== 0) {
+      CachingLayer.saveInBoxToDir(id, threadsList);
+    }
     threadsList.forEach((thread, index) => {
-      threadListIndexesRef.current[thread.topicId] = index;
+      threadListIndexesRef.current[thread?.topicId] = index;
     });
-    CachingLayer.saveInBoxToDir(id, threadsList);
   }, [threadsList]);
 
   const loadNextPageData = () => {
