@@ -15,7 +15,9 @@ export function isStringified(str: any) {
 
 const notificationListener = (navigationRef: any) => {
   const navigateToThreadInfo = (remoteMessage: any) => {
-    const threadInfo = isStringified(remoteMessage.data.threadInfo);
+    const threadInfo = isStringified(
+      remoteMessage?.data?.threadInfo ?? remoteMessage.threadInfo
+    );
 
     navigationRef.current.navigate(AuthorizedScreensEnum.threadsListStack, {
       screen: AuthorizedScreensEnum.threadDetails,
