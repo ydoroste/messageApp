@@ -31,6 +31,7 @@ import CachingLayer from "@followBack/Classes/CachingLayer";
 import { useUserDetails } from "@followBack/Hooks/useUserDetails";
 
 import useInternetFetchData from "@followBack/Hooks/useInternetFetchData";
+import CurrentOpenedTopic from "@followBack/Classes/CurrentOpenedTopicId";
 
 const ThreadList: React.FC = () => {
   const nav = useNavigation<authorizedStackNavigationProps["navigation"]>();
@@ -47,7 +48,6 @@ const ThreadList: React.FC = () => {
   });
 
   const threadListIndexesRef = useRef<string, number>({});
-  const currentOpenedTopicId = useRef<string>("");
 
   const { data, isLoading, isError, hasNextPage, fetchNextPage, refetch } =
     useFetchthreadsList({
@@ -62,7 +62,7 @@ const ThreadList: React.FC = () => {
   const shouldShowData = !!threadsList && !isEmptyList && !!threadsList[0];
 
   useFocusEffect(() => {
-    currentOpenedTopicId.current = "";
+    CurrentOpenedTopic.id = "";
     const getContactsData = async () => {
       const contactsList = await getContacts();
       if (typeof contactsList !== typeof undefined && contactsList !== null) {
@@ -94,7 +94,7 @@ const ThreadList: React.FC = () => {
               newThreadList = [
                 {
                   ...thread,
-                  seen: currentOpenedTopicId.current === thread.topicId,
+                  seen: CurrentOpenedTopic.id === thread.topicId,
                 },
                 ...newThreadList,
               ];
@@ -201,7 +201,7 @@ const ThreadList: React.FC = () => {
   };
 
   const onPress = (item: Thread) => {
-    currentOpenedTopicId.current = item.topicId;
+    CurrentOpenedTopic.id = item.topicId;
 
     nav.navigate(AuthorizedScreensEnum.threadsListStack, {
       screen: AuthorizedScreensEnum.threadDetails,

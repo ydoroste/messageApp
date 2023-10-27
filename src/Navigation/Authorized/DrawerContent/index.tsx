@@ -10,6 +10,8 @@ import { deleteUserData } from "@followBack/Utils/userDetails";
 import { CommonActions } from "@react-navigation/native";
 import UnauthorizedNavigation from "@followBack/Navigation/Unauthorized";
 import CachingLayer from "@followBack/Classes/CachingLayer";
+import DeviceInfo from "react-native-device-info";
+import { deleteDevice } from "@followBack/Apis/Notifications";
 
 const CustomDrawerContent = (props: any) => {
   const { navigation } = props;
@@ -23,6 +25,8 @@ const CustomDrawerContent = (props: any) => {
   };
 
   const logOut = async () => {
+    const macAddress = await DeviceInfo.getUniqueId();
+    await deleteDevice(macAddress);
     await queryClient.removeQueries();
     setIsAuthenticated(false);
     await deleteAccessToken();

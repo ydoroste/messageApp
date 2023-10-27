@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "10305117450",
+    "project_id": "unsend-d70e1",
+    "storage_bucket": "unsend-d70e1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:10305117450:android:ecbb2ff00954e98df66ef3",
+        "android_client_info": {
+          "package_name": "mail.app.v1"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBdrP5eQzpa92CztZDAkzkqCrBeWhP6qJY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -3,7 +3,10 @@ import { QueryClient, QueryClientProvider } from "react-query";
 import { ThemeProvider } from "@followBack/Contexts/ThemeContext";
 import { Provider as PaperProvider } from "react-native-paper";
 import { View } from "react-native";
-import { NavigationContainer } from "@react-navigation/native";
+import {
+  NavigationContainer,
+  NavigationContainerRef,
+} from "@react-navigation/native";
 import { StatusBar } from "expo-status-bar";
 import UnauthorizedNavigation from "@followBack/Navigation/Unauthorized";
 import AuthorizedNavigation from "@followBack/Navigation/Authorized";
@@ -15,7 +18,6 @@ import { getAccessToken } from "./Utils/accessToken";
 import { AUTH_SERVICE_URL, CORE_SERVICE_URL } from "./Apis/constants";
 import { ApiEndpoints } from "./Apis";
 import { UserProvider, UserContext } from "./Contexts/UserContext";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -46,8 +48,8 @@ let isAuthenticatedRef = false;
 
 const MainApp: React.FC = () => {
   const [isAppLoaded] = useInitialLoading();
+  const navigationRef = React.useRef();
 
-  const safeAreaInsets = useSafeAreaInsets();
   if (!isAppLoaded) {
     return null;
   }
@@ -75,13 +77,15 @@ const MainApp: React.FC = () => {
                 {({ isAuthenticated }) => {
                   isAuthenticatedRef = isAuthenticated;
                   return (
-                    <NavigationContainer>
+                    <NavigationContainer ref={navigationRef}>
                       <StatusBar style="light" />
                       {(() => {
                         if (isAuthenticated) {
                           return (
                             <MailBoxesProvider>
-                              <AuthorizedNavigation />
+                              <AuthorizedNavigation
+                                navigationRef={navigationRef}
+                              />
                             </MailBoxesProvider>
                           );
                         } else if (isAuthenticated === false)

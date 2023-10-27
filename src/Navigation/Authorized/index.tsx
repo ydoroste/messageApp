@@ -14,6 +14,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { useMailBoxes } from "@followBack/Hooks/useMailboxes";
 import LoadingScreen from "@followBack/Elements/LoadingScreen/LoadingScreen.index";
 import { FailedMessagesContextProvider } from "@followBack/Contexts/FailedMessagesContext";
+import useNotifications from "@followBack/Hooks/useNotifications";
 
 const Drawer = createDrawerNavigator<AuthorizedParams>();
 
@@ -60,8 +61,10 @@ const ThreadsListStack = () => {
   );
 };
 
-const Authorized = () => {
+const Authorized = ({ navigationRef }: { navigationRef: any }) => {
   const { colors } = useTheme();
+  useNotifications({ navigationRef });
+
   return (
     <View style={{ flex: 1, paddingTop: 40, backgroundColor: colors.black }}>
       <FailedMessagesContextProvider>

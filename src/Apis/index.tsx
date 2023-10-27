@@ -20,4 +20,5 @@ export enum ApiEndpoints {
   deleteForAll = "messages/forAll",
   deleteForMe = "messages/forMe",
   Emoji = "reactions",
+  Devices = "devices",
 }
