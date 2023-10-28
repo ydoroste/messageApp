@@ -27,18 +27,10 @@ const CustomDrawerContent = (props: any) => {
     const macAddress = await DeviceInfo.getUniqueId();
     await deleteDevice(macAddress);
     await queryClient.removeQueries();
+    setIsAuthenticated(false);
     await deleteAccessToken();
     await deleteUserData();
     await CachingLayer.clearCache();
-
-    navigation.dispatch(
-      CommonActions.reset({
-        index: 0,
-        routes: [{ name: AuthorizedScreensEnum.threadsListStack }],
-      })
-    );
-
-    setIsAuthenticated(false);
   };
 
   return (
