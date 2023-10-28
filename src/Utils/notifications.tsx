@@ -1,5 +1,6 @@
 import messaging from "@react-native-firebase/messaging";
 import notifee, { AndroidImportance } from "@notifee/react-native";
+// import firebase from "react-native-firebase";
 import { AuthorizedScreensEnum } from "@followBack/Navigation/Authorized/constants";
 
 import DeviceInfo from "react-native-device-info";
@@ -12,6 +13,8 @@ export function isStringified(str: any) {
     return str;
   }
 }
+
+// const notifications = firebase.notifications();
 
 const notificationListener = (navigationRef: any) => {
   const navigateToThreadInfo = (remoteMessage: any) => {
@@ -44,6 +47,18 @@ const notificationListener = (navigationRef: any) => {
       navigateToThreadInfo(detail.notification?.data);
     }
   });
+
+  // notifications.onNotification(async (notif) => {
+  //   const badgeCount = await notifications.getBadge();
+  //   notif.android.setChannelId("app-infos");
+  //   notifications.displayNotification(notif);
+  //   notifications.setBadge(badgeCount + 1);
+  // });
+
+  // notifications.onNotificationOpened(async (notif) => {
+  //   const badgeCount = await notifications.getBadge();
+  //   notifications.setBadge(badgeCount - 1);
+  // });
 };
 
 const requestUserPermission = async () => {

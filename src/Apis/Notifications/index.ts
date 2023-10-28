@@ -29,3 +29,9 @@ export const deleteDevice = async (deviceId: string) => {
     .then((res) => res.data)
     .catch((e) => console.log("error from deleteDevice", e.response.data));
 };
+
+export const resetNotifications = async () => {
+  return PostApi<{}, {}, {}>(`${ApiEndpoints.Notifications}`, {})
+    .then((res) => res.data)
+    .catch((e) => console.log("error from addDevice", e.response.data));
+};

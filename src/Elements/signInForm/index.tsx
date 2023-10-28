@@ -26,6 +26,7 @@ import {
 import { useForgetPassword } from "@followBack/Hooks/Apis/ForgetPassword";
 import { MAIL_DOMAIN } from "@followBack/Apis/constants";
 import CachingLayer from "@followBack/Classes/CachingLayer";
+import { resetNotifications } from "@followBack/Apis/Notifications";
 
 const SignInForm: React.FC = () => {
   const nav = useNavigation<UnauthorizedStackNavigationProps["navigation"]>();
@@ -120,7 +121,7 @@ const SignInForm: React.FC = () => {
       CachingLayer.saveUserDetailsToDir(userInfo);
 
       setUserDetails(userInfo);
-      // await setUserData(JSON.stringify(userInfo));
+      await resetNotifications();
       setIsAuthenticated(true);
     }
   };
