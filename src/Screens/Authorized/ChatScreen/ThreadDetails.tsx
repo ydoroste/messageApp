@@ -65,9 +65,13 @@ import CachingLayer from "@followBack/Classes/CachingLayer";
 import Socket from "@followBack/Classes/Socket";
 import useApiRequest from "@followBack/Hooks/useApiRequest";
 import useInternetFetchData from "@followBack/Hooks/useInternetFetchData";
+import Current from "@followBack/Classes/Current";
+import { useQueryClient } from "react-query";
 
 const ThreadDetails: React.FC = ({ navigation, route }) => {
   const { threadInfo } = route.params;
+
+  const queryClient = useQueryClient();
 
   const {
     threadId: id,
@@ -91,12 +95,13 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
   const { failedMessagesData, setFailedMessagesData } = useFailedMessages();
   const onChangeMailContent = ({ value }: { value: string }) => setMail(value);
   const [lastMessageData, setLastMessageData] = useState<IThreadMessage>();
-  const { data, isError, hasNextPage, fetchNextPage, refetch } =
-    useFetchThreadMessages({
-      id,
-    });
+  const { data, isError, hasNextPage, fetchNextPage } = useFetchThreadMessages({
+    id,
+  });
 
-  useInternetFetchData(refetch);
+  useInternetFetchData(() => {
+    queryClient.invalidateQueries({ queryKey: [`threadMessages`, id] });
+  });
 
   // const {data , isError , } = useApiRequest(getThreadMessagesApi, { id, pageParam: 0 });
 

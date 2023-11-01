@@ -22,4 +22,5 @@ export enum ApiEndpoints {
   Emoji = "reactions",
   Devices = "devices",
   Notifications = "notifications",
+  getBookMarks = "inbox/bookmarks",
 }

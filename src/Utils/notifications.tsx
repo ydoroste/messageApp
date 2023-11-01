@@ -5,6 +5,7 @@ import { AuthorizedScreensEnum } from "@followBack/Navigation/Authorized/constan
 
 import DeviceInfo from "react-native-device-info";
 import { addDevice, deleteDevice } from "@followBack/Apis/Notifications";
+import Current from "@followBack/Classes/Current";
 
 export function isStringified(str: any) {
   try {
@@ -22,9 +23,10 @@ const notificationListener = (navigationRef: any) => {
       remoteMessage?.data?.threadInfo ?? remoteMessage.threadInfo
     );
 
-    navigationRef.current.navigate(AuthorizedScreensEnum.threadsListStack, {
-      screen: AuthorizedScreensEnum.threadDetails,
-      params: { threadInfo },
+    Current.topicId = threadInfo.topicId;
+
+    navigationRef.current.navigate(AuthorizedScreensEnum.threadDetails, {
+      threadInfo,
     });
   };
   messaging().onNotificationOpenedApp((remoteMessage) => {

@@ -13,12 +13,9 @@ import Socket from "@followBack/Classes/Socket";
 import useTheme from "@followBack/Hooks/useTheme";
 import { FlashList } from "@shopify/flash-list";
 import ThreadCard from "@followBack/Elements/ThreadCard";
-import { useFetchthreadsList } from "@followBack/Hooks/Apis/ThreadsList";
-import { useSearch } from "@followBack/Hooks/useSearch";
 import { AuthorizedScreensEnum } from "@followBack/Navigation/Authorized/constants";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { authorizedStackNavigationProps } from "@followBack/Navigation/Authorized/types";
-import { useMailBoxes } from "@followBack/Hooks/useMailboxes";
 import LoadingScreen from "@followBack/Elements/LoadingScreen/LoadingScreen.index";
 import { Thread } from "@followBack/Apis/threadsList/type";
 import Swipeable from "react-native-swipeable";
@@ -26,43 +23,42 @@ import IconButton from "@followBack/GenericElements/IconButton";
 import { editBookmark } from "@followBack/Apis/Bookmarks";
 import { getContactsListApi } from "@followBack/Apis/Contacts";
 import { getContacts, setContacts } from "@followBack/Utils/contactDetails";
-import SideOptions from "@followBack/GenericElements/SideOptions";
-import CachingLayer from "@followBack/Classes/CachingLayer";
 import { useUserDetails } from "@followBack/Hooks/useUserDetails";
 
-import useInternetFetchData from "@followBack/Hooks/useInternetFetchData";
-import CurrentOpenedTopic from "@followBack/Classes/CurrentOpenedTopicId";
+import Current from "@followBack/Classes/Current";
 
-const ThreadList: React.FC = () => {
+interface ThreadListProps {
+  apiData: any;
+  initialThreadsList: any[];
+  onCacheData: (Thread: Thread[]) => void;
+  additionalConditionForUpdatingSockets?: (thread: Thread) => boolean;
+}
+
+const ThreadList: React.FC<ThreadListProps> = ({
+  apiData,
+  initialThreadsList,
+  onCacheData,
+  additionalConditionForUpdatingSockets = () => true,
+}) => {
   const nav = useNavigation<authorizedStackNavigationProps["navigation"]>();
-  const { mailboxes } = useMailBoxes();
-  const { id } = mailboxes?.find(
-    (t) => t.mailbox.toLowerCase() === "inbox"
-  ) ?? { id: "" };
 
   const { userDetails } = useUserDetails();
   const { colors } = useTheme();
-  const { searchValue } = useSearch();
+
   const [threadsList, setThreadsList] = useState<Thread[]>(() => {
-    return CachingLayer.mailBoxes.inbox.data ?? [];
+    return initialThreadsList;
   });
 
   const threadListIndexesRef = useRef<string, number>({});
 
-  const { data, isLoading, isError, hasNextPage, fetchNextPage, refetch } =
-    useFetchthreadsList({
-      id,
-      searchValue,
-    });
-
-  useInternetFetchData(refetch);
+  const { data, isLoading, isError, hasNextPage, fetchNextPage } = apiData;
 
   const isEmptyList = threadsList.length === 0;
 
   const shouldShowData = !!threadsList && !isEmptyList && !!threadsList[0];
 
   useFocusEffect(() => {
-    CurrentOpenedTopic.id = "";
+    Current.topicId = "";
     const getContactsData = async () => {
       const contactsList = await getContacts();
       if (typeof contactsList !== typeof undefined && contactsList !== null) {
@@ -75,35 +71,45 @@ const ThreadList: React.FC = () => {
     getContactsData();
   });
 
+  const handleSocketEvent = ({
+    thread,
+    eventType,
+  }: {
+    thread: Thread;
+    eventType: string;
+  }) => {
+    if (
+      (Socket.EventTypes.Create === eventType ||
+        Socket.EventTypes.Update === eventType) &&
+      additionalConditionForUpdatingSockets(thread)
+    ) {
+      setThreadsList((prevThreadList) => {
+        let newThreadList = [...prevThreadList];
+        const topicIdIndex = threadListIndexesRef.current[thread.topicId];
+
+        if (topicIdIndex !== undefined) {
+          newThreadList.splice(topicIdIndex, 1);
+        }
+        newThreadList = [
+          {
+            ...thread,
+            seen: Current.topicId === thread.topicId,
+          },
+          ...newThreadList,
+        ];
+        return newThreadList;
+      });
+    }
+  };
+
   useEffect(() => {
     Socket.initialize().then(() => {
-      Socket.instance.on(
-        userDetails.wildduck_user_id,
-        ({ thread, eventType }: { thread: Thread; eventType: string }) => {
-          if (
-            Socket.EventTypes.Create === eventType ||
-            Socket.EventTypes.Update === eventType
-          ) {
-            setThreadsList((prevThreadList) => {
-              let newThreadList = [...prevThreadList];
-              const topicIdIndex = threadListIndexesRef.current[thread.topicId];
-
-              if (topicIdIndex !== undefined) {
-                newThreadList.splice(topicIdIndex, 1);
-              }
-              newThreadList = [
-                {
-                  ...thread,
-                  seen: CurrentOpenedTopic.id === thread.topicId,
-                },
-                ...newThreadList,
-              ];
-              return newThreadList;
-            });
-          }
-        }
-      );
+      Socket.instance.on(userDetails.wildduck_user_id, handleSocketEvent);
     });
+
+    return () => {
+      Socket.instance.off(userDetails.wildduck_user_id, handleSocketEvent);
+    };
   }, [userDetails.wildduck_user_id]);
 
   useEffect(() => {
@@ -117,9 +123,8 @@ const ThreadList: React.FC = () => {
 
   useEffect(() => {
     threadListIndexesRef.current = {};
-    if (id?.length !== 0) {
-      CachingLayer.saveInBoxToDir(id, threadsList);
-    }
+
+    onCacheData(threadsList);
     threadsList.forEach((thread, index) => {
       threadListIndexesRef.current[thread?.topicId] = index;
     });
@@ -132,7 +137,21 @@ const ThreadList: React.FC = () => {
   };
 
   const onBookmarkPressed = async (item: Thread) => {
-    await editBookmark({ threadId: item.threadId, bookmark: !item.favorite });
+    setThreadsList((prevThreadList) => {
+      let newThreadList = [...prevThreadList];
+      const topicIdIndex = threadListIndexesRef.current[item.topicId];
+
+      newThreadList[topicIdIndex] = {
+        ...newThreadList[topicIdIndex],
+        favorite: !newThreadList[topicIdIndex].favorite,
+      };
+
+      return newThreadList;
+    });
+    await editBookmark({
+      threadId: item.threadId,
+      bookmark: !Boolean(item.favorite),
+    });
   };
 
   const rightActions = [
@@ -140,16 +159,21 @@ const ThreadList: React.FC = () => {
       iconName: "pin",
       width: 22,
       height: 25,
-      onPress: onBookmarkPressed,
-      getColor: (item: Thread) =>
-        item.favorite ? colors.white : colors.grey02,
+      onPress: () => {},
     },
     { iconName: "verticalline", width: 20, height: 27, onPress: () => {} },
     { iconName: "forward", width: 22, height: 25, onPress: () => {} },
     { iconName: "verticalline", width: 20, height: 27, onPress: () => {} },
     { iconName: "about", width: 22, height: 25, onPress: () => {} },
     { iconName: "verticalline", width: 20, height: 27, onPress: () => {} },
-    { iconName: "bookmark", width: 22, height: 25, onPress: () => {} },
+    {
+      iconName: "bookmark",
+      width: 22,
+      height: 25,
+      onPress: onBookmarkPressed,
+      getColor: (item: Thread) =>
+        item.favorite ? colors.white : colors.grey02,
+    },
     { iconName: "verticalline", width: 20, height: 27, onPress: () => {} },
     { iconName: "trash", width: 22, height: 25, onPress: () => {} },
   ];
@@ -201,11 +225,10 @@ const ThreadList: React.FC = () => {
   };
 
   const onPress = (item: Thread) => {
-    CurrentOpenedTopic.id = item.topicId;
+    Current.topicId = item.topicId;
 
-    nav.navigate(AuthorizedScreensEnum.threadsListStack, {
-      screen: AuthorizedScreensEnum.threadDetails,
-      params: { threadInfo: item },
+    nav.navigate(AuthorizedScreensEnum.threadDetails, {
+      threadInfo: item,
     });
 
     // without timeout that make navigation made slowly
@@ -246,7 +269,6 @@ const ThreadList: React.FC = () => {
             onEndReachedThreshold={1}
           />
         </View>
-        <SideOptions style={styles.sideOptionsContainer} />
       </KeyboardAvoidingView>
     );
   } else if (isLoading) {
@@ -291,10 +313,7 @@ const styles = StyleSheet.create({
     backgroundColor: "black",
     paddingTop: 50,
   },
-  sideOptionsContainer: {
-    bottom: 33,
-    right: 10,
-  },
+
   leftActionContainer: {
     flexGrow: 1,
     width: "100%",

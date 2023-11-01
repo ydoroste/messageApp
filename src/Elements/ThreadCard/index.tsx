@@ -84,7 +84,7 @@ const ThreadCard: React.FC<IthreadCardProps> = ({ threadItem }) => {
 
           {threadItem.favorite && (
             <IconButton
-              name={"smallpin"}
+              name={"bookmark"}
               width={10}
               disabled
               height={16}

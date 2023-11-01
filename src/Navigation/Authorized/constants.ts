@@ -1,9 +1,8 @@
 export enum AuthorizedScreensEnum {
-  composeStack = "composeStack",
   compose = "compose",
-  threadsListStack = "threadsListStack",
-  threadsList = "threadsList",
   threadDetails = "threadDetails",
+  inbox = "inbox",
+  bookMark = "bookMark",
 }
 
 export const AuthorizedScreens: Record<AuthorizedScreensEnum, IScreensDetails> =

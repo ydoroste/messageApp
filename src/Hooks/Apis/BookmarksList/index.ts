@@ -1,18 +1,15 @@
 import { useInfiniteQuery } from "react-query";
 
-import { getThreadListApi, THREADS_LIMIT } from "@followBack/Apis/threadsList";
+import {
+  getThreadBookMarkListApi,
+  THREADS_LIMIT,
+} from "@followBack/Apis/threadsList";
 import { IthreadsListAPIResponse } from "@followBack/Apis/threadsList/type";
 
-export const useFetchthreadsList = ({
-  id,
-  searchValue,
-}: {
-  id: string;
-  searchValue: string;
-}) => {
+export const useBookmarksList = ({ searchValue }: { searchValue: string }) => {
   return useInfiniteQuery(
-    [`threadsList-${id}`, searchValue],
-    ({ pageParam = 0 }) => getThreadListApi({ id, searchValue, pageParam }),
+    ["bookmark"],
+    ({ pageParam = 0 }) => getThreadBookMarkListApi({ searchValue, pageParam }),
     {
       getNextPageParam: (lastPage) => {
         if (!lastPage) return undefined;

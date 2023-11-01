@@ -6,6 +6,7 @@ class CachingLayer {
   static messages = {};
   static mailBoxes = {
     inbox: { id: "", data: [] },
+    bookMark: { id: "", data: [] },
   };
   static userDetails: IUserDetails = {} as IUserDetails;
   static mailBoxesIds = [];
@@ -16,6 +17,7 @@ class CachingLayer {
     cachedInBoxEmails: "cachedInBoxEmails",
     cachedUserDetails: "cachedUserDetails",
     cachedMailBoxesIds: "cachedMailBoxesIds",
+    cachedBookMarkEmails: "cachedBookMarkEmails",
   };
 
   static async loadCachedData() {
@@ -25,6 +27,7 @@ class CachingLayer {
     await this.loadCachedInboxEmails();
     await this.loadCachedUserDetails();
     await this.loadCachedMailBoxesIds();
+    await this.loadCachedBookMarkEmails();
   }
   static createDirs = async (dirsNames: string[]) => {
     for (const dirname of dirsNames) {
@@ -117,6 +120,28 @@ class CachingLayer {
     }
   }
 
+  static async loadCachedBookMarkEmails() {
+    const cachedEmailsPath =
+      RNFS.DocumentDirectoryPath +
+      "/" +
+      CachingLayer.dirNames.cachedBookMarkEmails +
+      "/";
+
+    try {
+      const result = await RNFS.readDir(cachedEmailsPath);
+
+      if (result[0]) {
+        const boxID = result[0].name.split(".")[0];
+
+        const fileContent = JSON.parse(await RNFS.readFile(result[0].path));
+
+        this.setNewCachedBookMarkEmails(boxID, fileContent);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   static async loadCachedUserDetails() {
     const cachedUserDetailsPath =
       RNFS.DocumentDirectoryPath +
@@ -174,6 +199,16 @@ class CachingLayer {
       ...CachingLayer.mailBoxes,
       inbox: {
         id: inBoxID,
+        data: emails,
+      },
+    };
+  };
+
+  static setNewCachedBookMarkEmails = (bookMarkId: string, emails: any) => {
+    CachingLayer.mailBoxes = {
+      ...CachingLayer.mailBoxes,
+      bookMark: {
+        id: bookMarkId,
         data: emails,
       },
     };
@@ -267,6 +302,31 @@ class CachingLayer {
           RNFS.writeFile(path_name, JSON.stringify(emails));
 
           CachingLayer.setNewCachedInBoxEmails(inBoxID, emails);
+
+          resolve(path_name);
+        } catch (err) {
+          reject(err);
+        }
+      })();
+    });
+  };
+  static saveBookMarkToDir = (bookMarkId: string, emails: any) => {
+    return new Promise((resolve, reject) => {
+      (async () => {
+        const fileName = bookMarkId + "." + "txt";
+
+        const dirPath =
+          RNFS.DocumentDirectoryPath +
+          "/" +
+          CachingLayer.dirNames.cachedBookMarkEmails +
+          "/";
+
+        let path_name = dirPath + fileName;
+
+        try {
+          RNFS.writeFile(path_name, JSON.stringify(emails));
+
+          CachingLayer.setNewCachedBookMarkEmails(bookMarkId, emails);
 
           resolve(path_name);
         } catch (err) {

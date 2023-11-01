@@ -12,7 +12,6 @@ const AddWithCircle: React.FC<IIconProps> = ({ width, height, color }) => {
         height="13.4444"
         rx="0.944445"
         fill={color}
-        stroke="#303030"
       />
       <Rect
         x="21.7217"
@@ -22,9 +21,8 @@ const AddWithCircle: React.FC<IIconProps> = ({ width, height, color }) => {
         rx="1.16667"
         transform="rotate(90 21.7217 13.8333)"
         fill={color}
-        stroke="#303030"
       />
-      <Circle cx="15" cy="15" r="14.5" stroke="#303030" />
+      <Circle cx="15" cy="15" r="14.5" stroke={color} />
     </Svg>
   );
 };

@@ -23,3 +23,21 @@ export const getThreadListApi = async (req: IthreadsListAPIRequest) => {
     })
     .catch((e) => console.log(e.response.data));
 };
+
+export const getThreadBookMarkListApi = async (
+  req: Omit<IthreadsListAPIRequest, "id">
+) => {
+  return GetApi<IthreadsListAPIResponse>(
+    `${CORE_SERVICE_URL}${ApiEndpoints.getBookMarks}?pageNumber=${Number(
+      req.pageParam
+    )}&pageSize=${THREADS_LIMIT}&searchText=${req.searchValue}`
+  )
+    .then((res) => {
+      return {
+        totalCount: res.data.totalCount,
+        data: sortDataSet(res.data.data),
+        page: res.data.page,
+      };
+    })
+    .catch((e) => console.log(e.response.data));
+};
