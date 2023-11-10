@@ -138,6 +138,6 @@ const useStyles = useStylesWithTheme((theme) => ({
 
 export default React.memo(
   MessageContent,
-  (prevProps, nextProps) =>
-    JSON.stringify(prevProps) === JSON.stringify(nextProps)
+  // (prevProps, nextProps) =>
+  //   JSON.stringify(prevProps) === JSON.stringify(nextProps)
 );

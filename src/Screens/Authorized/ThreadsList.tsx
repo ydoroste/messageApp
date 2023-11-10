@@ -114,6 +114,7 @@ const ThreadList: React.FC<ThreadListProps> = ({
 
   useEffect(() => {
     if (typeof data === typeof undefined) return;
+    console.log(data.pages, "data---")
     let flattenData = data?.pages
       ? data.pages.flatMap((page) => page?.data)
       : [];

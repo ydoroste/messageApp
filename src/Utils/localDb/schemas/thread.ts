@@ -5,9 +5,10 @@ import { Thread as ThreadType } from '@followBack/Apis/threadsList/type';
 
 export class Thread extends Realm.Object {
 
-    static generate(thread: ThreadType) {
+    static generate(thread: ThreadType, mailboxId: string) {
         return {
-            ...thread
+            ...thread,
+            mailbox: mailboxId
         };
     }
 
@@ -19,12 +20,13 @@ export class Thread extends Realm.Object {
             topicId: 'string',
             headerId: "string",
             threadId: 'string',
+            mailbox: 'string',
             subject: 'string',
             text: 'string',
             initiator: 'string',
             promotional: 'bool',
             favorite: 'bool',
-            favicon: 'string',
+            favicon: 'string?',
             seen: 'bool',
             createdAt: 'string',
             lastHeader:"LastHeader"

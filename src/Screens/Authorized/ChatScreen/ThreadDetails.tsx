@@ -67,7 +67,7 @@ import useApiRequest from "@followBack/Hooks/useApiRequest";
 import useInternetFetchData from "@followBack/Hooks/useInternetFetchData";
 import Current from "@followBack/Classes/Current";
 import { useQueryClient } from "react-query";
-
+import { getMessagesFromLocalDB } from "@followBack/Utils/localDb/actions/message"
 const ThreadDetails: React.FC = ({ navigation, route }) => {
   const { threadInfo } = route.params;
 
@@ -260,6 +260,8 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
 
   // MARK: - Load thread messages from API
   useEffect(() => {
+    getMessagesFromLocalDB(id, messages=>setAllMessages(messages) )
+    return
     if (typeof data === typeof undefined) return;
     if (failedMessagesData[id]) {
       setFailedMessages(failedMessagesData[id].reverse());
@@ -798,7 +800,8 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
       <View style={styles.chatWrapper}>
         {hasData && (
           <FlatList
-            data={[...failedMessages, ...allMessages].slice(0, renderCount)}
+          // data={[]}
+            data={[ ...allMessages]}
             renderItem={renderMessageItem}
             keyExtractor={keyExtractor}
             scrollIndicatorInsets={scrollIndicatorInsets}

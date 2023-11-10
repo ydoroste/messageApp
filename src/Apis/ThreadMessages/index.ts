@@ -12,6 +12,7 @@ import {
   IThreadMessagesAPIResponse,
 } from "./types";
 import { sortDataSet } from "@followBack/Utils/sortedDataUponDate";
+import { insertMessagesToLDB } from "@followBack/Utils/localDb/actions/message";
 
 export const MESSAGES_LIMIT = 1000;
 
@@ -26,6 +27,7 @@ export const getThreadMessagesApi = async ({
     `${CORE_SERVICE_URL}${ApiEndpoints.threadMessages}?threadId=${id}&pageNumber=${pageParam}&pageSize=${MESSAGES_LIMIT}`
   )
     .then((res) => {
+      insertMessagesToLDB(res.data.data, id )
       return {
         totalCount: res.data.totalCount,
         data: sortDataSet(res.data.data, false),

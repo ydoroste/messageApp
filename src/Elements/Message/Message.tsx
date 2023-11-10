@@ -74,6 +74,7 @@ const Message = ({
   onCloseEdit: () => void;
   onPressViewOriginalEmail: (html: string) => void;
 }) => {
+  
   const { styles } = useStyles();
   const [reactions, setReactions] = useState<Reaction[] | []>(
     item.reactions || []
@@ -249,6 +250,9 @@ const Message = ({
       </View>
     );
   }
+
+  // console.log(item, 'item')
+  // return null
 
   return (
     <PanGestureHandler

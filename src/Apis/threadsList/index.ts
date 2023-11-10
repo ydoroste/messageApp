@@ -3,6 +3,7 @@ import { CORE_SERVICE_URL } from "@followBack/Apis/constants";
 import { ApiEndpoints } from "@followBack/Apis";
 import { IthreadsListAPIRequest, IthreadsListAPIResponse } from "./type";
 import { sortDataSet } from "@followBack/Utils/sortedDataUponDate";
+import { insertThreadsToLDB } from "@followBack/Utils/localDb/actions/threadList";
 
 export const THREADS_LIMIT = 20;
 
@@ -15,6 +16,7 @@ export const getThreadListApi = async (req: IthreadsListAPIRequest) => {
     )}&pageSize=${THREADS_LIMIT}&searchText=${req.searchValue}`
   )
     .then((res) => {
+      insertThreadsToLDB(res.data.data, req.id)
       return {
         totalCount: res.data.totalCount,
         data: sortDataSet(res.data.data),

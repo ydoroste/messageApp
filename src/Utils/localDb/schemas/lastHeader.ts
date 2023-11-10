@@ -4,12 +4,10 @@ import { Realm } from '@realm/react';
 export class LastHeader extends Realm.Object {
     static schema = {
         name: 'LastHeader',
-        primaryKey: 'id',
         properties: {
-            id: 'string',
             formContact: 'Contact',
             toList: 'Contact[]',
-            ccList:'Contact[]',
+            // ccList:{objectType: "Contact", type:'set'},
             outbound:'bool',
             attachments:'Attachment[]'
         },

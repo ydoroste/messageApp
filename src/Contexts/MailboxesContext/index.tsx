@@ -6,6 +6,7 @@ import {
 } from "@followBack/Contexts/MailboxesContext/types";
 import { useFetchUserMailBoxes } from "@followBack/Hooks/Apis/UserMailBoxes";
 import CachingLayer from "@followBack/Classes/CachingLayer";
+import { insertMailBoxesToLDB } from "@followBack/Utils/localDb/actions/mailbox";
 
 export const MailBoxesContext = createContext<IMailBoxesContext>({
   isError: false,
@@ -29,6 +30,7 @@ export const MailBoxesProvider: React.FC<IMailBoxesProviderProps> = ({
   useEffect(() => {
     if (!data) return;
     setMailboxes(data.data.mailboxes);
+    insertMailBoxesToLDB(data.data.mailboxes)
     const inboxThread = data?.data.mailboxes.find(
       ({ mailbox }) => mailbox.toLowerCase() === "inbox"
     );
