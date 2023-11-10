@@ -68,9 +68,9 @@ import useInternetFetchData from "@followBack/Hooks/useInternetFetchData";
 import Current from "@followBack/Classes/Current";
 import { useQueryClient } from "react-query";
 
+
 const ThreadDetails: React.FC = ({ navigation, route }) => {
   const { threadInfo } = route.params;
-
   const queryClient = useQueryClient();
 
   const {
@@ -91,6 +91,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
   >([]);
   const { colors } = useTheme();
   const [mail, setMail] = useState("");
+  const [animation, setAnimation] = useState(false);
   const { userDetails } = useUserDetails();
   const { failedMessagesData, setFailedMessagesData } = useFailedMessages();
   const onChangeMailContent = ({ value }: { value: string }) => setMail(value);
@@ -256,6 +257,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
       Socket.instance.emit("unsubscribe", topicId);
       Socket.instance.emit("unsubscribe", id);
     };
+
   }, []);
 
   // MARK: - Load thread messages from API
@@ -382,6 +384,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
 
   // MARK: - Send new message in chat/thread
   const onPressCompose = async () => {
+    setAnimation(true)
     if (messageToEdit != undefined) {
       const allMessagesCopy = [];
 
@@ -749,6 +752,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
               key={item.messageId}
               item={item}
               senderMenu={senderMenu}
+              animation={animation}
               receiverMenu={receiverMenu}
               isReplying={isReplying}
               onUnBookMarkedPress={onUnBookMarkedPress}

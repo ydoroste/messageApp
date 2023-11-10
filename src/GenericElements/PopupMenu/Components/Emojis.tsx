@@ -17,7 +17,7 @@ const Emojis: React.FC<Emojis> = ({ emojis, onEmojiPress, closeModal }) => {
   return (
     <View style={styles.emojisContainer}>
       {emojis.map((emoji) => (
-        <Pressable onPress={() => handleOnPress(emoji)}>
+        <Pressable key={String(emoji)} onPress={() => handleOnPress(emoji)}>
           <Emoji style={styles.emoji} name={emoji} />
         </Pressable>
       ))}

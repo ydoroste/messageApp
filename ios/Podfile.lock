@@ -613,6 +613,8 @@ PODS:
     - React-perflogger (= 0.71.13)
   - rn-fetch-blob (0.12.0):
     - React-Core
+  - RNCAsyncStorage (1.19.4):
+    - React-Core
   - RNDateTimePicker (6.7.3):
     - React-Core
   - RNDeviceInfo (10.11.0):
@@ -754,6 +756,7 @@ DEPENDENCIES:
   - React-runtimeexecutor (from `../node_modules/react-native/ReactCommon/runtimeexecutor`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - rn-fetch-blob (from `../node_modules/rn-fetch-blob`)
+  - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
   - "RNDateTimePicker (from `../node_modules/@react-native-community/datetimepicker`)"
   - RNDeviceInfo (from `../node_modules/react-native-device-info`)
   - RNFastImage (from `../node_modules/react-native-fast-image`)
@@ -923,6 +926,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon"
   rn-fetch-blob:
     :path: "../node_modules/rn-fetch-blob"
+  RNCAsyncStorage:
+    :path: "../node_modules/@react-native-async-storage/async-storage"
   RNDateTimePicker:
     :path: "../node_modules/@react-native-community/datetimepicker"
   RNDeviceInfo:
@@ -1033,6 +1038,7 @@ SPEC CHECKSUMS:
   React-runtimeexecutor: 35cec6420c9d4144b0d06f9fdb093cf8f02bd52c
   ReactCommon: fc9d1da17fa902910dcba550a54c16e7e1c70d2c
   rn-fetch-blob: f065bb7ab7fb48dd002629f8bdcb0336602d3cba
+  RNCAsyncStorage: 3a8f7145d17cdd9f88e7b77666c94a09e4f759c8
   RNDateTimePicker: 00247f26c34683c80be94207f488f6f13448586e
   RNDeviceInfo: bf8a32acbcb875f568217285d1793b0e8588c974
   RNFastImage: 5c9c9fed9c076e521b3f509fe79e790418a544e8
@@ -1051,4 +1057,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 2ec82eda2f2d100343ff079a9d0ce8df64028c96
 
-COCOAPODS: 1.12.1
+COCOAPODS: 1.13.0

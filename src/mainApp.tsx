@@ -1,7 +1,7 @@
 import * as React from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { ThemeProvider } from "@followBack/Contexts/ThemeContext";
-import { Provider as PaperProvider } from "react-native-paper";
+import { Provider as PaperProvider, Provider } from "react-native-paper";
 import { View } from "react-native";
 import {
   NavigationContainer,
@@ -18,6 +18,7 @@ import { getAccessToken } from "./Utils/accessToken";
 import { AUTH_SERVICE_URL, CORE_SERVICE_URL } from "./Apis/constants";
 import { ApiEndpoints } from "./Apis";
 import { UserProvider, UserContext } from "./Contexts/UserContext";
+import { store } from "./Redux/store";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -68,6 +69,7 @@ const MainApp: React.FC = () => {
   );
 
   return (
+    <Provider store={store}>
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <PaperProvider>
@@ -102,6 +104,7 @@ const MainApp: React.FC = () => {
         </PaperProvider>
       </ThemeProvider>
     </QueryClientProvider>
+    </Provider>
   );
 };
 export default MainApp;
