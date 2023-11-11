@@ -4,6 +4,7 @@ import { ApiEndpoints } from "@followBack/Apis";
 import { IthreadsListAPIRequest, IthreadsListAPIResponse } from "./type";
 import { sortDataSet } from "@followBack/Utils/sortedDataUponDate";
 import { insertThreadsToLDB } from "@followBack/Utils/localDb/actions/threadList";
+import { Thread } from "@followBack/Utils/localDb/schemas";
 
 export const THREADS_LIMIT = 20;
 

@@ -67,10 +67,14 @@ import useApiRequest from "@followBack/Hooks/useApiRequest";
 import useInternetFetchData from "@followBack/Hooks/useInternetFetchData";
 import Current from "@followBack/Classes/Current";
 import { useQueryClient } from "react-query";
-import { getMessagesFromLocalDB } from "@followBack/Utils/localDb/actions/message"
+import { getMessagesFromLocalDB, insertMessagesToLDB } from "@followBack/Utils/localDb/actions/message"
+import { useDispatch, useSelector } from "react-redux";
+import { setMessages } from "@followBack/Redux/chat-slice";
+import { RootState } from "@followBack/Redux/store";
+
+
 const ThreadDetails: React.FC = ({ navigation, route }) => {
   const { threadInfo } = route.params;
-
   const queryClient = useQueryClient();
 
   const {
@@ -91,7 +95,10 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
   >([]);
   const { colors } = useTheme();
   const [mail, setMail] = useState("");
+  const [animation, setAnimation] = useState(false);
   const { userDetails } = useUserDetails();
+  const dispatch = useDispatch()
+  const {messages} = useSelector((s: RootState)=> s.chat)
   const { failedMessagesData, setFailedMessagesData } = useFailedMessages();
   const onChangeMailContent = ({ value }: { value: string }) => setMail(value);
   const [lastMessageData, setLastMessageData] = useState<IThreadMessage>();
@@ -127,9 +134,9 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
     useState<boolean>(false);
 
   const scrollViewRef = useRef<FlatList<any> | null>(null);
-  const hasData = allMessages.length > 0;
+  const hasData = messages.length > 0;
 
-  const firstMessage = allMessages[0];
+  const firstMessage = messages[0];
   const isFirstTimeRender = useRef(true);
 
   const firstMessageDate = hasData
@@ -185,33 +192,48 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
     eventType: string;
   }) => {
     if (Socket.EventTypes.Delete === eventType) {
-      setAllMessages((prevAllMessages) => {
-        let newAllMessages = prevAllMessages.filter((prevMessage) => {
-          if (data.includes(prevMessage?.headerId?.toString() as string)) {
-            return false;
-          }
-          return true;
-        });
+      const newMessages = messages.filter(item=>{
+        if (data.includes(item?.headerId?.toString() as string)) {
+          return false;
+        }
+        return true;
+      })
+      dispatch(setMessages(newMessages))
+      // setAllMessages((prevAllMessages) => {
+      //   let newAllMessages = prevAllMessages.filter((prevMessage) => {
+      //     if (data.includes(prevMessage?.headerId?.toString() as string)) {
+      //       return false;
+      //     }
+      //     return true;
+      //   });
 
-        return newAllMessages;
-      });
+      //   return newAllMessages;
+      // });
     }
   };
 
   const updateMessage = (message: IThreadMessage) => {
-    setAllMessages((prevAllMessages) => {
-      let newAllMessages = [...prevAllMessages];
-      const messageIdIndex = newAllMessages.findIndex(
-        (prevMessage) => prevMessage?.headerId === message.headerId
-      );
-
-      if (messageIdIndex !== -1) {
-        newAllMessages[messageIdIndex] = { ...message };
-        setLastMessageData(newAllMessages[0]);
+    const newmessages = messages.map(item=>{
+      if(item.headerId === message.headerId){
+        return {...item, ...message}
       }
+      return item
+    })
+    insertMessagesToLDB([message],id)
+    dispatch(setMessages(newmessages))
+    // setAllMessages((prevAllMessages) => {
+    //   let newAllMessages = [...prevAllMessages];
+    //   const messageIdIndex = newAllMessages.findIndex(
+    //     (prevMessage) => prevMessage?.headerId === message.headerId
+    //   );
 
-      return newAllMessages;
-    });
+    //   if (messageIdIndex !== -1) {
+    //     newAllMessages[messageIdIndex] = { ...message };
+    //     setLastMessageData(newAllMessages[0]);
+    //   }
+
+    //   return newAllMessages;
+    // });
   };
 
   const onThreadEventFired = ({
@@ -224,22 +246,28 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
     if (Socket.EventTypes.Create === eventType) {
       let shouldBeUpdated = false;
 
-      setAllMessages((prevAllMessages) => {
-        const isIdExists = prevAllMessages.some(
-          (obj) => obj?.headerId == message.headerId
-        );
-
-        if (isIdExists) {
-          shouldBeUpdated = true;
-          return prevAllMessages;
-        }
-        setLastMessageData(message);
-        return [message, ...prevAllMessages];
-      });
-
-      if (shouldBeUpdated) {
-        updateMessage(message);
+      const isExist =messages.findIndex(item=> item.headerId===message.headerId)>-1
+      if(isExist){
+        return updateMessage(message)
       }
+      dispatch(setMessages([message, ...messages]))
+      insertMessagesToLDB([message], id)
+      // setAllMessages((prevAllMessages) => {
+      //   const isIdExists = prevAllMessages.some(
+      //     (obj) => obj?.headerId == message.headerId
+      //   );
+
+      //   if (isIdExists) {
+      //     shouldBeUpdated = true;
+      //     return prevAllMessages;
+      //   }
+      //   setLastMessageData(message);
+      //   return [message, ...prevAllMessages];
+      // });
+
+      // if (shouldBeUpdated) {
+      //   updateMessage(message);
+      // }
     } else if (Socket.EventTypes.Update === eventType) {
       updateMessage(message);
     }
@@ -256,11 +284,15 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
       Socket.instance.emit("unsubscribe", topicId);
       Socket.instance.emit("unsubscribe", id);
     };
+
   }, []);
 
   // MARK: - Load thread messages from API
   useEffect(() => {
-    getMessagesFromLocalDB(id, messages=>setAllMessages(messages) )
+    getMessagesFromLocalDB(id, messages=>{
+      // setAllMessages(messages)
+      dispatch(setMessages(messages))
+    } )
     return
     if (typeof data === typeof undefined) return;
     if (failedMessagesData[id]) {
@@ -345,6 +377,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
     newMessage: IThreadMessage,
     fullMessageData: IThreadMessage
   ) => {
+    console.log('success---')
     const newMessageIndex = allMessagesCopy.findIndex(
       (message) => message?.messageId === newMessage.messageId
     );
@@ -354,14 +387,25 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
       notConfirmedNewMessage: false,
       headerId: fullMessageData.headerId,
     });
-
-    setAllMessages(allMessagesCopy);
+    dispatch(setMessages(allMessagesCopy))
+    insertMessagesToLDB([{...newMessage, headerId:fullMessageData.headerId,}], id)
+    // setAllMessages(allMessagesCopy);
   };
 
   const onMessageFailed = (
     allMessagesCopy: IThreadMessage[],
     newMessage: IThreadMessage
   ) => {
+    const newMessages = allMessagesCopy.map(item=>{
+      if(item.messageId== newMessage.messageId){
+       return {...item, failedToSend: true}
+      }
+      return item
+    })
+
+    dispatch(setMessages(newMessages))
+    insertMessagesToLDB([{...newMessage, failedToSend: true}], id)
+    return
     const allMessagesWithoutTheFailed = allMessagesCopy.filter(
       (item) => !item?.notConfirmedNewMessage
     );
@@ -384,6 +428,8 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
 
   // MARK: - Send new message in chat/thread
   const onPressCompose = async () => {
+    // return
+    setAnimation(true)
     if (messageToEdit != undefined) {
       const allMessagesCopy = [];
 
@@ -412,18 +458,17 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
           : {}),
         attachments: attachmentsLocalURI,
       };
-
-      let allMessagesCopy = [newMessage, ...allMessages];
-
+      let allMessagesCopy = [{...newMessage, headerId: newMessage.messageId}, ...messages];
+      dispatch(setMessages(allMessagesCopy))
+      insertMessagesToLDB([newMessage], id)
       InteractionManager.runAfterInteractions(async () => {
         const request = createComposeRequest(mail?.trim());
 
         const attachmentsIds = await getAttachmentsIds();
 
         request.attachments = attachmentsIds;
-
+       
         const fullMessageData = await composeApi(request);
-
         if (fullMessageData) {
           onMessageSentSuccessfully(
             allMessagesCopy as IThreadMessage[],
@@ -444,7 +489,9 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
       setAllMessages(allMessagesCopy as IThreadMessage[]);
       setAttachmentsLocalURI([]);
       setIsUploadingAttachment(false);
-    } catch (error) {}
+    } catch (error) {
+      
+    }
   };
 
   const moveFromFailedToSuccess = (messageTempId: string) => {
@@ -751,6 +798,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
               key={item.messageId}
               item={item}
               senderMenu={senderMenu}
+              animation={animation}
               receiverMenu={receiverMenu}
               isReplying={isReplying}
               onUnBookMarkedPress={onUnBookMarkedPress}
@@ -801,7 +849,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
         {hasData && (
           <FlatList
           // data={[]}
-            data={[ ...allMessages]}
+            data={[...messages]}
             renderItem={renderMessageItem}
             keyExtractor={keyExtractor}
             scrollIndicatorInsets={scrollIndicatorInsets}

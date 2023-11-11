@@ -19,6 +19,9 @@ import { AUTH_SERVICE_URL, CORE_SERVICE_URL } from "./Apis/constants";
 import { ApiEndpoints } from "./Apis";
 import { UserProvider, UserContext } from "./Contexts/UserContext";
 import RealmContext from './Utils/localDb'
+import { store } from "./Redux/store";
+import { Provider } from "react-redux";
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -69,40 +72,42 @@ const MainApp: React.FC = () => {
 
   return (
     <RealmContext.RealmProvider>
-      <QueryClientProvider client={queryClient}>
-        <ThemeProvider>
-          <PaperProvider>
-            <UserProvider>
-              <View style={{ flex: 1 }}>
-                <UserContext.Consumer>
-                  {({ isAuthenticated }) => {
-                    isAuthenticatedRef = isAuthenticated;
-                    return (
-                      <NavigationContainer ref={navigationRef}>
-                        <StatusBar style="light" />
-                        {(() => {
-                          if (isAuthenticated) {
-                            return (
-                              <MailBoxesProvider>
-                                <AuthorizedNavigation
-                                  navigationRef={navigationRef}
-                                />
-                              </MailBoxesProvider>
-                            );
-                          } else if (isAuthenticated === false)
-                            return <UnauthorizedNavigation />;
+      <Provider store={store}>
+        <QueryClientProvider client={queryClient}>
+          <ThemeProvider>
+            <PaperProvider>
+              <UserProvider>
+                <View style={{ flex: 1 }}>
+                  <UserContext.Consumer>
+                    {({ isAuthenticated }) => {
+                      isAuthenticatedRef = isAuthenticated;
+                      return (
+                        <NavigationContainer ref={navigationRef}>
+                          <StatusBar style="light" />
+                          {(() => {
+                            if (isAuthenticated) {
+                              return (
+                                <MailBoxesProvider>
+                                  <AuthorizedNavigation
+                                    navigationRef={navigationRef}
+                                  />
+                                </MailBoxesProvider>
+                              );
+                            } else if (isAuthenticated === false)
+                              return <UnauthorizedNavigation />;
 
-                          return <></>;
-                        })()}
-                      </NavigationContainer>
-                    );
-                  }}
-                </UserContext.Consumer>
-              </View>
-            </UserProvider>
-          </PaperProvider>
-        </ThemeProvider>
-      </QueryClientProvider>
+                            return <></>;
+                          })()}
+                        </NavigationContainer>
+                      );
+                    }}
+                  </UserContext.Consumer>
+                </View>
+              </UserProvider>
+            </PaperProvider>
+          </ThemeProvider>
+        </QueryClientProvider>
+      </Provider>
     </RealmContext.RealmProvider>
 
   );

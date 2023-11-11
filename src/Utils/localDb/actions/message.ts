@@ -14,8 +14,7 @@ export const insertMessagesToLDB = async (messages: IThreadMessage[], threadId: 
 export const getMessagesFromLocalDB = async (id: string, callBack: (messages: IThreadMessage[]) => void) => {
     const realm = await Realm.open()
     realm.write(() => {
-        const messages = realm.objects("Message").filtered(`threadId == "${id}"`).sorted("createdAt", true)
-        console.log(messages, 'message----44')
+        const messages = realm.objects("Message").filtered(`threadId == "${id}"`).sorted("createdAt", false)
         callBack(messages)
     })
 }

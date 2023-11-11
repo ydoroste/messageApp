@@ -13,6 +13,8 @@ import Animated, {
   withSpring,
   interpolate,
   runOnJS,
+  withTiming,
+  Easing,
 } from "react-native-reanimated";
 import {
   IThreadMessage,
@@ -57,6 +59,7 @@ const Message = ({
   onPressReplyToMessage,
   onCloseEdit,
   onPressViewOriginalEmail,
+  animation
 }: {
   item: IThreadMessage;
   senderMenu: any;
@@ -73,6 +76,7 @@ const Message = ({
   isCurrentMessageEditing: boolean;
   onCloseEdit: () => void;
   onPressViewOriginalEmail: (html: string) => void;
+  animation:boolean
 }) => {
   
   const { styles } = useStyles();
@@ -227,11 +231,27 @@ const Message = ({
     },
   });
 
+  const translateY = useSharedValue(300); // Initial vertical position
+const translateX = useSharedValue(-300); // Initial horizontal position
+
+// Apply animations for both translations
+translateY.value = withTiming(0, {
+  duration: 500,
+  easing: Easing.linear,
+});
+
+translateX.value = withTiming(0, {
+  duration: 500,
+  easing: Easing.linear,
+});
+
+
   const uas = useAnimatedStyle(() => {
-    const translatedX = interpolate(x.value, [0, 100], [0, 50]);
+    if(!animation)
+    return{}
 
     return {
-      transform: [{ translateX: translatedX }],
+      transform: [{ translateY: translateY.value }, { translateX: translateX.value }],
     };
   });
 
@@ -261,7 +281,7 @@ const Message = ({
       activeOffsetX={[-5, 5]}
       enabled={!isAttachmentsImageOpened}
     >
-      <Animated.View style={[styles.swipeContainer, uas]}>
+      <View style={[styles.swipeContainer]}>
         <Animated.View style={[styles.replyIconContainer, replyStyle]}>
           <IconButton
             disabled
@@ -345,7 +365,7 @@ const Message = ({
             </BookMarkWrapper>
           </AboveNameWrapper>
         </Menu>
-      </Animated.View>
+      </View>
     </PanGestureHandler>
   );
 };

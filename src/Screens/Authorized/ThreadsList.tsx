@@ -7,7 +7,7 @@ import {
   StyleSheet,
   View,
 } from "react-native";
-
+import {useDispatch, useSelector} from 'react-redux';
 import Socket from "@followBack/Classes/Socket";
 
 import useTheme from "@followBack/Hooks/useTheme";
@@ -26,6 +26,10 @@ import { getContacts, setContacts } from "@followBack/Utils/contactDetails";
 import { useUserDetails } from "@followBack/Hooks/useUserDetails";
 
 import Current from "@followBack/Classes/Current";
+import { setThreadList } from "@followBack/Redux/chat-slice";
+import { MailBox } from "@followBack/Contexts/MailboxesContext/types";
+import { RootState } from "@followBack/Redux/store";
+import { bookmarkThreadLDB, insertThreadsToLDB, seenThreadLDB } from "@followBack/Utils/localDb/actions/threadList";
 
 interface ThreadListProps {
   apiData: any;
@@ -41,21 +45,22 @@ const ThreadList: React.FC<ThreadListProps> = ({
   additionalConditionForUpdatingSockets = () => true,
 }) => {
   const nav = useNavigation<authorizedStackNavigationProps["navigation"]>();
-
+  const {threadList} = useSelector((s:RootState)=> s.chat)
   const { userDetails } = useUserDetails();
   const { colors } = useTheme();
-
+  const [activeMailbox, setActiveMailBox] = useState<string>('')
   const [threadsList, setThreadsList] = useState<Thread[]>(() => {
     return initialThreadsList;
   });
+  const dispatch = useDispatch()
 
   const threadListIndexesRef = useRef<string, number>({});
 
   const { data, isLoading, isError, hasNextPage, fetchNextPage } = apiData;
 
-  const isEmptyList = threadsList.length === 0;
+  const isEmptyList = threadList?.length === 0;
 
-  const shouldShowData = !!threadsList && !isEmptyList && !!threadsList[0];
+  const shouldShowData = !!threadList && !isEmptyList && !!threadList[0];
 
   useFocusEffect(() => {
     Current.topicId = "";
@@ -83,22 +88,26 @@ const ThreadList: React.FC<ThreadListProps> = ({
         Socket.EventTypes.Update === eventType) &&
       additionalConditionForUpdatingSockets(thread)
     ) {
-      setThreadsList((prevThreadList) => {
-        let newThreadList = [...prevThreadList];
-        const topicIdIndex = threadListIndexesRef.current[thread.topicId];
+      const newThreadList= threadList.filter((elem: Thread)=> elem.threadId !==thread.threadId)
+      const newThread = {...thread, seen: Current.topicId === thread.topicId}
+      dispatch(setThreadList([newThread, ...newThreadList]))
+      insertThreadsToLDB([newThread], activeMailbox)
+      // setThreadsList((prevThreadList) => {
+      //   let newThreadList = [...prevThreadList];
+      //   const topicIdIndex = threadListIndexesRef.current[thread.topicId];
 
-        if (topicIdIndex !== undefined) {
-          newThreadList.splice(topicIdIndex, 1);
-        }
-        newThreadList = [
-          {
-            ...thread,
-            seen: Current.topicId === thread.topicId,
-          },
-          ...newThreadList,
-        ];
-        return newThreadList;
-      });
+      //   if (topicIdIndex !== undefined) {
+      //     newThreadList.splice(topicIdIndex, 1);
+      //   }
+      //   newThreadList = [
+      //     {
+      //       ...thread,
+      //       seen: Current.topicId === thread.topicId,
+      //     },
+      //     ...newThreadList,
+      //   ];
+      //   return newThreadList;
+      // });
     }
   };
 
@@ -112,24 +121,41 @@ const ThreadList: React.FC<ThreadListProps> = ({
     };
   }, [userDetails.wildduck_user_id]);
 
+  const syncThreadlist = async()=>{
+    const realm = await Realm.open()
+    realm.write(()=>{
+      const mailBoxes = realm.objects("Mailbox")
+      const { id } = mailBoxes?.find(
+        (t: MailBox) => t.mailbox.toLowerCase() === "inbox"
+      ) ?? { id: "" };
+      setActiveMailBox(id)
+      const threadList = realm.objects("Thread").filtered(`mailbox == "${id}"`).sorted("createdAt", true)
+      dispatch(setThreadList(threadList))
+    })
+  }
+
+  useEffect(()=>{
+    syncThreadlist()
+  },[])
+
   useEffect(() => {
     if (typeof data === typeof undefined) return;
-    console.log(data.pages, "data---")
+    
     let flattenData = data?.pages
       ? data.pages.flatMap((page) => page?.data)
       : [];
-
-    setThreadsList(flattenData);
+      // setThreadList(flattenData)
+    dispatch(setThreadList(flattenData));
   }, [data]);
 
-  useEffect(() => {
-    threadListIndexesRef.current = {};
+  // useEffect(() => {
+    // threadListIndexesRef.current = {};
 
-    onCacheData(threadsList);
-    threadsList.forEach((thread, index) => {
-      threadListIndexesRef.current[thread?.topicId] = index;
-    });
-  }, [threadsList]);
+    // onCacheData(threadsList);
+    // threadsList.forEach((thread, index) => {
+    //   threadListIndexesRef.current[thread?.topicId] = index;
+    // });
+  // }, [threadsList]);
 
   const loadNextPageData = () => {
     if (hasNextPage) {
@@ -138,17 +164,25 @@ const ThreadList: React.FC<ThreadListProps> = ({
   };
 
   const onBookmarkPressed = async (item: Thread) => {
-    setThreadsList((prevThreadList) => {
-      let newThreadList = [...prevThreadList];
-      const topicIdIndex = threadListIndexesRef.current[item.topicId];
+    // setThreadsList((prevThreadList) => {
+    //   let newThreadList = [...prevThreadList];
+    //   const topicIdIndex = threadListIndexesRef.current[item.topicId];
 
-      newThreadList[topicIdIndex] = {
-        ...newThreadList[topicIdIndex],
-        favorite: !newThreadList[topicIdIndex].favorite,
-      };
+    //   newThreadList[topicIdIndex] = {
+    //     ...newThreadList[topicIdIndex],
+    //     favorite: !newThreadList[topicIdIndex].favorite,
+    //   };
 
-      return newThreadList;
-    });
+    //   return newThreadList;
+    // });
+    const newThreadList = threadList.map((elem: Thread)=>{
+      if(elem.threadId==item.threadId){
+        return {...elem, favorite: !item.favorite}
+      }
+      return item
+    })
+    dispatch(setThreadList(newThreadList))
+    bookmarkThreadLDB(item)
     await editBookmark({
       threadId: item.threadId,
       bookmark: !Boolean(item.favorite),
@@ -213,16 +247,24 @@ const ThreadList: React.FC<ThreadListProps> = ({
     );
   };
 
-  const updateThreadListSeen = (topicId: string) => {
-    setThreadsList((prevThreadList) => {
-      let newThreadList = [...prevThreadList];
-      const topicIdIndex = threadListIndexesRef.current[topicId];
-      newThreadList[topicIdIndex] = {
-        ...newThreadList[topicIdIndex],
-        seen: true,
-      };
-      return newThreadList;
-    });
+  const updateThreadListSeen = (thread: Thread) => {
+    const newThreadList = threadList.map((item: Thread)=>{
+      if(item.topicId === thread.topicId){
+        return {...item, seen: true}
+      }
+      return item
+    })
+    dispatch(setThreadList(newThreadList))
+    seenThreadLDB(thread)
+    // setThreadsList((prevThreadList) => {
+    //   let newThreadList = [...prevThreadList];
+    //   const topicIdIndex = threadListIndexesRef.current[topicId];
+    //   newThreadList[topicIdIndex] = {
+    //     ...newThreadList[topicIdIndex],
+    //     seen: true,
+    //   };
+    //   return newThreadList;
+    // });
   };
 
   const onPress = (item: Thread) => {
@@ -234,7 +276,7 @@ const ThreadList: React.FC<ThreadListProps> = ({
 
     // without timeout that make navigation made slowly
     setTimeout(() => {
-      updateThreadListSeen(item.topicId);
+      updateThreadListSeen(item);
     }, 0);
   };
 
@@ -263,7 +305,7 @@ const ThreadList: React.FC<ThreadListProps> = ({
           <FlashList
             keyExtractor={(item, index) => item?.threadId ?? "" + "_" + index}
             scrollIndicatorInsets={{ right: 1 }}
-            data={threadsList}
+            data={threadList}
             renderItem={renderThreadItem}
             estimatedItemSize={100}
             onEndReached={loadNextPageData}

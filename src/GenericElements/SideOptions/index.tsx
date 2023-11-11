@@ -37,6 +37,7 @@ const SideOptions = ({ style, onPress, selectedIndex }: Props) => {
         {icons.map((icon, index) => {
           return (
             <IconButton
+              key={String(icon?.name)}
               name={icon.name}
               width={icon.width}
               height={icon.height}

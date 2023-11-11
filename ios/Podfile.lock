@@ -615,6 +615,8 @@ PODS:
     - React
   - rn-fetch-blob (0.12.0):
     - React-Core
+  - RNCAsyncStorage (1.19.4):
+    - React-Core
   - RNDateTimePicker (6.7.3):
     - React-Core
   - RNDeviceInfo (10.11.0):
@@ -757,6 +759,7 @@ DEPENDENCIES:
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - RealmJS (from `../node_modules/realm`)
   - rn-fetch-blob (from `../node_modules/rn-fetch-blob`)
+  - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
   - "RNDateTimePicker (from `../node_modules/@react-native-community/datetimepicker`)"
   - RNDeviceInfo (from `../node_modules/react-native-device-info`)
   - RNFastImage (from `../node_modules/react-native-fast-image`)
@@ -928,6 +931,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/realm"
   rn-fetch-blob:
     :path: "../node_modules/rn-fetch-blob"
+  RNCAsyncStorage:
+    :path: "../node_modules/@react-native-async-storage/async-storage"
   RNDateTimePicker:
     :path: "../node_modules/@react-native-community/datetimepicker"
   RNDeviceInfo:
@@ -1039,6 +1044,7 @@ SPEC CHECKSUMS:
   ReactCommon: fc9d1da17fa902910dcba550a54c16e7e1c70d2c
   RealmJS: 4c52a15602e70b64cd9230b0a17a9c12741371f4
   rn-fetch-blob: f065bb7ab7fb48dd002629f8bdcb0336602d3cba
+  RNCAsyncStorage: 3a8f7145d17cdd9f88e7b77666c94a09e4f759c8
   RNDateTimePicker: 00247f26c34683c80be94207f488f6f13448586e
   RNDeviceInfo: bf8a32acbcb875f568217285d1793b0e8588c974
   RNFastImage: 5c9c9fed9c076e521b3f509fe79e790418a544e8

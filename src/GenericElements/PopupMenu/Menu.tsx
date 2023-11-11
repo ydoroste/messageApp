@@ -108,6 +108,7 @@ const Menu = ({
             (menuOption: MenuOption, menuIndex: number) => {
               return (
                 <MenuItem
+                key={String(item)}
                   closeModal={closeModal}
                   text={menuOption.text}
                   onPress={() => menuOption.onPress(item)}

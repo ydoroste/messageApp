@@ -20,7 +20,9 @@ export const composeApi = async (request: IComposeApiRequest) => {
   return PostApi<IComposeApiRequest, IComposeApiResponse>(
     `${CORE_SERVICE_URL}${ApiEndpoints.compose}`,
     snatizeComposeApi(request)
-  ).then((res) =>  res.data);
+  ).then((res) =>  res.data).catch(e=>{
+    console.log(e, 'errooo')
+  });
 };
 
 export const editMessageApi = async (request: IComposeApiRequest) => {

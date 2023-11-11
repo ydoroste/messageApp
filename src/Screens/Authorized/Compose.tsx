@@ -168,7 +168,10 @@ const Compose: React.FC<ComposeHeaderProps> = ({ navigation }) => {
       if (toList.length < 0 || (!subject && !text)) return;
       setIsSentMessageLoading(true);
       Keyboard.dismiss();
+      const startTime = new Date().getTime();
+
       const { data } = await refetch();
+
       setIsSentMessageLoading(false);
       setAttachments([]);
       setAttachmentsLocalURI([]);
@@ -183,12 +186,18 @@ const Compose: React.FC<ComposeHeaderProps> = ({ navigation }) => {
           });
         threadsListResponse.data.forEach((thread) => {
           if (thread.topicId == topicId) {
+            const endTime = new Date().getTime();
+
+            const elapsedTime = endTime - startTime; // Calculate the elapsed time in milliseconds
+            console.log(`Elapsed time: ${elapsedTime} ms`);
             navigation.navigate(AuthorizedScreensEnum.threadDetails, {
               threadInfo: thread,
             });
           }
         });
       }
+    
+
     } catch {
       setIsSentMessageLoading(false);
     }

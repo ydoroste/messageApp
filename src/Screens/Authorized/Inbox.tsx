@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet } from "react-native";
+import { StyleSheet, View, Text } from "react-native";
 import { useFetchthreadsList } from "@followBack/Hooks/Apis/ThreadsList";
 import { useSearch } from "@followBack/Hooks/useSearch";
 import { useMailBoxes } from "@followBack/Hooks/useMailboxes";
