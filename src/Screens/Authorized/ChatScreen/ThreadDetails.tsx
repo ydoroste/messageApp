@@ -290,6 +290,7 @@ const ThreadDetails: React.FC = ({ navigation, route }) => {
   // MARK: - Load thread messages from API
   useEffect(() => {
     getMessagesFromLocalDB(id, messages=>{
+      console.log(messages, 'messagesssssiii')
       // setAllMessages(messages)
       dispatch(setMessages(messages))
     } )

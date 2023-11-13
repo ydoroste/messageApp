@@ -5,6 +5,7 @@ import { Realm, } from '@realm/react';
 export class Message extends Realm.Object {
 
     static generate(message: IThreadMessage, threadId: string) {
+        console.log(message, 'mmmm')
         return {
             ...message, threadId
         };
